@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useToast } from "@/components/ui";
 import {
     Plus,
@@ -14,8 +14,6 @@ import {
     Linkedin,
     Loader2,
     X,
-    Zap,
-    BarChart3,
     Clock,
     ArrowUpRight,
     ListChecks,
@@ -23,12 +21,17 @@ import {
     CheckCircle2,
     Timer,
     Hourglass,
+    Layers,
+    LayoutGrid,
+    Table as TableIcon,
+    ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 import { MissionQuickViewDrawer } from "./_components/MissionQuickViewDrawer";
 import { NewMissionDialog } from "./_components/NewMissionDialog";
 import { MISSION_STATUS_CONFIG, MISSION_STATUS_TABS } from "@/lib/constants/missionStatus";
 import type { MissionStatusValue } from "@/lib/constants/missionStatus";
+import { cn } from "@/lib/utils";
 
 // ============================================
 // TYPES
@@ -69,7 +72,6 @@ const CHANNEL_CONFIG = {
     CALL: {
         icon: Phone,
         label: "Appel",
-        className: "mgr-channel-call",
         color: "from-blue-500 to-indigo-600",
         bgLight: "bg-blue-50",
         textColor: "text-blue-600",
@@ -77,7 +79,6 @@ const CHANNEL_CONFIG = {
     EMAIL: {
         icon: Mail,
         label: "Email",
-        className: "mgr-channel-email",
         color: "from-violet-500 to-purple-600",
         bgLight: "bg-violet-50",
         textColor: "text-violet-600",
@@ -85,7 +86,6 @@ const CHANNEL_CONFIG = {
     LINKEDIN: {
         icon: Linkedin,
         label: "LinkedIn",
-        className: "mgr-channel-linkedin",
         color: "from-sky-500 to-blue-600",
         bgLight: "bg-sky-50",
         textColor: "text-sky-600",
@@ -93,13 +93,8 @@ const CHANNEL_CONFIG = {
 };
 
 // ============================================
-// HELPERS: Time calculations
+// HELPERS
 // ============================================
-function getDaysActive(startDate?: string): number | null {
-    if (!startDate) return null;
-    const diff = Date.now() - new Date(startDate).getTime();
-    return Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
-}
 
 function getDaysRemaining(endDate?: string): number | null {
     if (!endDate) return null;
@@ -152,6 +147,7 @@ export default function MissionsPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState<string>("all");
     const [channelFilter, setChannelFilter] = useState<string>("all");
+    const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
     const [page, setPage] = useState<number>(1);
     const [total, setTotal] = useState<number>(0);
     const [selectedMissionForDrawer, setSelectedMissionForDrawer] = useState<Mission | null>(null);
@@ -200,527 +196,536 @@ export default function MissionsPage() {
         fetchMissions();
     }, [statusFilter, page, debouncedSearchQuery, channelFilter]);
 
-    // Reset to page 1 when search or channel filter changes
     useEffect(() => {
         setPage(1);
     }, [debouncedSearchQuery, channelFilter]);
 
-    // Display missions from API (server-side search/filter across all pages)
-    const filteredMissions = missions;
-
     const stats = {
         total: total || missions.length,
-        active: missions.filter(m => m.status === "ACTIVE").length,
-        paused: missions.filter(m => m.status === "PAUSED").length,
+        active: missions.filter((m) => m.status === "ACTIVE").length,
+        paused: missions.filter((m) => m.status === "PAUSED").length,
         totalMembers: missions.reduce((acc, m) => acc + (m._count?.sdrAssignments || 0), 0),
     };
 
     const totalPages = Math.max(1, Math.ceil((total || missions.length || 1) / pageSize));
     const startItem = total === 0 ? 0 : (page - 1) * pageSize + 1;
-    const endItem = total === 0 ? 0 : Math.min(total, startItem + (filteredMissions.length || missions.length) - 1);
-
-    if (isLoading && missions.length === 0) {
-        return (
-            <div className="flex items-center justify-center py-32">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="relative">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                            <Target className="w-8 h-8 text-white" />
-                        </div>
-                        <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-white border-2 border-indigo-100 flex items-center justify-center">
-                            <Loader2 className="w-3 h-3 text-indigo-500 animate-spin" />
-                        </div>
-                    </div>
-                    <div className="text-center">
-                        <p className="text-sm font-semibold text-slate-700">Chargement des missions</p>
-                        <p className="text-xs text-slate-400 mt-0.5">Veuillez patienter...</p>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    const endItem = total === 0 ? 0 : Math.min(total, startItem + missions.length - 1);
 
     return (
-        <div className="elan-page">
-
-            {/* ─── HERO HEADER ─── */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-7 text-white">
-                {/* Decorative orbs */}
-                <div className="absolute -top-12 -right-12 w-56 h-56 rounded-full bg-indigo-600/20 blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-16 -left-10 w-64 h-64 rounded-full bg-violet-700/15 blur-3xl pointer-events-none" />
-                <div className="absolute top-4 right-48 w-24 h-24 rounded-full bg-sky-500/10 blur-2xl pointer-events-none" />
-
-                <div className="relative z-10">
-                    {/* Top row */}
-                    <div className="flex items-start justify-between gap-4 mb-6">
-                        <div>
-                            <div className="flex items-center gap-2 mb-2">
-                                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center border border-white/10">
-                                    <Target className="w-4 h-4 text-indigo-300" />
-                                </div>
-                                <span className="text-xs font-medium text-indigo-300 uppercase tracking-widest">Centre de missions</span>
-                            </div>
-                            <h1 className="text-3xl font-bold tracking-tight">Missions</h1>
-                            <p className="text-sm text-slate-400 mt-1">Piloter, assigner et suivre vos missions client</p>
+        <div className="space-y-6 max-w-[1600px] mx-auto w-full pb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/70">
+                <div className="space-y-1">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-[#0B0F19] text-[#2890F8] flex items-center justify-center shadow-md shadow-black/20 border border-slate-800">
+                            <Target className="w-5 h-5" />
                         </div>
-                        <div className="flex items-center gap-3">
-                            <button
-                                onClick={fetchMissions}
-                                className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all"
-                                title="Actualiser"
-                            >
-                                <RefreshCw className={`w-4 h-4 text-white/70 ${isLoading ? "animate-spin" : ""}`} />
-                            </button>
-                            <button
-                                onClick={() => setShowNewMissionDialog(true)}
-                                className="flex items-center gap-2 h-10 px-5 rounded-xl bg-white text-slate-900 text-sm font-semibold hover:bg-indigo-50 transition-all shadow-lg shadow-black/20"
-                            >
-                                <Plus className="w-4 h-4" />
-                                Nouvelle mission
-                            </button>
-                        </div>
+                        <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                            Centre de Missions
+                        </h1>
+                    </div>
+                    <p className="text-xs text-slate-500 pl-1">
+                        Pilotez vos campagnes, assignez les SDRs et suivez les objectifs en direct.
+                    </p>
+                </div>
+
+                <div className="flex items-center gap-2.5 flex-wrap">
+                    <button
+                        onClick={fetchMissions}
+                        disabled={isLoading}
+                        title="Actualiser"
+                        className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-[#2890F8] hover:border-blue-300 transition-all shadow-2xs disabled:opacity-50"
+                    >
+                        <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin text-[#2890F8]")} />
+                    </button>
+
+                    <div className="flex items-center bg-white p-1 rounded-xl border border-slate-200 shadow-2xs">
+                        <button
+                            onClick={() => setViewMode("cards")}
+                            className={cn(
+                                "p-1.5 rounded-lg transition-all",
+                                viewMode === "cards" ? "bg-[#0B0F19] text-white" : "text-slate-500 hover:text-slate-900"
+                            )}
+                            title="Vue Grille de Cartes"
+                        >
+                            <LayoutGrid className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => setViewMode("table")}
+                            className={cn(
+                                "p-1.5 rounded-lg transition-all",
+                                viewMode === "table" ? "bg-[#0B0F19] text-white" : "text-slate-500 hover:text-slate-900"
+                            )}
+                            title="Vue Tableau Exécutif"
+                        >
+                            <TableIcon className="w-4 h-4" />
+                        </button>
                     </div>
 
-                    {/* Stat counters */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div className="flex items-center gap-3 bg-white/8 rounded-xl px-4 py-3 border border-white/10 backdrop-blur-sm">
-                            <div className="w-9 h-9 rounded-lg bg-indigo-500/30 flex items-center justify-center shrink-0">
-                                <BarChart3 className="w-4 h-4 text-indigo-300" />
-                            </div>
-                            <div>
-                                <p className="text-xl font-bold leading-tight">{stats.total}</p>
-                                <p className="text-xs text-slate-400">Total</p>
-                            </div>
+                    <button
+                        onClick={() => setShowNewMissionDialog(true)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#2890F8] to-[#156cd4] hover:from-[#1e7fd8] hover:to-[#0f5ab5] shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all"
+                    >
+                        <Plus className="w-4 h-4" />
+                        <span>Nouvelle mission</span>
+                    </button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <div className="p-5 rounded-3xl bg-gradient-to-br from-[#0A1224] via-[#0B152A] to-[#050B16] border border-blue-900/70 text-white shadow-xl shadow-black/20 flex flex-col justify-between relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#2890F8]/15 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
+                    <div className="flex items-center justify-between z-10">
+                        <div className="w-11 h-11 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-[#2890F8]">
+                            <Layers className="w-5 h-5" />
                         </div>
-                        <div className="flex items-center gap-3 bg-white/8 rounded-xl px-4 py-3 border border-white/10 backdrop-blur-sm">
-                            <div className="w-9 h-9 rounded-lg bg-emerald-500/30 flex items-center justify-center shrink-0">
-                                <Zap className="w-4 h-4 text-emerald-300" />
-                            </div>
-                            <div>
-                                <p className="text-xl font-bold leading-tight text-emerald-300">{stats.active}</p>
-                                <p className="text-xs text-slate-400">Actives</p>
-                            </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[10px] font-bold">
+                            Volume Global
+                        </span>
+                    </div>
+                    <div className="my-4 z-10">
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Missions</p>
+                        <div className="flex items-baseline gap-2 mt-1">
+                            <p className="text-3xl sm:text-4xl font-black text-white tracking-tight tabular-nums">
+                                {stats.total}
+                            </p>
+                            <span className="text-xs text-slate-400 font-medium">créées</span>
                         </div>
-                        <div className="flex items-center gap-3 bg-white/8 rounded-xl px-4 py-3 border border-white/10 backdrop-blur-sm">
-                            <div className="w-9 h-9 rounded-lg bg-amber-500/30 flex items-center justify-center shrink-0">
-                                <Clock className="w-4 h-4 text-amber-300" />
-                            </div>
-                            <div>
-                                <p className="text-xl font-bold leading-tight text-amber-300">{stats.paused}</p>
-                                <p className="text-xs text-slate-400">En pause</p>
-                            </div>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-white/10 z-10">
+                        <span>Opérations managées</span>
+                        <span className="text-blue-300 font-bold">{stats.total} missions</span>
+                    </div>
+                </div>
+
+                <div className="p-5 rounded-3xl bg-gradient-to-br from-[#0B0F19] via-[#0D121F] to-[#04060A] border border-slate-800 text-white shadow-xl shadow-black/20 flex flex-col justify-between relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
+                    <div className="flex items-center justify-between z-10">
+                        <div className="w-11 h-11 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                            <Target className="w-5 h-5" />
                         </div>
-                        <div className="flex items-center gap-3 bg-white/8 rounded-xl px-4 py-3 border border-white/10 backdrop-blur-sm">
-                            <div className="w-9 h-9 rounded-lg bg-violet-500/30 flex items-center justify-center shrink-0">
-                                <Users className="w-4 h-4 text-violet-300" />
-                            </div>
-                            <div>
-                                <p className="text-xl font-bold leading-tight text-violet-300">{stats.totalMembers}</p>
-                                <p className="text-xs text-slate-400">Membres actifs</p>
-                            </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-400/10 border border-emerald-400/20 text-emerald-300 text-[10px] font-bold flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> En Cours
+                        </span>
+                    </div>
+                    <div className="my-4 z-10">
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Missions Actives</p>
+                        <div className="flex items-baseline gap-2 mt-1">
+                            <p className="text-3xl sm:text-4xl font-black text-white tracking-tight tabular-nums">
+                                {stats.active}
+                            </p>
+                            <span className="text-xs text-slate-400 font-medium">/ {stats.total}</span>
                         </div>
+                    </div>
+                    <div className="space-y-1.5 z-10 pt-2 border-t border-white/10">
+                        <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full"
+                                style={{ width: stats.total ? `${Math.round((stats.active / stats.total) * 100)}%` : "0%" }}
+                            />
+                        </div>
+                        <div className="flex justify-between items-center text-[11px] text-slate-400">
+                            <span>Taux de déploiement</span>
+                            <span className="text-emerald-300 font-bold">{stats.total ? Math.round((stats.active / stats.total) * 100) : 0}%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-5 rounded-3xl bg-gradient-to-br from-white via-emerald-50/40 to-emerald-100/30 border border-emerald-200/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden">
+                    <div className="flex items-center justify-between z-10">
+                        <div className="w-11 h-11 rounded-2xl bg-emerald-100/80 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-2xs">
+                            <Users className="w-5 h-5" />
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-100/80 border border-emerald-200 text-emerald-800 text-[10px] font-bold">
+                            Force SDR
+                        </span>
+                    </div>
+                    <div className="my-4 z-10">
+                        <p className="text-xs font-bold text-emerald-900/60 uppercase tracking-wider">Membres Assignés</p>
+                        <div className="flex items-baseline gap-2 mt-1">
+                            <p className="text-3xl sm:text-4xl font-black text-emerald-950 tracking-tight tabular-nums">
+                                {stats.totalMembers}
+                            </p>
+                            <span className="text-xs text-emerald-700/70 font-medium">assignations SDR</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-emerald-800 pt-2 border-t border-emerald-200/60 z-10">
+                        <span>Équipe opérationnelle</span>
+                        <span className="font-bold">Prospection active</span>
+                    </div>
+                </div>
+
+                <div className="p-5 rounded-3xl bg-gradient-to-br from-white via-amber-50/40 to-amber-100/30 border border-amber-200/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden">
+                    <div className="flex items-center justify-between z-10">
+                        <div className="w-11 h-11 rounded-2xl bg-amber-100/80 border border-amber-200 flex items-center justify-center text-amber-600 shadow-2xs">
+                            <Clock className="w-5 h-5" />
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-amber-100/80 border border-amber-200 text-amber-800 text-[10px] font-bold">
+                            En Attente
+                        </span>
+                    </div>
+                    <div className="my-4 z-10">
+                        <p className="text-xs font-bold text-amber-900/60 uppercase tracking-wider">Missions en Pause</p>
+                        <div className="flex items-baseline gap-2 mt-1">
+                            <p className="text-3xl sm:text-4xl font-black text-amber-950 tracking-tight tabular-nums">
+                                {stats.paused}
+                            </p>
+                            <span className="text-xs text-amber-700/70 font-medium">à réactiver</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-amber-800 pt-2 border-t border-amber-200/60 z-10">
+                        <span>Disponibilité</span>
+                        <span className="font-bold">{stats.paused > 0 ? "Reprise requise" : "Aucun blocage"}</span>
                     </div>
                 </div>
             </div>
 
-            {/* ─── FILTERS ─── */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-3 flex flex-wrap items-center gap-3 shadow-sm">
-                {/* Search */}
-                <div className="flex-1 min-w-[200px] relative">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input
-                        type="text"
-                        placeholder="Rechercher une mission ou un client..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full h-10 pl-10 pr-9 text-sm text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 placeholder:text-slate-400 transition-all"
-                    />
-                    {searchQuery && (
-                        <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 transition-colors">
-                            <X className="w-3.5 h-3.5 text-slate-400" />
-                        </button>
-                    )}
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-3 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3 flex-1 min-w-[260px]">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                            type="text"
+                            placeholder="Rechercher une mission, un client..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full h-10 pl-10 pr-9 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 focus:border-[#2890F8] placeholder:text-slate-400 transition-all"
+                        />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery("")}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 transition-colors"
+                            >
+                                <X className="w-3.5 h-3.5 text-slate-400" />
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="hidden lg:flex items-center bg-slate-100 p-1 rounded-xl">
+                        {MISSION_STATUS_TABS.map((opt) => (
+                            <button
+                                key={opt.value}
+                                onClick={() => {
+                                    setStatusFilter(opt.value);
+                                    setPage(1);
+                                }}
+                                className={cn(
+                                    "px-3 py-1 text-xs font-semibold rounded-lg transition-all",
+                                    statusFilter === opt.value
+                                        ? "bg-[#0B0F19] text-white shadow-2xs"
+                                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+                                )}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
-                {/* Divider */}
-                <div className="w-px h-8 bg-slate-200 hidden sm:block" />
-
-                {/* Status pill tabs */}
-                <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
-                    {MISSION_STATUS_TABS.map(opt => (
+                <div className="flex items-center bg-slate-100 p-1 rounded-xl">
+                    {[
+                        { value: "all", label: "Tous canaux" },
+                        { value: "CALL", label: "📞 Appel" },
+                        { value: "EMAIL", label: "📧 Email" },
+                        { value: "LINKEDIN", label: "💼 LinkedIn" },
+                    ].map((opt) => (
                         <button
                             key={opt.value}
-                            onClick={() => {
-                                setStatusFilter(opt.value);
-                                setPage(1);
-                            }}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${statusFilter === opt.value
-                                ? "bg-white text-slate-900 shadow-sm"
-                                : "text-slate-500 hover:text-slate-700"
-                                }`}
+                            onClick={() => setChannelFilter(opt.value)}
+                            className={cn(
+                                "px-2.5 py-1 text-xs font-semibold rounded-lg transition-all",
+                                channelFilter === opt.value
+                                    ? "bg-white text-slate-900 shadow-2xs"
+                                    : "text-slate-600 hover:text-slate-900"
+                            )}
                         >
                             {opt.label}
                         </button>
                     ))}
                 </div>
-
-                {/* Channel filter */}
-                <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
-                    {[
-                        { value: "all", label: "Tous" },
-                        { value: "CALL", label: "Appel", icon: "📞" },
-                        { value: "EMAIL", label: "Email", icon: "📧" },
-                        { value: "LINKEDIN", label: "LinkedIn", icon: "💼" },
-                    ].map(opt => (
-                        <button
-                            key={opt.value}
-                            onClick={() => setChannelFilter(opt.value)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${channelFilter === opt.value
-                                ? "bg-white text-slate-900 shadow-sm"
-                                : "text-slate-500 hover:text-slate-700"
-                                }`}
-                        >
-                            {opt.icon ? `${opt.icon} ${opt.label}` : opt.label}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Result count */}
-                <div className="text-xs text-slate-400 font-medium ml-auto hidden sm:block">
-                    {filteredMissions.length} / {total || missions.length} mission{(total || missions.length) !== 1 ? "s" : ""}
-                </div>
             </div>
 
-            {/* ─── MISSION CARDS ─── */}
-            {filteredMissions.length === 0 ? (
-                <div className="text-center py-20 bg-white rounded-2xl border border-slate-200 border-dashed">
-                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center mx-auto mb-5 border border-slate-200">
-                        <Target className="w-9 h-9 text-slate-300" />
+            {isLoading && missions.length === 0 ? (
+                <div className="grid gap-4">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="h-32 bg-slate-200/60 rounded-3xl animate-pulse" />
+                    ))}
+                </div>
+            ) : missions.length === 0 ? (
+                <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm">
+                    <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4 border border-slate-200">
+                        <Target className="w-8 h-8 text-slate-400" />
                     </div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">
+                    <h3 className="text-base font-bold text-slate-900 mb-1">
                         {searchQuery || channelFilter !== "all" ? "Aucune mission trouvée" : "Aucune mission créée"}
                     </h3>
-                    <p className="text-sm text-slate-500 mb-6">
+                    <p className="text-xs text-slate-500 mb-6">
                         {searchQuery || channelFilter !== "all"
-                            ? "Modifiez vos filtres pour voir plus de résultats"
-                            : "Créez votre première mission pour commencer"}
+                            ? "Modifiez vos filtres ou termes de recherche pour voir plus de résultats."
+                            : "Créez votre première mission pour commencer la prospection."}
                     </p>
                     {!searchQuery && channelFilter === "all" && (
-                        <Link href="/manager/missions/new" className="mgr-btn-primary inline-flex items-center gap-2">
+                        <button
+                            onClick={() => setShowNewMissionDialog(true)}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#2890F8] hover:bg-[#1a75ce] transition-colors"
+                        >
                             <Plus className="w-4 h-4" />
                             Créer une mission
-                        </Link>
+                        </button>
                     )}
                 </div>
+            ) : viewMode === "table" ? (
+                <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                                    <th className="py-3.5 px-6">Mission & Client</th>
+                                    <th className="py-3.5 px-4">Canal</th>
+                                    <th className="py-3.5 px-4">Statut</th>
+                                    <th className="py-3.5 px-4">SDRs Déployés</th>
+                                    <th className="py-3.5 px-4">Campagnes & Listes</th>
+                                    <th className="py-3.5 px-4">Période</th>
+                                    <th className="py-3.5 px-6 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 text-xs">
+                                {missions.map((mission) => {
+                                    const channel = CHANNEL_CONFIG[mission.channel] || CHANNEL_CONFIG.CALL;
+                                    const ChannelIcon = channel.icon;
+                                    const timeState = getMissionTimeState(mission);
+                                    const daysRemaining = getDaysRemaining(mission.endDate);
+
+                                    return (
+                                        <tr
+                                            key={mission.id}
+                                            onClick={() => setSelectedMissionForDrawer(mission)}
+                                            className="hover:bg-slate-50/70 transition-colors cursor-pointer"
+                                        >
+                                            <td className="py-4 px-6">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                                                        {mission.client?.name?.[0] || "M"}
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <p className="font-bold text-slate-900 truncate">{mission.name}</p>
+                                                        <p className="text-[11px] text-slate-400 truncate">{mission.client?.name}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-4">
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-[11px] font-bold">
+                                                    <ChannelIcon className="w-3 h-3" />
+                                                    {channel.label}
+                                                </span>
+                                            </td>
+                                            <td className="py-4 px-4">
+                                                <span
+                                                    className={cn(
+                                                        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
+                                                        mission.status === "ACTIVE"
+                                                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                                            : mission.status === "PAUSED"
+                                                            ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                                            : "bg-slate-100 text-slate-600"
+                                                    )}
+                                                >
+                                                    <span
+                                                        className={cn(
+                                                            "w-1.5 h-1.5 rounded-full",
+                                                            mission.status === "ACTIVE" ? "bg-emerald-500 animate-pulse" : "bg-slate-400"
+                                                        )}
+                                                    />
+                                                    {MISSION_STATUS_CONFIG[mission.status]?.label ?? mission.status}
+                                                </span>
+                                            </td>
+                                            <td className="py-4 px-4">
+                                                <div className="flex items-center gap-1.5">
+                                                    <Users className="w-3.5 h-3.5 text-slate-400" />
+                                                    <span className="font-bold text-slate-700">{mission._count.sdrAssignments}</span>
+                                                    <span className="text-slate-400">SDR</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-4 text-slate-500">
+                                                {mission._count.campaigns} camp. · {mission._count.lists} listes
+                                            </td>
+                                            <td className="py-4 px-4">
+                                                <div className="flex items-center gap-1 text-[11px] text-slate-500">
+                                                    <Calendar className="w-3 h-3 text-slate-400" />
+                                                    <span>
+                                                        {mission.startDate
+                                                            ? new Date(mission.startDate).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })
+                                                            : "N/A"}
+                                                    </span>
+                                                    {timeState === "ending-soon" && daysRemaining !== null && (
+                                                        <span className="ml-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded">
+                                                            J-{daysRemaining}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-6 text-right">
+                                                <span className="text-[#2890F8] font-bold flex items-center justify-end gap-1">
+                                                    Gérer <ChevronRight className="w-3.5 h-3.5" />
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             ) : (
-                <>
-                    <div className="grid gap-3">
-                        {isLoading
-                            ? Array.from({ length: pageSize }).map((_, index) => (
-                                <div
-                                    key={`skeleton-${index}`}
-                                    className="relative bg-white border border-slate-200 rounded-2xl overflow-hidden animate-pulse"
-                                >
-                                    <div className="flex items-center gap-5 px-6 py-5 pl-7">
-                                        <div className="relative w-14 h-14 rounded-2xl bg-slate-100 flex-shrink-0" />
-                                        <div className="flex-1 min-w-0 space-y-3">
-                                            <div className="h-4 bg-slate-100 rounded w-1/3" />
-                                            <div className="h-3 bg-slate-100 rounded w-1/2" />
-                                            <div className="flex items-center gap-4">
-                                                <div className="h-3 bg-slate-100 rounded w-16" />
-                                                <div className="h-3 bg-slate-100 rounded w-16" />
-                                                <div className="h-3 bg-slate-100 rounded w-24" />
-                                            </div>
+                <div className="grid gap-3.5">
+                    {missions.map((mission) => {
+                        const channelsList = mission.channels?.length ? mission.channels : [mission.channel];
+                        const channel = CHANNEL_CONFIG[mission.channel] || CHANNEL_CONFIG.CALL;
+                        const ChannelIcon = channel.icon;
+                        const memberCount = mission._count.sdrAssignments;
+                        const daysWorked = getDaysWorked(mission.startDate, mission.endDate);
+                        const daysRemaining = getDaysRemaining(mission.endDate);
+                        const timeProgress = getTimeProgress(mission.startDate, mission.endDate);
+                        const timeState = getMissionTimeState(mission);
+
+                        return (
+                            <div
+                                key={mission.id}
+                                onClick={() => setSelectedMissionForDrawer(mission)}
+                                className="group relative p-5 rounded-3xl bg-white border border-slate-200/80 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden"
+                            >
+                                <div className="flex items-center justify-between gap-4 flex-wrap">
+                                    <div className="flex items-center gap-4 min-w-0">
+                                        <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-center font-bold text-base shadow-md shadow-black/10 group-hover:scale-105 transition-transform shrink-0">
+                                            {mission.client?.name?.[0] || "M"}
                                         </div>
-                                        <div className="w-9 h-9 rounded-xl bg-slate-100 flex-shrink-0" />
+
+                                        <div className="min-w-0">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <h3 className="text-base font-bold text-slate-900 group-hover:text-[#2890F8] transition-colors truncate">
+                                                    {mission.name}
+                                                </h3>
+                                                <span
+                                                    className={cn(
+                                                        "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase",
+                                                        mission.status === "ACTIVE"
+                                                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                                            : mission.status === "PAUSED"
+                                                            ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                                            : "bg-slate-100 text-slate-600"
+                                                    )}
+                                                >
+                                                    <span
+                                                        className={cn(
+                                                            "w-1.5 h-1.5 rounded-full",
+                                                            mission.status === "ACTIVE" ? "bg-emerald-500 animate-pulse" : "bg-slate-400"
+                                                        )}
+                                                    />
+                                                    {MISSION_STATUS_CONFIG[mission.status]?.label ?? mission.status}
+                                                </span>
+
+                                                {timeState === "ending-soon" && daysRemaining !== null && (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                                        <AlertTriangle className="w-3 h-3" />
+                                                        Fin dans {daysRemaining}j
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <p className="text-xs text-slate-400 truncate mt-0.5">
+                                                {mission.client?.name}
+                                                {mission.objective && <span> · {mission.objective}</span>}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-4 flex-shrink-0">
+                                        <div className="hidden sm:flex items-center -space-x-2">
+                                            {mission.sdrAssignments?.slice(0, 3).map((a, idx) => (
+                                                <div
+                                                    key={a.sdr.id}
+                                                    style={{ zIndex: 10 - idx }}
+                                                    className="w-7 h-7 rounded-full bg-slate-900 border-2 border-white text-[10px] font-bold text-white flex items-center justify-center shadow-xs"
+                                                    title={a.sdr.name}
+                                                >
+                                                    {a.sdr.name.slice(0, 2).toUpperCase()}
+                                                </div>
+                                            ))}
+                                            {memberCount > 3 && (
+                                                <div className="w-7 h-7 rounded-full bg-slate-100 border-2 border-white text-[10px] font-bold text-slate-600 flex items-center justify-center shadow-xs z-0">
+                                                    +{memberCount - 3}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex items-center gap-1">
+                                            {channelsList.map((ch) => {
+                                                const cfg = CHANNEL_CONFIG[ch] || CHANNEL_CONFIG.CALL;
+                                                const Icon = cfg.icon;
+                                                return (
+                                                    <span
+                                                        key={ch}
+                                                        className={cn("px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1", cfg.bgLight, cfg.textColor)}
+                                                    >
+                                                        <Icon className="w-3 h-3" />
+                                                        {cfg.label}
+                                                    </span>
+                                                );
+                                            })}
+                                        </div>
+
+                                        <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-[#2890F8] group-hover:border-[#2890F8] transition-all">
+                                            <ArrowUpRight className="w-4 h-4" />
+                                        </div>
                                     </div>
                                 </div>
-                            ))
-                            : filteredMissions.map((mission, index) => {
-                                const channelsList = mission.channels?.length ? mission.channels : [mission.channel];
-                                const channel = CHANNEL_CONFIG[mission.channel];
-                                const ChannelIcon = channel.icon;
-                                const memberCount = mission._count.sdrAssignments;
-                                const listCount = mission._count.lists;
-                                const campaignCount = mission._count.campaigns;
-                                const daysWorked = getDaysWorked(mission.startDate, mission.endDate);
-                                const daysRemaining = getDaysRemaining(mission.endDate);
-                                const timeProgress = getTimeProgress(mission.startDate, mission.endDate);
-                                const timeState = getMissionTimeState(mission);
 
-                                // Card theme by time state
-                                const cardTheme = {
-                                    "ending-soon": {
-                                        card: "border-orange-200 bg-orange-50/40 hover:border-orange-300 hover:shadow-orange-500/10",
-                                        leftBar: "bg-gradient-to-b from-orange-400 to-orange-600",
-                                        shimmer: "from-orange-500/5",
-                                        arrowHover: "group-hover:bg-orange-500 group-hover:border-orange-500",
-                                    },
-                                    overdue: {
-                                        card: "border-rose-200 bg-rose-50/30 hover:border-rose-300 hover:shadow-rose-500/10",
-                                        leftBar: "bg-gradient-to-b from-rose-400 to-rose-600",
-                                        shimmer: "from-rose-500/5",
-                                        arrowHover: "group-hover:bg-rose-500 group-hover:border-rose-500",
-                                    },
-                                    ended: {
-                                        card: "border-slate-200 bg-slate-50/60 hover:border-slate-300 hover:shadow-slate-500/8 opacity-80",
-                                        leftBar: mission.status === "COMPLETED"
-                                            ? "bg-gradient-to-b from-blue-300 to-blue-500"
-                                            : "bg-gradient-to-b from-zinc-300 to-zinc-400",
-                                        shimmer: "from-slate-500/3",
-                                        arrowHover: "group-hover:bg-slate-500 group-hover:border-slate-500",
-                                    },
-                                    normal: {
-                                        card: "border-slate-200 bg-white hover:border-indigo-300 hover:shadow-indigo-500/8",
-                                        leftBar: mission.status === "ACTIVE"
-                                            ? "bg-gradient-to-b from-emerald-400 to-emerald-600"
-                                            : mission.status === "PAUSED"
-                                                ? "bg-gradient-to-b from-amber-300 to-amber-500"
-                                                : "bg-gradient-to-b from-slate-200 to-slate-300",
-                                        shimmer: "from-indigo-500/3",
-                                        arrowHover: "group-hover:bg-indigo-600 group-hover:border-indigo-600",
-                                    },
-                                }[timeState];
-
-                                const statusBadge = {
-                                    "ending-soon": { bg: "bg-orange-100", text: "text-orange-700", dot: "bg-orange-500" },
-                                    overdue: { bg: "bg-rose-100", text: "text-rose-700", dot: "bg-rose-500" },
-                                    ended: {
-                                        bg: mission.status === "COMPLETED" ? "bg-blue-100" : "bg-zinc-100",
-                                        text: mission.status === "COMPLETED" ? "text-blue-700" : "text-zinc-600",
-                                        dot: mission.status === "COMPLETED" ? "bg-blue-500" : "bg-zinc-400",
-                                    },
-                                    normal: {
-                                        bg: mission.status === "ACTIVE" ? "bg-emerald-100" : mission.status === "PAUSED" ? "bg-amber-100" : "bg-slate-100",
-                                        text: mission.status === "ACTIVE" ? "text-emerald-700" : mission.status === "PAUSED" ? "text-amber-700" : "text-slate-600",
-                                        dot: mission.status === "ACTIVE" ? "bg-emerald-500" : mission.status === "PAUSED" ? "bg-amber-500" : "bg-slate-400",
-                                    },
-                                }[timeState];
-
-                                // Time progress bar style
-                                const progressBarColor = timeState === "ending-soon"
-                                    ? "from-orange-400 to-orange-500"
-                                    : timeState === "overdue"
-                                        ? "from-rose-400 to-rose-500"
-                                        : timeState === "ended"
-                                            ? "from-blue-300 to-blue-400"
-                                            : "from-indigo-400 to-violet-500";
-
-                                return (
-                                    <div
-                                        key={mission.id}
-                                        onClick={() => setSelectedMissionForDrawer(mission)}
-                                        className={`group relative border rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 ${cardTheme.card}`}
-                                        style={{ animationDelay: `${index * 40}ms` }}
-                                    >
-                                        {/* Left status bar */}
-                                        <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl transition-all duration-300 ${cardTheme.leftBar}`} />
-
-                                        {/* Hover shimmer */}
-                                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none bg-gradient-to-r ${cardTheme.shimmer} via-transparent to-transparent`} />
-
-                                        <div className="flex items-center gap-5 px-6 py-5 pl-7">
-
-                                            {/* Client avatar */}
-                                            <div className={`relative w-14 h-14 rounded-2xl bg-gradient-to-br ${timeState === "ended" ? "from-slate-300 to-slate-400" : channel.color} flex items-center justify-center text-xl font-bold text-white flex-shrink-0 shadow-md group-hover:scale-105 transition-transform duration-300`}>
-                                                {mission.client?.name?.[0] || "M"}
-                                                <div className={`absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full ${channel.bgLight} border-2 border-white flex items-center justify-center shadow-sm`}>
-                                                    <ChannelIcon className={`w-3 h-3 ${channel.textColor}`} />
-                                                </div>
-                                            </div>
-
-                                            {/* Main info */}
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2.5 mb-1 flex-wrap">
-                                                    <h3 className={`font-bold text-base truncate transition-colors ${timeState === "ended" ? "text-slate-500 group-hover:text-slate-700" : "text-slate-900 group-hover:text-indigo-700"}`}>
-                                                        {mission.name}
-                                                    </h3>
-
-                                                    {/* Status badge */}
-                                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide ${statusBadge.bg} ${statusBadge.text}`}>
-                                                        <span className={`w-1.5 h-1.5 rounded-full ${statusBadge.dot}`} />
-                                                        {MISSION_STATUS_CONFIG[mission.status]?.label ?? mission.status}
-                                                    </span>
-
-                                                    {/* Ending soon / overdue alert badge */}
-                                                    {timeState === "ending-soon" && daysRemaining !== null && (
-                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-orange-100 text-orange-700 border border-orange-200">
-                                                            <AlertTriangle className="w-3 h-3" />
-                                                            Fin dans {daysRemaining}j
-                                                        </span>
-                                                    )}
-                                                    {timeState === "overdue" && daysRemaining !== null && (
-                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700 border border-rose-200">
-                                                            <AlertTriangle className="w-3 h-3" />
-                                                            Dépassée de {Math.abs(daysRemaining)}j
-                                                        </span>
-                                                    )}
-                                                    {timeState === "ended" && mission.endDate && (
-                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-500">
-                                                            <CheckCircle2 className="w-3 h-3" />
-                                                            {Math.abs(daysRemaining ?? 0)}j
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                <p className="text-sm text-slate-500 truncate mb-3">
-                                                    {mission.client?.name}
-                                                    {mission.objective && (
-                                                        <span className="text-slate-400"> · {mission.objective}</span>
-                                                    )}
-                                                </p>
-
-                                                {/* Meta row */}
-                                                <div className="flex items-center flex-wrap gap-x-5 gap-y-1">
-                                                    <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                                                        <Target className="w-3.5 h-3.5 text-slate-400" />
-                                                        <span>{campaignCount} campagne{campaignCount !== 1 ? "s" : ""}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                                                        <ListChecks className="w-3.5 h-3.5 text-slate-400" />
-                                                        <span>{listCount} liste{listCount !== 1 ? "s" : ""}</span>
-                                                    </div>
-                                                    {/* Days worked */}
-                                                    {daysWorked !== null && (
-                                                        <div className={`flex items-center gap-1.5 text-xs font-medium ${timeState === "ending-soon" ? "text-orange-600" : timeState === "overdue" ? "text-rose-600" : timeState === "ended" ? "text-slate-400" : "text-indigo-600"}`}>
-                                                            <Hourglass className="w-3.5 h-3.5" />
-                                                            <span>{daysWorked}j travaillés</span>
-                                                        </div>
-                                                    )}
-                                                    {/* Days remaining (only for active, non-ending-soon) */}
-                                                    {timeState === "normal" && daysRemaining !== null && mission.status === "ACTIVE" && (
-                                                        <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
-                                                            <Timer className="w-3.5 h-3.5" />
-                                                            <span>{daysRemaining}j restants</span>
-                                                        </div>
-                                                    )}
-                                                    {/* Date range */}
-                                                    {mission.startDate && (
-                                                        <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                                                            <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                                                            <span>
-                                                                {new Date(mission.startDate).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}
-                                                                {mission.endDate
-                                                                    ? ` → ${new Date(mission.endDate).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}`
-                                                                    : " → en cours"}
-                                                            </span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            {/* Right side */}
-                                            <div className="flex items-center gap-5 flex-shrink-0">
-                                                {/* Team avatars */}
-                                                <div className="hidden md:flex flex-col items-end gap-1">
-                                                    {mission.sdrAssignments && mission.sdrAssignments.length > 0 ? (
-                                                        <>
-                                                            <div className="flex -space-x-2">
-                                                                {mission.sdrAssignments.slice(0, 4).map((a, i) => (
-                                                                    <div
-                                                                        key={a.sdr.id}
-                                                                        className={`w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-sm bg-gradient-to-br ${timeState === "ended" ? "from-slate-400 to-slate-500" : "from-indigo-400 to-indigo-600"}`}
-                                                                        style={{ zIndex: 10 - i }}
-                                                                        title={a.sdr.name}
-                                                                    >
-                                                                        {a.sdr.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
-                                                                    </div>
-                                                                ))}
-                                                                {mission.sdrAssignments.length > 4 && (
-                                                                    <div className="w-7 h-7 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-semibold text-slate-600 shadow-sm z-0">
-                                                                        +{mission.sdrAssignments.length - 4}
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            <span className="text-[10px] text-slate-400 font-medium">
-                                                                {memberCount} membre{memberCount !== 1 ? "s" : ""}
-                                                            </span>
-                                                        </>
-                                                    ) : (
-                                                        <div className="flex items-center gap-1 text-xs text-slate-300">
-                                                            <Users className="w-3.5 h-3.5" />
-                                                            <span className="italic">Aucun</span>
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                {/* Channel pill(s) */}
-                                                <div className="hidden lg:flex items-center gap-1.5 flex-wrap">
-                                                    {channelsList.length === 1 ? (
-                                                        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${channel.bgLight} ${channel.textColor} border border-current/10`}>
-                                                            <ChannelIcon className="w-3.5 h-3.5" />
-                                                            {channel.label}
-                                                        </div>
-                                                    ) : (
-                                                        channelsList.map((ch) => {
-                                                            const cfg = CHANNEL_CONFIG[ch];
-                                                            const Icon = cfg?.icon ?? ChannelIcon;
-                                                            return (
-                                                                <div key={ch} className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold ${cfg?.bgLight ?? channel.bgLight} ${cfg?.textColor ?? channel.textColor} border border-current/10`}>
-                                                                    <Icon className="w-3 h-3" />
-                                                                    {cfg?.label ?? ch}
-                                                                </div>
-                                                            );
-                                                        })
-                                                    )}
-                                                </div>
-
-                                                {/* Arrow */}
-                                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center bg-slate-50 border border-slate-100 transition-all duration-300 shadow-sm ${cardTheme.arrowHover}`}>
-                                                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-white transition-colors duration-300" />
-                                                </div>
-                                            </div>
+                                {timeProgress !== null && (
+                                    <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-3">
+                                        <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                            <div
+                                                className={cn(
+                                                    "h-full rounded-full transition-all duration-500",
+                                                    timeState === "ending-soon" ? "bg-gradient-to-r from-amber-400 to-orange-500" : "bg-gradient-to-r from-[#2890F8] to-[#156cd4]"
+                                                )}
+                                                style={{ width: `${timeProgress}%` }}
+                                            />
                                         </div>
-
-                                        {/* Bottom time progress bar */}
-                                        {(mission.status === "ACTIVE" || mission.status === "PAUSED" || timeState === "ended") && timeProgress !== null && (
-                                            <div className="px-7 pb-3">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="flex-1 h-1 bg-slate-100 rounded-full overflow-hidden">
-                                                        <div
-                                                            className={`h-full rounded-full bg-gradient-to-r ${progressBarColor} transition-all duration-700`}
-                                                            style={{ width: `${timeProgress}%` }}
-                                                        />
-                                                    </div>
-                                                    <span className={`text-[10px] font-semibold tabular-nums ${timeState === "ending-soon" ? "text-orange-500" : timeState === "overdue" ? "text-rose-500" : timeState === "ended" ? "text-slate-400" : "text-indigo-500"}`}>
-                                                        {timeProgress}%
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        )}
+                                        <span className="text-[11px] font-bold text-slate-500 tabular-nums shrink-0">
+                                            {daysWorked !== null ? `${daysWorked}j travaillés` : `${timeProgress}%`}
+                                        </span>
                                     </div>
-                                );
-                            })}
-                    </div>
-
-                    {/* Pagination controls */}
-                    {totalPages > 1 && (
-                        <div className="flex items-center justify-between mt-4 text-xs text-slate-500">
-                            <span>
-                                Affichage {startItem}-{endItem} sur {total} missions
-                            </span>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                                    disabled={page === 1 || isLoading}
-                                    className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    Précédent
-                                </button>
-                                <span className="px-2">
-                                    Page {page} / {totalPages}
-                                </span>
-                                <button
-                                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                                    disabled={page === totalPages || isLoading}
-                                    className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    Suivant
-                                </button>
+                                )}
                             </div>
-                        </div>
-                    )}
-                </>
+                        );
+                    })}
+                </div>
+            )}
+
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between text-xs text-slate-500 pt-2">
+                    <span>
+                        Affichage {startItem}-{endItem} sur {total} missions
+                    </span>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                            disabled={page === 1 || isLoading}
+                            className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 font-semibold shadow-2xs"
+                        >
+                            Précédent
+                        </button>
+                        <span className="px-2 font-bold text-slate-700">
+                            Page {page} / {totalPages}
+                        </span>
+                        <button
+                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                            disabled={page === totalPages || isLoading}
+                            className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 font-semibold shadow-2xs"
+                        >
+                            Suivant
+                        </button>
+                    </div>
+                </div>
             )}
 
             <MissionQuickViewDrawer

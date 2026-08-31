@@ -3,26 +3,26 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Card, Badge, Button, Select, ConfirmModal, ContextMenu, useContextMenu, useToast } from "@/components/ui";
+import { ConfirmModal, ContextMenu, useContextMenu, useToast } from "@/components/ui";
 import {
     List,
     Building2,
     Users,
     Activity,
-    Plus,
     Upload,
     Search,
-    Filter,
     MoreVertical,
     Eye,
     Trash2,
     RefreshCw,
     Download,
-    Database, // newly added for search tab
+    Database,
     Edit,
     Archive,
     ArchiveRestore,
     AlertTriangle,
+    X,
+    ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 import { ListingSearchTab } from "@/components/listing/ListingSearchTab";
@@ -35,8 +35,8 @@ import {
     VelocityTrendBadge,
 } from "@/components/lists/ProspectionHealthBadge";
 import type { ListHealthSummary } from "@/lib/types/health";
+import { cn } from "@/lib/utils";
 
-// Coverage near 100% = list nearing exhaustion (rose), low = lots of work still (emerald)
 function getCoverageColor(rate: number): string {
     if (rate >= 70) return "text-rose-600";
     if (rate >= 50) return "text-amber-600";
@@ -73,20 +73,11 @@ interface ListData {
     };
 }
 
-
-// ============================================
-// TYPE STYLES
-// ============================================
-
 const TYPE_STYLES = {
-    SUZALI: { label: "Suzali", color: "bg-indigo-50 text-indigo-700 border-indigo-200" },
+    SUZALI: { label: "Suzali", color: "bg-blue-50 text-blue-700 border-blue-200" },
     CLIENT: { label: "Client", color: "bg-amber-50 text-amber-700 border-amber-200" },
     MIXED: { label: "Mixte", color: "bg-cyan-50 text-cyan-700 border-cyan-200" },
 };
-
-// ============================================
-// LISTS PAGE
-// ============================================
 
 const LISTS_QUERY_KEY = ["manager", "lists"] as const;
 
@@ -107,7 +98,6 @@ async function fetchListsApi(): Promise<ListData[]> {
         hasMore = Boolean(json.pagination?.hasMore);
         page += 1;
 
-        // Defensive guard in case pagination metadata is missing
         if (!json.pagination && batch.length < pageSize) {
             hasMore = false;
         }
@@ -147,9 +137,6 @@ export default function ListsPage() {
     const [isDeleting, setIsDeleting] = useState(false);
     const { position, contextData, handleContextMenu, close: closeMenu } = useContextMenu();
 
-    // ============================================
-    // TABS (Lists vs Search)
-    // ============================================
     const [activeTab, setActiveTab] = useState<"lists" | "search" | "health">("lists");
     const [importModalOpen, setImportModalOpen] = useState(false);
     const [resultsToImport, setResultsToImport] = useState<ListingResult[]>([]);
@@ -172,11 +159,6 @@ export default function ListsPage() {
         setActiveTab("lists");
         queryClient.invalidateQueries({ queryKey: LISTS_QUERY_KEY });
     };
-
-
-    // ============================================
-    // DELETE LIST
-    // ============================================
 
     const handleDeleteList = async () => {
         if (!deletingList) return;
@@ -203,14 +185,9 @@ export default function ListsPage() {
         }
     };
 
-    // ============================================
-    // CONTEXT MENU ITEMS
-    // ============================================
-
     const handleArchiveToggle = async (list: ListData) => {
         const newArchivedState = !list.isArchived;
         
-        // Optimistic update
         queryClient.setQueryData<ListData[]>(LISTS_QUERY_KEY, (old) => {
             if (!old) return old;
             return old.map((l) =>
@@ -234,7 +211,6 @@ export default function ListsPage() {
                     `${list.name} a été ${newArchivedState ? "archivée" : "désarchivée"}`
                 );
             } else {
-                // Rollback on error
                 queryClient.setQueryData<ListData[]>(LISTS_QUERY_KEY, (old) => {
                     if (!old) return old;
                     return old.map((l) =>
@@ -244,7 +220,6 @@ export default function ListsPage() {
                 showError("Erreur", json.error || "Impossible de modifier la liste");
             }
         } catch (err) {
-            // Rollback on error
             queryClient.setQueryData<ListData[]>(LISTS_QUERY_KEY, (old) => {
                 if (!old) return old;
                 return old.map((l) =>
@@ -289,41 +264,32 @@ export default function ListsPage() {
         },
     ];
 
-    // ============================================
-    // FILTER LISTS
-    // ============================================
-
-    const filteredLists = lists.filter(list => {
-        const matchesSearch = !searchQuery ||
+    const filteredLists = lists.filter((list) => {
+        const matchesSearch =
+            !searchQuery ||
             list.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            list.mission?.name.toLowerCase().includes(searchQuery.toLowerCase());
+            (list.mission?.name && list.mission.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
-        // Size filter based on contact count
         const contactCount = list.stats?.contactCount || 0;
         let matchesSize = true;
         if (sizeFilter === "small") matchesSize = contactCount < 50;
         else if (sizeFilter === "medium") matchesSize = contactCount >= 50 && contactCount < 200;
         else if (sizeFilter === "large") matchesSize = contactCount >= 200;
 
-        // Quality filter based on actionable %
         const totalContacts = list.stats?.contactCount || 0;
-        const actionablePercent = totalContacts > 0
-            ? Math.round(((list.stats?.completeness?.ACTIONABLE || 0) / totalContacts) * 100)
-            : 0;
+        const actionablePercent =
+            totalContacts > 0
+                ? Math.round(((list.stats?.completeness?.ACTIONABLE || 0) / totalContacts) * 100)
+                : 0;
         let matchesQuality = true;
         if (qualityFilter === "low") matchesQuality = actionablePercent < 50;
         else if (qualityFilter === "medium") matchesQuality = actionablePercent >= 50 && actionablePercent < 80;
         else if (qualityFilter === "high") matchesQuality = actionablePercent >= 80;
 
-        // Archived: when ON show only archived, when OFF show only non-archived
         const matchesArchived = showArchived ? !!list.isArchived : !list.isArchived;
 
         return matchesSearch && matchesSize && matchesQuality && matchesArchived;
     });
-
-    // ============================================
-    // STATS
-    // ============================================
 
     const stats = useMemo(() => {
         const visibleLists = lists.filter((l) => !l.isArchived);
@@ -340,45 +306,60 @@ export default function ListsPage() {
     }, [lists, healthByListId]);
 
     return (
-        <div className="elan-page">
-            {/* Premium Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Listes & Prospection</h1>
-                    <p className="text-sm text-slate-500 mt-1">
-                        Gérez vos listes de sociétés et recherchez de nouveaux leads
+        <div className="space-y-6 max-w-[1600px] mx-auto w-full pb-8">
+            {/* ── Top Header & Tab Navigation ── */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/70">
+                <div className="space-y-1">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-[#0B0F19] text-[#2890F8] flex items-center justify-center shadow-md shadow-black/20 border border-slate-800">
+                            <List className="w-5 h-5" />
+                        </div>
+                        <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                            Listes & Segments
+                        </h1>
+                    </div>
+                    <p className="text-xs text-slate-500 pl-1">
+                        Gérez vos bases prospects, la santé d&apos;activité et la recherche de leads Suzali.
                     </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex items-center p-1 bg-slate-100/80 rounded-xl border border-slate-200/60 shadow-inner mr-2">
+
+                <div className="flex items-center gap-2.5 flex-wrap">
+                    {/* Tabs Pill */}
+                    <div className="flex items-center p-1 bg-white rounded-xl border border-slate-200 shadow-2xs">
                         <button
                             onClick={() => setActiveTab("lists")}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 ${activeTab === "lists"
-                                ? "bg-white text-indigo-700 shadow border-b border-indigo-100"
-                                : "text-slate-500 hover:text-slate-700"
-                                }`}
+                            className={cn(
+                                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
+                                activeTab === "lists"
+                                    ? "bg-[#0B0F19] text-white shadow-2xs"
+                                    : "text-slate-600 hover:text-slate-900"
+                            )}
                         >
-                            <List className={`w-4 h-4 ${activeTab === "lists" ? "text-indigo-500" : "text-slate-400"}`} />
+                            <List className="w-3.5 h-3.5" />
                             Mes Listes
                         </button>
                         <button
                             onClick={() => setActiveTab("search")}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 ${activeTab === "search"
-                                ? "bg-white text-indigo-700 shadow border-b border-indigo-100"
-                                : "text-slate-500 hover:text-slate-700"
-                                }`}
+                            className={cn(
+                                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
+                                activeTab === "search"
+                                    ? "bg-[#0B0F19] text-white shadow-2xs"
+                                    : "text-slate-600 hover:text-slate-900"
+                            )}
                         >
-                            <Database className={`w-4 h-4 ${activeTab === "search" ? "text-indigo-500" : "text-slate-400"}`} />
-                            Recherche de Leads
+                            <Database className="w-3.5 h-3.5" />
+                            Recherche Leads
                         </button>
                         <button
                             onClick={() => setActiveTab("health")}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 ${activeTab === "health"
-                                ? "bg-white text-indigo-700 shadow border-b border-indigo-100"
-                                : "text-slate-500 hover:text-slate-700"
-                                }`}
+                            className={cn(
+                                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
+                                activeTab === "health"
+                                    ? "bg-[#0B0F19] text-white shadow-2xs"
+                                    : "text-slate-600 hover:text-slate-900"
+                            )}
                         >
-                            <Activity className={`w-4 h-4 ${activeTab === "health" ? "text-indigo-500" : "text-slate-400"}`} />
+                            <Activity className="w-3.5 h-3.5" />
                             Santé Prospection
                         </button>
                     </div>
@@ -387,17 +368,19 @@ export default function ListsPage() {
                         <>
                             <button
                                 onClick={() => refetch()}
-                                className="p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors tooltip-trigger"
-                                title="Rafraîchir les listes"
+                                disabled={isFetching}
+                                title="Actualiser"
+                                className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-[#2890F8] hover:border-blue-300 transition-all shadow-2xs disabled:opacity-50"
                             >
-                                <RefreshCw className={`w-4 h-4 text-slate-500 ${isFetching ? "animate-spin" : ""}`} />
+                                <RefreshCw className={cn("w-4 h-4", isFetching && "animate-spin text-[#2890F8]")} />
                             </button>
+
                             <Link
                                 href="/manager/lists/import"
-                                className="flex items-center gap-2 h-10 px-5 text-sm font-medium border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-indigo-600 rounded-lg transition-colors shadow-sm"
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#2890F8] to-[#156cd4] hover:from-[#1e7fd8] hover:to-[#0f5ab5] shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all"
                             >
                                 <Upload className="w-4 h-4" />
-                                Importer CSV
+                                <span>Importer CSV</span>
                             </Link>
                         </>
                     )}
@@ -406,387 +389,392 @@ export default function ListsPage() {
 
             {activeTab === "lists" ? (
                 <>
-                    {/* Premium Stats Cards */}
-                    {isLoading ? (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-                            <div className="mgr-stat-card animate-pulse"><div className="h-16 bg-slate-100 rounded-xl" /></div>
-                            <div className="mgr-stat-card animate-pulse"><div className="h-16 bg-slate-100 rounded-xl" /></div>
-                            <div className="mgr-stat-card animate-pulse"><div className="h-16 bg-slate-100 rounded-xl" /></div>
-                            <div className="mgr-stat-card animate-pulse"><div className="h-16 bg-slate-100 rounded-xl" /></div>
+                    {/* ── 4 Executive KPI Cards ── */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                        {/* 1. Total Listes — Midnight Sapphire Card */}
+                        <div className="p-5 rounded-3xl bg-gradient-to-br from-[#0A1224] via-[#0B152A] to-[#050B16] border border-blue-900/70 text-white shadow-xl shadow-black/20 flex flex-col justify-between relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#2890F8]/15 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
+                            <div className="flex items-center justify-between z-10">
+                                <div className="w-11 h-11 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-[#2890F8]">
+                                    <List className="w-5 h-5" />
+                                </div>
+                                <span className="px-2.5 py-0.5 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[10px] font-bold">
+                                    Bases
+                                </span>
+                            </div>
+                            <div className="my-4 z-10">
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Listes Actives</p>
+                                <div className="flex items-baseline gap-2 mt-1">
+                                    <p className="text-3xl sm:text-4xl font-black text-white tracking-tight tabular-nums">
+                                        {stats.total}
+                                    </p>
+                                    <span className="text-xs text-slate-400 font-medium">segments</span>
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-white/10 z-10">
+                                <span>Bases opérationnelles</span>
+                                <span className="text-blue-300 font-bold">{stats.total} actives</span>
+                            </div>
                         </div>
-                    ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-                            <div className="mgr-stat-card">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
-                                        <List className="w-6 h-6 text-indigo-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
-                                        <p className="text-sm font-medium text-slate-500">Listes actives</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="mgr-stat-card">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                                        <Building2 className="w-6 h-6 text-emerald-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-2xl font-bold text-slate-900">{stats.companies}</p>
-                                        <p className="text-sm font-medium text-slate-500">Sociétés couvertes</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="mgr-stat-card">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
-                                        <Users className="w-6 h-6 text-amber-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-2xl font-bold text-slate-900">{stats.contacts}</p>
-                                        <p className="text-sm font-medium text-slate-500">Contacts individuels</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    if (stats.toWatch > 0) setActiveTab("health");
-                                }}
-                                className={`mgr-stat-card text-left transition-shadow ${
-                                    stats.toWatch > 0 ? "cursor-pointer hover:shadow-md" : "cursor-default"
-                                }`}
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                                        stats.toWatch > 0 ? "bg-rose-100" : "bg-slate-100"
-                                    }`}>
-                                        <AlertTriangle className={`w-6 h-6 ${
-                                            stats.toWatch > 0 ? "text-rose-600" : "text-slate-400"
-                                        }`} />
-                                    </div>
-                                    <div className="min-w-0">
-                                        <p className="text-2xl font-bold text-slate-900">{stats.toWatch}</p>
-                                        <p className="text-sm font-medium text-slate-500 truncate">
-                                            À surveiller
-                                            {stats.toWatch > 0 && (
-                                                <span className="ml-1 text-[11px] text-slate-400 font-normal">
-                                                    · {stats.atRisk} à risque
-                                                    {stats.stalled > 0 && <>, {stats.stalled} stagnantes</>}
-                                                </span>
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
-                            </button>
-                        </div>
-                    )}
 
-                    {/* Compact Filter Bar */}
-                    <div className="bg-white border border-slate-200 rounded-xl px-3 py-2 flex items-center gap-2">
-                        <div className="relative flex-1 max-w-xs">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                            <input
-                                type="text"
-                                placeholder="Rechercher..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full h-8 pl-9 pr-8 text-xs font-medium text-slate-900 bg-slate-50 border border-transparent focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/10 rounded-md transition-all"
-                            />
-                            {searchQuery && (
-                                <button
-                                    onClick={() => setSearchQuery("")}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 hover:bg-slate-200 rounded transition-colors"
-                                >
-                                    <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
+                        {/* 2. Sociétés Couvertes — Obsidian Gold Card */}
+                        <div className="p-5 rounded-3xl bg-gradient-to-br from-[#0B0F19] via-[#0D121F] to-[#04060A] border border-slate-800 text-white shadow-xl shadow-black/20 flex flex-col justify-between relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
+                            <div className="flex items-center justify-between z-10">
+                                <div className="w-11 h-11 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                                    <Building2 className="w-5 h-5" />
+                                </div>
+                                <span className="px-2.5 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-300 text-[10px] font-bold">
+                                    Comptes
+                                </span>
+                            </div>
+                            <div className="my-4 z-10">
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sociétés Couvertes</p>
+                                <div className="flex items-baseline gap-2 mt-1">
+                                    <p className="text-3xl sm:text-4xl font-black text-white tracking-tight tabular-nums">
+                                        {stats.companies.toLocaleString("fr-FR")}
+                                    </p>
+                                    <span className="text-xs text-slate-400 font-medium">entreprises</span>
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-white/10 z-10">
+                                <span>Couverture B2B</span>
+                                <span className="text-amber-300 font-bold">Prospectées</span>
+                            </div>
+                        </div>
+
+                        {/* 3. Contacts Qualifiés — Mint Emerald Theme */}
+                        <div className="p-5 rounded-3xl bg-gradient-to-br from-white via-emerald-50/40 to-emerald-100/30 border border-emerald-200/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden">
+                            <div className="flex items-center justify-between z-10">
+                                <div className="w-11 h-11 rounded-2xl bg-emerald-100/80 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-2xs">
+                                    <Users className="w-5 h-5" />
+                                </div>
+                                <span className="px-2.5 py-0.5 rounded-full bg-emerald-100/80 border border-emerald-200 text-emerald-800 text-[10px] font-bold">
+                                    Contacts
+                                </span>
+                            </div>
+                            <div className="my-4 z-10">
+                                <p className="text-xs font-bold text-emerald-900/60 uppercase tracking-wider">Contacts Enregistrés</p>
+                                <div className="flex items-baseline gap-2 mt-1">
+                                    <p className="text-3xl sm:text-4xl font-black text-emerald-950 tracking-tight tabular-nums">
+                                        {stats.contacts.toLocaleString("fr-FR")}
+                                    </p>
+                                    <span className="text-xs text-emerald-700/70 font-medium">décideurs</span>
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-between text-xs text-emerald-800 pt-2 border-t border-emerald-200/60 z-10">
+                                <span>Contacts individuels</span>
+                                <span className="font-bold">Base adressable</span>
+                            </div>
+                        </div>
+
+                        {/* 4. Alertes Santé Prospection — Solar Amber Soft Theme */}
+                        <div
+                            onClick={() => {
+                                if (stats.toWatch > 0) setActiveTab("health");
+                            }}
+                            className={cn(
+                                "p-5 rounded-3xl bg-gradient-to-br from-white via-amber-50/40 to-amber-100/30 border border-amber-200/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden",
+                                stats.toWatch > 0 && "cursor-pointer hover:border-amber-300"
                             )}
-                        </div>
-
-                        <div className="h-5 w-px bg-slate-200" />
-
-                        {/* Size filter */}
-                        <div className="flex items-center gap-1">
-                            {[
-                                { value: "all", label: "Toutes tailles" },
-                                { value: "small", label: "< 50" },
-                                { value: "medium", label: "50-200" },
-                                { value: "large", label: "200+" },
-                            ].map((s) => (
-                                <button
-                                    key={s.value}
-                                    onClick={() => setSizeFilter(s.value)}
-                                    className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-                                        sizeFilter === s.value
-                                            ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
-                                            : "text-slate-500 hover:text-slate-700 hover:bg-slate-50 border border-transparent"
-                                    }`}
-                                >
-                                    {s.label}
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="h-5 w-px bg-slate-200" />
-
-                        {/* Quality filter — based on actionable % */}
-                        <div className="flex items-center gap-1">
-                            {[
-                                { value: "all", label: "Qualité" },
-                                { value: "low", label: "< 50%" },
-                                { value: "medium", label: "50-80%" },
-                                { value: "high", label: "80%+" },
-                            ].map((q) => (
-                                <button
-                                    key={q.value}
-                                    onClick={() => setQualityFilter(q.value)}
-                                    className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-                                        qualityFilter === q.value
-                                            ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
-                                            : "text-slate-500 hover:text-slate-700 hover:bg-slate-50 border border-transparent"
-                                    }`}
-                                    title={
-                                        q.value === "all"
-                                            ? "Toutes les listes"
-                                            : `Contacts ACTIONABLE ${q.label}`
-                                    }
-                                >
-                                    {q.label}
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="h-5 w-px bg-slate-200" />
-
-                        {/* Archive toggle — shows ONLY archived when active */}
-                        <button
-                            onClick={() => setShowArchived(p => !p)}
-                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-                                showArchived
-                                    ? "bg-amber-50 text-amber-700 border border-amber-200"
-                                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-50 border border-transparent"
-                            }`}
                         >
-                            <Archive className="w-3.5 h-3.5" />
-                            Archivées
-                        </button>
-
-                        {/* Spacer */}
-                        <div className="flex-1" />
-
-                        {/* Result count */}
-                        <span className="text-xs font-medium text-slate-400">
-                            {filteredLists.length} liste{filteredLists.length !== 1 ? "s" : ""}
-                        </span>
-
-                        {(searchQuery || sizeFilter !== "all" || qualityFilter !== "all" || showArchived) && (
-                            <button
-                                onClick={() => { setSearchQuery(""); setSizeFilter("all"); setQualityFilter("all"); setShowArchived(false); }}
-                                className="text-xs font-medium text-slate-400 hover:text-rose-500 transition-colors"
-                            >
-                                Réinitialiser
-                            </button>
-                        )}
+                            <div className="flex items-center justify-between z-10">
+                                <div className="w-11 h-11 rounded-2xl bg-amber-100/80 border border-amber-200 flex items-center justify-center text-amber-600 shadow-2xs">
+                                    <AlertTriangle className="w-5 h-5" />
+                                </div>
+                                <span className="px-2.5 py-0.5 rounded-full bg-amber-100/80 border border-amber-200 text-amber-800 text-[10px] font-bold">
+                                    Santé Base
+                                </span>
+                            </div>
+                            <div className="my-4 z-10">
+                                <p className="text-xs font-bold text-amber-900/60 uppercase tracking-wider">À Surveiller</p>
+                                <div className="flex items-baseline gap-2 mt-1">
+                                    <p className="text-3xl sm:text-4xl font-black text-amber-950 tracking-tight tabular-nums">
+                                        {stats.toWatch}
+                                    </p>
+                                    <span className="text-xs text-amber-700/70 font-medium">({stats.atRisk} à risque)</span>
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-between text-xs text-amber-800 pt-2 border-t border-amber-200/60 z-10">
+                                <span>{stats.toWatch > 0 ? "Voir le tableau de santé" : "Santé optimale"}</span>
+                                <ChevronRight className="w-4 h-4 text-amber-600" />
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Table View */}
-                    {isLoading && lists.length === 0 ? (
-                        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                            <div className="divide-y divide-slate-100">
-                                {[1, 2, 3, 4, 5, 6].map(i => (
-                                    <div key={i} className="flex items-center gap-4 px-5 py-3.5 animate-pulse">
-                                        <div className="w-8 h-8 bg-slate-100 rounded-lg flex-shrink-0" />
-                                        <div className="flex-1 space-y-1.5">
-                                            <div className="h-3.5 bg-slate-100 rounded w-1/3" />
-                                            <div className="h-2.5 bg-slate-100 rounded w-1/5" />
-                                        </div>
-                                        <div className="h-3 bg-slate-100 rounded w-12" />
-                                        <div className="h-3 bg-slate-100 rounded w-16" />
-                                        <div className="h-3 bg-slate-100 rounded w-10" />
-                                    </div>
+                    {/* ── Unified Filter Bar ── */}
+                    <div className="bg-white rounded-2xl border border-slate-200/80 p-3 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 flex-1 min-w-[260px]">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Rechercher une liste, une mission..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full h-10 pl-10 pr-9 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 focus:border-[#2890F8] placeholder:text-slate-400 transition-all"
+                                />
+                                {searchQuery && (
+                                    <button
+                                        onClick={() => setSearchQuery("")}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 transition-colors"
+                                    >
+                                        <X className="w-3.5 h-3.5 text-slate-400" />
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Size Filters */}
+                            <div className="hidden lg:flex items-center bg-slate-100 p-1 rounded-xl">
+                                {[
+                                    { value: "all", label: "Toutes tailles" },
+                                    { value: "small", label: "< 50" },
+                                    { value: "medium", label: "50-200" },
+                                    { value: "large", label: "200+" },
+                                ].map((s) => (
+                                    <button
+                                        key={s.value}
+                                        onClick={() => setSizeFilter(s.value)}
+                                        className={cn(
+                                            "px-2.5 py-1 text-xs font-semibold rounded-lg transition-all",
+                                            sizeFilter === s.value
+                                                ? "bg-[#0B0F19] text-white shadow-2xs"
+                                                : "text-slate-600 hover:text-slate-900"
+                                        )}
+                                    >
+                                        {s.label}
+                                    </button>
                                 ))}
                             </div>
                         </div>
+
+                        <div className="flex items-center gap-2">
+                            {/* Quality Filter */}
+                            <div className="flex items-center bg-slate-100 p-1 rounded-xl">
+                                {[
+                                    { value: "all", label: "Qualité" },
+                                    { value: "low", label: "< 50%" },
+                                    { value: "medium", label: "50-80%" },
+                                    { value: "high", label: "80%+" },
+                                ].map((q) => (
+                                    <button
+                                        key={q.value}
+                                        onClick={() => setQualityFilter(q.value)}
+                                        className={cn(
+                                            "px-2.5 py-1 text-xs font-semibold rounded-lg transition-all",
+                                            qualityFilter === q.value
+                                                ? "bg-[#0B0F19] text-white shadow-2xs"
+                                                : "text-slate-600 hover:text-slate-900"
+                                        )}
+                                    >
+                                        {q.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Archive toggle */}
+                            <button
+                                onClick={() => setShowArchived((p) => !p)}
+                                className={cn(
+                                    "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all border",
+                                    showArchived
+                                        ? "bg-amber-50 text-amber-800 border-amber-200"
+                                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                                )}
+                            >
+                                <Archive className="w-3.5 h-3.5" />
+                                <span>Archivées</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* ── Table View ── */}
+                    {isLoading && lists.length === 0 ? (
+                        <div className="grid gap-3">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <div key={i} className="h-16 bg-slate-200/60 rounded-2xl animate-pulse" />
+                            ))}
+                        </div>
                     ) : filteredLists.length === 0 ? (
-                        <div className="text-center py-16 bg-white rounded-xl border border-slate-200">
-                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-50 to-slate-50 border border-indigo-100/50 flex items-center justify-center mx-auto mb-4">
-                                <List className="w-7 h-7 text-indigo-400" />
+                        <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm">
+                            <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4 border border-slate-200">
+                                <List className="w-8 h-8 text-slate-400" />
                             </div>
                             <h3 className="text-base font-bold text-slate-900 mb-1">
                                 {searchQuery || sizeFilter !== "all" || qualityFilter !== "all" || showArchived
-                                    ? "Aucune liste ne correspond"
-                                    : "Aucune liste de contacts"}
+                                    ? "Aucune liste ne correspond à vos filtres"
+                                    : "Aucune liste de contacts créée"}
                             </h3>
-                            <p className="text-xs text-slate-500 mb-6 max-w-sm mx-auto">
+                            <p className="text-xs text-slate-500 mb-6">
                                 {searchQuery || sizeFilter !== "all" || qualityFilter !== "all"
-                                    ? "Modifiez vos filtres."
-                                    : "Importez une base de données ou créez une nouvelle liste."}
+                                    ? "Essayez d'ajuster ou réinitialiser vos filtres."
+                                    : "Importez votre premier fichier CSV pour générer une liste."}
                             </p>
                             {!searchQuery && sizeFilter === "all" && qualityFilter === "all" && !showArchived && (
-                                <Link href="/manager/lists/import" className="inline-flex items-center gap-2 h-9 px-5 text-xs font-medium border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-indigo-600 rounded-lg transition-colors shadow-sm">
-                                    <Upload className="w-3.5 h-3.5" />
+                                <Link
+                                    href="/manager/lists/import"
+                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#2890F8] hover:bg-[#1a75ce] transition-colors"
+                                >
+                                    <Upload className="w-4 h-4" />
                                     Importer un CSV
                                 </Link>
                             )}
                         </div>
                     ) : (
-                        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                            {/* Table header */}
-                            <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_70px_65px_65px_190px_90px_36px] gap-3 px-5 py-2.5 bg-slate-50/80 border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                                <span>Nom</span>
-                                <span>Mission</span>
-                                <span className="text-center">Type</span>
-                                <span className="text-center">Sociétés</span>
-                                <span className="text-center">Contacts</span>
-                                <span className="text-center">Santé &amp; activité</span>
-                                <span className="text-center">Source</span>
-                                <span></span>
-                            </div>
-                            {/* Table rows */}
-                            <div className="divide-y divide-slate-100">
-                                {filteredLists.map((list) => {
-                                    const totalContacts = list.stats?.contactCount || 0;
-                                    const actionablePercent = totalContacts > 0
-                                        ? Math.round(((list.stats?.completeness?.ACTIONABLE || 0) / totalContacts) * 100)
-                                        : 0;
+                        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                                            <th className="py-3.5 px-6">Nom de la liste</th>
+                                            <th className="py-3.5 px-4">Mission associée</th>
+                                            <th className="py-3.5 px-4 text-center">Type</th>
+                                            <th className="py-3.5 px-4 text-center">Sociétés</th>
+                                            <th className="py-3.5 px-4 text-center">Contacts</th>
+                                            <th className="py-3.5 px-6">Santé & Activité</th>
+                                            <th className="py-3.5 px-4 text-center">Source</th>
+                                            <th className="py-3.5 px-6 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 text-xs">
+                                        {filteredLists.map((list) => {
+                                            const totalContacts = list.stats?.contactCount || 0;
+                                            const actionablePercent =
+                                                totalContacts > 0
+                                                    ? Math.round(((list.stats?.completeness?.ACTIONABLE || 0) / totalContacts) * 100)
+                                                    : 0;
+                                            const health = healthByListId.get(list.id);
 
-                                    const health = healthByListId.get(list.id);
-
-                                    return (
-                                        <div
-                                            key={list.id}
-                                            onClick={() => router.push(`/manager/lists/${list.id}`)}
-                                            onContextMenu={(e) => handleContextMenu(e, list)}
-                                            className={`group grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_70px_65px_65px_190px_90px_36px] gap-3 px-5 py-3 cursor-pointer transition-colors hover:bg-indigo-50/40 ${list.isArchived ? "opacity-60" : ""}`}
-                                        >
-                                            {/* Name + badges */}
-                                            <div className="flex items-center gap-3 min-w-0">
-                                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0 group-hover:border-indigo-200 transition-colors">
-                                                    <List className="w-4 h-4 text-slate-400 group-hover:text-indigo-500 transition-colors" />
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <div className="flex items-center gap-2 min-w-0">
-                                                        <span className="text-sm font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors truncate">{list.name}</span>
-                                                        {list.isArchived && (
-                                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 flex-shrink-0">
-                                                                Archivée
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    {totalContacts > 0 && (
-                                                        <p className="text-[10px] font-medium text-slate-400 mt-0.5 truncate">
-                                                            {actionablePercent}% actionnable
-                                                            {health && health.actions7d > 0 && (
-                                                                <> · {health.actions7d} action{health.actions7d > 1 ? "s" : ""} 7j</>
-                                                            )}
-                                                            {health && health.daysSinceLastAction !== null && health.daysSinceLastAction >= 7 && (
-                                                                <span className="text-amber-600"> · {health.daysSinceLastAction}j sans action</span>
-                                                            )}
-                                                        </p>
+                                            return (
+                                                <tr
+                                                    key={list.id}
+                                                    onClick={() => router.push(`/manager/lists/${list.id}`)}
+                                                    onContextMenu={(e) => handleContextMenu(e, list)}
+                                                    className={cn(
+                                                        "hover:bg-slate-50/70 transition-colors cursor-pointer group",
+                                                        list.isArchived && "opacity-60"
                                                     )}
-                                                </div>
-                                            </div>
-
-                                            {/* Mission */}
-                                            <div className="flex items-center min-w-0">
-                                                <span className="text-xs font-medium text-slate-500 truncate">
-                                                    {list.mission?.name || "Non assignée"}
-                                                </span>
-                                            </div>
-
-                                            {/* Type */}
-                                            <div className="flex items-center justify-center">
-                                                <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full border ${TYPE_STYLES[list.type].color}`}>
-                                                    {TYPE_STYLES[list.type].label}
-                                                </span>
-                                            </div>
-
-                                            {/* Companies */}
-                                            <div className="flex items-center justify-center">
-                                                <span className="text-sm font-semibold text-slate-700">{list._count?.companies || 0}</span>
-                                            </div>
-
-                                            {/* Contacts */}
-                                            <div className="flex items-center justify-center">
-                                                <span className="text-sm font-semibold text-slate-700">{totalContacts}</span>
-                                            </div>
-
-                                            {/* Health + activity mini-dashboard */}
-                                            <div
-                                                className="flex items-center min-w-0"
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                {!health ? (
-                                                    <div className="w-full flex items-center justify-center">
-                                                        <span className="text-[11px] text-slate-400">Non renseigné</span>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex flex-col gap-1 w-full min-w-0">
-                                                        <div className="flex items-center justify-between gap-2">
-                                                            <ProspectionHealthBadge
-                                                                status={health.status}
-                                                                statusLabel={health.statusLabel}
-                                                                compact
-                                                            />
-                                                            <VelocityTrendBadge
-                                                                trend={health.velocity.trend}
-                                                                explanation={health.velocity.trendExplanation}
-                                                            />
-                                                        </div>
-                                                        <div className="flex items-center gap-2 min-w-0">
-                                                            <div className="flex-1 min-w-0">
-                                                                <ActivityScoreBar
-                                                                    score={health.activityScore}
-                                                                    size="sm"
-                                                                    explanation="Score composite 0-100"
-                                                                />
-                                                            </div>
-                                                            {health.coverageRate !== null && (
-                                                                <span
-                                                                    className={`text-[10px] font-bold tabular-nums flex-shrink-0 ${getCoverageColor(health.coverageRate)}`}
-                                                                    title={`Couverture: ${health.coverageRate.toFixed(1)}%`}
-                                                                >
-                                                                    {Math.round(health.coverageRate)}%
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Source */}
-                                            <div className="flex items-center justify-center">
-                                                <span className="text-[11px] font-medium text-slate-400 truncate">{list.source || "Non renseignée"}</span>
-                                            </div>
-
-                                            {/* Actions */}
-                                            <div className="flex items-center justify-center">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleContextMenu(e, list);
-                                                    }}
-                                                    className="p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors opacity-0 group-hover:opacity-100"
                                                 >
-                                                    <MoreVertical className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                                                    <td className="py-4 px-6">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 font-bold text-xs shrink-0 group-hover:bg-[#2890F8] group-hover:text-white group-hover:border-[#2890F8] transition-all">
+                                                                <List className="w-4 h-4" />
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <div className="flex items-center gap-2">
+                                                                    <p className="font-bold text-slate-900 group-hover:text-[#2890F8] transition-colors truncate">
+                                                                        {list.name}
+                                                                    </p>
+                                                                    {list.isArchived && (
+                                                                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200">
+                                                                            Archivée
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                {totalContacts > 0 && (
+                                                                    <p className="text-[11px] text-slate-400 mt-0.5">
+                                                                        {actionablePercent}% qualifié
+                                                                        {health && health.actions7d > 0 && (
+                                                                            <span> · {health.actions7d} actions 7j</span>
+                                                                        )}
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+
+                                                    <td className="py-4 px-4 text-slate-600 font-medium">
+                                                        {list.mission?.name || <span className="text-slate-400 italic">Non assignée</span>}
+                                                    </td>
+
+                                                    <td className="py-4 px-4 text-center">
+                                                        <span
+                                                            className={cn(
+                                                                "inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border",
+                                                                TYPE_STYLES[list.type]?.color
+                                                            )}
+                                                        >
+                                                            {TYPE_STYLES[list.type]?.label ?? list.type}
+                                                        </span>
+                                                    </td>
+
+                                                    <td className="py-4 px-4 text-center font-bold text-slate-900 tabular-nums">
+                                                        {list._count?.companies || 0}
+                                                    </td>
+
+                                                    <td className="py-4 px-4 text-center font-bold text-slate-900 tabular-nums">
+                                                        {totalContacts}
+                                                    </td>
+
+                                                    <td className="py-4 px-6" onClick={(e) => e.stopPropagation()}>
+                                                        {!health ? (
+                                                            <span className="text-[11px] text-slate-400">Non renseigné</span>
+                                                        ) : (
+                                                            <div className="flex flex-col gap-1 w-full min-w-[170px]">
+                                                                <div className="flex items-center justify-between gap-2">
+                                                                    <ProspectionHealthBadge
+                                                                        status={health.status}
+                                                                        statusLabel={health.statusLabel}
+                                                                        compact
+                                                                    />
+                                                                    <VelocityTrendBadge
+                                                                        trend={health.velocity.trend}
+                                                                        explanation={health.velocity.trendExplanation}
+                                                                    />
+                                                                </div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="flex-1">
+                                                                        <ActivityScoreBar
+                                                                            score={health.activityScore}
+                                                                            size="sm"
+                                                                            explanation="Score composite 0-100"
+                                                                        />
+                                                                    </div>
+                                                                    {health.coverageRate !== null && (
+                                                                        <span
+                                                                            className={cn(
+                                                                                "text-[10px] font-bold tabular-nums shrink-0",
+                                                                                getCoverageColor(health.coverageRate)
+                                                                            )}
+                                                                        >
+                                                                            {Math.round(health.coverageRate)}%
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </td>
+
+                                                    <td className="py-4 px-4 text-center text-slate-400 text-[11px]">
+                                                        {list.source || "N/A"}
+                                                    </td>
+
+                                                    <td className="py-4 px-6 text-right">
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleContextMenu(e, list);
+                                                            }}
+                                                            className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+                                                        >
+                                                            <MoreVertical className="w-4 h-4" />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     )}
                 </>
             ) : activeTab === "search" ? (
-                <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm min-h-[600px] flex flex-col">
+                <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-sm min-h-[600px] flex flex-col p-2">
                     <ListingSearchTab onImport={handleImportRequest} />
                 </div>
             ) : (
-                <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm p-5">
+                <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-sm p-6">
                     <ListHealthDashboard />
                 </div>
             )}
@@ -801,14 +789,12 @@ export default function ListsPage() {
                 onImportComplete={handleImportComplete}
             />
 
-            {/* Context Menu */}
             <ContextMenu
                 items={contextData ? getContextMenuItems(contextData) : []}
                 position={position}
                 onClose={closeMenu}
             />
 
-            {/* Delete Confirmation */}
             <ConfirmModal
                 isOpen={showDeleteModal}
                 onClose={() => {
@@ -822,7 +808,6 @@ export default function ListsPage() {
                 variant="danger"
                 isLoading={isDeleting}
             />
-
         </div>
     );
 }
