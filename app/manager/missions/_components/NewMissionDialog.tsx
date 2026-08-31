@@ -25,7 +25,12 @@ import {
     Rocket,
     ArrowRight,
     Check,
+    Flame,
+    Zap,
+    BarChart3,
+    Shield
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -45,49 +50,46 @@ const CHANNEL_OPTIONS = [
         value: "CALL",
         label: "Appel téléphonique",
         icon: Phone,
-        description: "Prospection par téléphone",
-        gradient: "from-blue-500 to-indigo-600",
-        bgLight: "bg-blue-50",
+        description: "Prospection directe & qualification",
+        gradient: "from-blue-600 to-indigo-700",
         border: "border-blue-200",
         text: "text-blue-700",
-        selected: "border-indigo-400 bg-indigo-50 ring-2 ring-indigo-500/20",
+        selected: "border-[#2890F8] bg-blue-50/70 ring-2 ring-[#2890F8]/20 shadow-md shadow-blue-500/10",
     },
     {
         value: "EMAIL",
-        label: "Email",
+        label: "Campagne Email",
         icon: Mail,
-        description: "Campagnes email froides",
-        gradient: "from-violet-500 to-purple-600",
-        bgLight: "bg-violet-50",
+        description: "Séquences multicanales personnalisées",
+        gradient: "from-violet-600 to-purple-700",
         border: "border-violet-200",
         text: "text-violet-700",
-        selected: "border-violet-400 bg-violet-50 ring-2 ring-violet-500/20",
+        selected: "border-violet-500 bg-violet-50/70 ring-2 ring-violet-500/20 shadow-md shadow-violet-500/10",
     },
     {
         value: "LINKEDIN",
-        label: "LinkedIn",
+        label: "LinkedIn Social Selling",
         icon: Linkedin,
-        description: "Prospection sociale",
-        gradient: "from-sky-500 to-blue-600",
-        bgLight: "bg-sky-50",
+        description: "InMails & connexions directes",
+        gradient: "from-sky-600 to-blue-700",
         border: "border-sky-200",
         text: "text-sky-700",
-        selected: "border-sky-400 bg-sky-50 ring-2 ring-sky-500/20",
+        selected: "border-sky-500 bg-sky-50/70 ring-2 ring-sky-500/20 shadow-md shadow-sky-500/10",
     },
 ];
 
 const STEPS = [
-    { id: 1, label: "Mission", icon: Building2, description: "Infos générales" },
-    { id: 2, label: "Stratégie", icon: Target, description: "ICP & Pitch" },
-    { id: 3, label: "Script", icon: MessageSquare, description: "Argumentaire" },
-    { id: 4, label: "Lancer", icon: Rocket, description: "Récapitulatif" },
+    { id: 1, label: "Mission & Client", icon: Building2, description: "Cadrage général" },
+    { id: 2, label: "Stratégie & Cible", icon: Target, description: "ICP & Pitch commercial" },
+    { id: 3, label: "Argumentaire IA", icon: MessageSquare, description: "Script de prospection" },
+    { id: 4, label: "Lancement", icon: Rocket, description: "Validation & Déploiement" },
 ];
 
 const SCRIPT_SECTIONS = [
-    { key: "scriptIntro", label: "Introduction / Accroche", placeholder: "Comment vous présentez-vous et captez l'attention ?", step: "Étape 1", required: true },
-    { key: "scriptDiscovery", label: "Phase de découverte", placeholder: "Quelles questions posez-vous pour qualifier le besoin ?", step: "Étape 2", required: false },
-    { key: "scriptObjection", label: "Réponses aux objections", placeholder: "Arguments face aux refus les plus courants...", step: "Optionnel", required: false },
-    { key: "scriptClosing", label: "Closing / Appel à l'action", placeholder: "Comment proposez-vous le rendez-vous ou l'étape suivante ?", step: "Étape 3", required: false },
+    { key: "scriptIntro", label: "Accroche / Introduction", placeholder: "Comment vous présentez-vous et captez l'attention en 15 secondes ?", step: "Étape 1", required: true },
+    { key: "scriptDiscovery", label: "Questions de qualification", placeholder: "Quelles questions posez-vous pour identifier les besoins et le budget ?", step: "Étape 2", required: false },
+    { key: "scriptObjection", label: "Traitement des objections", placeholder: "Arguments face au manque de temps, budget ou concurrent en place...", step: "Étape 3", required: false },
+    { key: "scriptClosing", label: "Closing / Proposition de RDV", placeholder: "Comment proposez-vous le rendez-vous qualifié ?", step: "Étape 4", required: false },
 ];
 
 // ─── Main Component ───────────────────────────────────────────────────────────
@@ -102,7 +104,6 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatingSection, setGeneratingSection] = useState<string | null>(null);
-    const [direction, setDirection] = useState<"forward" | "back">("forward");
 
     const [form, setForm] = useState<CreateMissionInput & { channels?: Channel[] }>({
         name: "",
@@ -118,7 +119,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
         scriptDiscovery: "",
         scriptObjection: "",
         scriptClosing: "",
-        status: "DRAFT" as MissionStatusValue,
+        status: "ACTIVE" as MissionStatusValue,
     });
 
     useEffect(() => {
@@ -129,7 +130,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
             clientId: "", startDate: "", endDate: "",
             icp: "", pitch: "",
             scriptIntro: "", scriptDiscovery: "", scriptObjection: "", scriptClosing: "",
-            status: "DRAFT" as MissionStatusValue,
+            status: "ACTIVE" as MissionStatusValue,
         });
     }, [isOpen]);
 
@@ -167,12 +168,10 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
 
     const goNext = () => {
         if (!stepValid(step)) return;
-        setDirection("forward");
         setStep(s => Math.min(4, s + 1));
     };
 
     const goBack = () => {
-        setDirection("back");
         setStep(s => Math.max(1, s - 1));
     };
 
@@ -180,7 +179,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
 
     const generateSection = async (section: string) => {
         if (!form.icp.trim() || !form.pitch.trim()) {
-            showError("Erreur", "Renseignez d'abord l'ICP et le pitch (étape 2)");
+            showError("Erreur", "Renseignez d'abord l'ICP et le pitch commercial (étape 2)");
             return;
         }
         setIsGenerating(true);
@@ -219,12 +218,12 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                         scriptObjection: (script.objection?.[0] ?? script.objection) || prev.scriptObjection,
                         scriptClosing: (script.closing?.[0] ?? script.closing) || prev.scriptClosing,
                     }));
-                    success("IA", "Script généré avec succès !");
+                    success("IA Suzalink", "Script complet généré avec succès !");
                 } else {
                     const val = (script[section]?.[0] ?? script[section]) || "";
                     if (val) {
                         setForm(prev => ({ ...prev, [fieldMap[section]]: val }));
-                        success("IA", "Section générée !");
+                        success("IA Suzalink", "Section argumentaire mise à jour !");
                     }
                 }
             } else {
@@ -245,7 +244,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
         try {
             const res = await createMission(form);
             if (res.success) {
-                success("Mission créée 🎉", res.message || "Votre mission est prête !");
+                success("Mission lancée 🎉", res.message || "Votre mission est configurée !");
                 onClose();
                 onCreated?.();
                 if (res.missionId) router.push(`/manager/missions/${res.missionId}`);
@@ -266,53 +265,54 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
+            {/* Backdrop - Soft focus without darkening the entire screen */}
             <div
-                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                className="absolute inset-0 bg-slate-900/20 backdrop-blur-[2px] transition-opacity"
                 onClick={onClose}
             />
 
-            {/* Dialog */}
-            <div className="relative w-full max-w-3xl max-h-[90vh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200/50">
+            {/* Dialog Container with #FCFAFF soft background */}
+            <div className="relative w-full max-w-3xl max-h-[92vh] flex flex-col bg-[#FCFAFF] rounded-3xl shadow-2xl shadow-slate-900/10 overflow-hidden border border-slate-200/80 animate-in fade-in zoom-in-95 duration-200">
 
                 {/* ── Header ─────────────────────────────────────────────── */}
-                <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 px-8 pt-8 pb-6 flex-shrink-0">
-                    {/* Decorative orbs */}
-                    <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-indigo-600/20 blur-3xl pointer-events-none" />
-                    <div className="absolute -bottom-12 left-12 w-32 h-32 rounded-full bg-violet-600/15 blur-2xl pointer-events-none" />
+                <div className="relative overflow-hidden bg-gradient-to-br from-[#0B0F19] via-[#0D1527] to-[#04060A] px-6 sm:px-8 py-6 border-b border-slate-800 flex-shrink-0">
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+                    <div className="absolute -bottom-8 left-12 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
 
                     <div className="relative z-10">
-                        <div className="flex items-start justify-between mb-6">
-                            <div>
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center">
-                                        <Rocket className="w-3.5 h-3.5 text-indigo-300" />
-                                    </div>
-                                    <span className="text-xs font-semibold text-indigo-300 uppercase tracking-widest">Nouvelle mission</span>
+                        <div className="flex items-center justify-between mb-5">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#2890F8] to-blue-700 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                                    <Rocket className="w-5 h-5" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-white">
-                                    {step === 1 && "Informations générales"}
-                                    {step === 2 && "Stratégie de prospection"}
-                                    {step === 3 && "Script d'appel"}
-                                    {step === 4 && "Prêt à lancer !"}
-                                </h2>
-                                <p className="text-sm text-slate-400 mt-0.5">
-                                    {step === 1 && "Nommez votre mission et choisissez le canal"}
-                                    {step === 2 && "Définissez votre cible et votre argumentaire"}
-                                    {step === 3 && "Construisez votre script de prospection"}
-                                    {step === 4 && "Vérifiez et lancez votre mission"}
-                                </p>
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
+                                            Nouvelle Mission Commerciale
+                                        </h2>
+                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-[#2890F8] border border-blue-500/30">
+                                            Étape {step} / 4
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-slate-400 mt-0.5">
+                                        {step === 1 && "Nommez la mission et sélectionnez le client et les canaux"}
+                                        {step === 2 && "Définissez le profil client idéal (ICP) et le pitch d'accroche"}
+                                        {step === 3 && "Générez et peaufinez le script d'appel avec l'IA"}
+                                        {step === 4 && "Contrôlez les paramètres finaux et déployez la mission"}
+                                    </p>
+                                </div>
                             </div>
                             <button
+                                type="button"
                                 onClick={onClose}
                                 className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors text-white/70 hover:text-white"
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-4 h-4" />
                             </button>
                         </div>
 
                         {/* Step indicator */}
-                        <div className="flex items-center gap-0">
+                        <div className="flex items-center gap-1 pt-3 border-t border-slate-800/80">
                             {STEPS.map((s, i) => {
                                 const done = step > s.id;
                                 const active = step === s.id;
@@ -320,27 +320,26 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                 return (
                                     <div key={s.id} className="flex items-center flex-1 last:flex-none">
                                         <button
-                                            onClick={() => done ? (setDirection(s.id < step ? "back" : "forward"), setStep(s.id)) : undefined}
-                                            className={`flex items-center gap-2 ${done ? "cursor-pointer" : "cursor-default"}`}
+                                            type="button"
+                                            onClick={() => done ? setStep(s.id) : undefined}
                                             disabled={!done && !active}
+                                            className={cn(
+                                                "flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all",
+                                                active
+                                                    ? "bg-[#2890F8] text-white shadow-md shadow-blue-500/30 scale-105"
+                                                    : done
+                                                        ? "bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 cursor-pointer"
+                                                        : "bg-white/5 text-slate-500 cursor-not-allowed"
+                                            )}
                                         >
-                                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300 text-xs font-bold ${done
-                                                    ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30"
-                                                    : active
-                                                        ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/40 scale-110"
-                                                        : "bg-white/10 text-white/40"
-                                                }`}>
-                                                {done ? <Check className="w-4 h-4" /> : <StepIcon className="w-4 h-4" />}
-                                            </div>
-                                            <div className="hidden sm:block">
-                                                <p className={`text-xs font-semibold transition-colors ${active ? "text-white" : done ? "text-emerald-300" : "text-white/40"}`}>
-                                                    {s.label}
-                                                </p>
-                                                <p className={`text-[10px] transition-colors ${active ? "text-slate-400" : "text-white/25"}`}>{s.description}</p>
-                                            </div>
+                                            {done ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <StepIcon className="w-3.5 h-3.5" />}
+                                            <span className="hidden sm:inline">{s.label}</span>
                                         </button>
                                         {i < STEPS.length - 1 && (
-                                            <div className={`flex-1 mx-3 h-px transition-all ${step > s.id ? "bg-emerald-500/50" : "bg-white/15"}`} />
+                                            <div className={cn(
+                                                "flex-1 h-0.5 mx-2 rounded-full transition-colors",
+                                                step > s.id ? "bg-emerald-500/50" : "bg-slate-800"
+                                            )} />
                                         )}
                                     </div>
                                 );
@@ -349,18 +348,18 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                     </div>
                 </div>
 
-                {/* ── Body ───────────────────────────────────────────────── */}
-                <div className="flex-1 overflow-y-auto">
-                    <div className="p-8">
+                {/* ── Body (Soft #FCFAFF surface) ─────────────────────────── */}
+                <div className="flex-1 overflow-y-auto p-6 sm:p-8 bg-[#FCFAFF]">
 
-                        {/* ── STEP 1: Mission basics ── */}
-                        {step === 1 && (
-                            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                    {/* ── STEP 1: Mission basics ── */}
+                    {step === 1 && (
+                        <div className="space-y-6">
 
-                                {/* Client */}
+                            {/* Client & Name */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                        Client <span className="text-red-500">*</span>
+                                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                                        Compte Client <span className="text-red-500">*</span>
                                     </label>
                                     {isLoadingClients ? (
                                         <div className="h-11 bg-slate-100 rounded-xl animate-pulse" />
@@ -368,9 +367,9 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                         <select
                                             value={form.clientId}
                                             onChange={e => setForm(p => ({ ...p, clientId: e.target.value }))}
-                                            className="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+                                            className="w-full h-11 px-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all cursor-pointer shadow-2xs"
                                         >
-                                            <option value="">Sélectionner un client...</option>
+                                            <option value="">Sélectionner un compte client...</option>
                                             {clients.map(c => (
                                                 <option key={c.id} value={c.id}>{c.name}</option>
                                             ))}
@@ -378,9 +377,8 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                     )}
                                 </div>
 
-                                {/* Name */}
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
                                         Nom de la mission <span className="text-red-500">*</span>
                                     </label>
                                     <input
@@ -388,358 +386,350 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                         value={form.name}
                                         onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
                                         placeholder="Ex: Prospection SaaS B2B Q1 2026"
-                                        className="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all placeholder:text-slate-400"
+                                        className="w-full h-11 px-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all placeholder:text-slate-400 shadow-2xs"
                                     />
                                 </div>
+                            </div>
 
-                                {/* Objective */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Objectif</label>
-                                    <textarea
-                                        value={form.objective}
-                                        onChange={e => setForm(p => ({ ...p, objective: e.target.value }))}
-                                        placeholder="Ex: Générer 50 rendez-vous qualifiés en 3 mois..."
-                                        rows={3}
-                                        className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all placeholder:text-slate-400 resize-none"
-                                    />
-                                </div>
+                            {/* Objective */}
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1.5">Objectif de la mission</label>
+                                <textarea
+                                    value={form.objective}
+                                    onChange={e => setForm(p => ({ ...p, objective: e.target.value }))}
+                                    placeholder="Ex: Générer 30 rendez-vous qualifiés par mois auprès des directeurs commerciaux..."
+                                    rows={2}
+                                    className="w-full p-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all placeholder:text-slate-400 resize-none shadow-2xs"
+                                />
+                            </div>
 
-                                {/* Channels (multi-select) */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-3">
-                                        Canaux <span className="text-red-500">*</span>
-                                    </label>
-                                    <p className="text-xs text-slate-500 mb-2">Sélectionnez un ou plusieurs canaux pour cette mission (appels, email, LinkedIn peuvent être utilisés ensemble).</p>
-                                    <div className="grid grid-cols-3 gap-3">
-                                        {CHANNEL_OPTIONS.map(opt => {
-                                            const Icon = opt.icon;
-                                            const isSelected = form.channels?.includes(opt.value as Channel) ?? form.channel === opt.value;
-                                            return (
-                                                <button
-                                                    key={opt.value}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        const current = form.channels ?? [form.channel];
-                                                        const next = isSelected
-                                                            ? current.filter(c => c !== opt.value)
-                                                            : [...current, opt.value as Channel];
-                                                        if (next.length === 0) return;
-                                                        setForm(p => ({
-                                                            ...p,
-                                                            channels: next,
-                                                            channel: next[0],
-                                                        }));
-                                                    }}
-                                                    className={`group relative flex flex-col items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-200 ${isSelected
-                                                            ? opt.selected
-                                                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                                                        }`}
-                                                >
-                                                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${opt.gradient} flex items-center justify-center shadow-md group-hover:scale-105 transition-transform ${isSelected ? "scale-110" : ""}`}>
-                                                        <Icon className="w-6 h-6 text-white" />
+                            {/* Channels (multi-select) */}
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                                    Canaux d'acquisition <span className="text-red-500">*</span>
+                                </label>
+                                <p className="text-[11px] text-slate-400 mb-3">Sélectionnez les canaux activés pour cette mission (combinables librement).</p>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                                    {CHANNEL_OPTIONS.map(opt => {
+                                        const Icon = opt.icon;
+                                        const isSelected = form.channels?.includes(opt.value as Channel) ?? form.channel === opt.value;
+                                        return (
+                                            <button
+                                                key={opt.value}
+                                                type="button"
+                                                onClick={() => {
+                                                    const current = form.channels ?? [form.channel];
+                                                    const next = isSelected
+                                                        ? current.filter(c => c !== opt.value)
+                                                        : [...current, opt.value as Channel];
+                                                    if (next.length === 0) return;
+                                                    setForm(p => ({
+                                                        ...p,
+                                                        channels: next,
+                                                        channel: next[0],
+                                                    }));
+                                                }}
+                                                className={cn(
+                                                    "group relative flex flex-col items-center gap-2.5 p-4 rounded-2xl border-2 transition-all duration-200 text-center",
+                                                    isSelected
+                                                        ? opt.selected
+                                                        : "border-slate-200/80 bg-white hover:border-slate-300 hover:bg-slate-50 shadow-2xs"
+                                                )}
+                                            >
+                                                <div className={cn(
+                                                    "w-11 h-11 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md text-white group-hover:scale-105 transition-transform",
+                                                    opt.gradient,
+                                                    isSelected && "scale-110"
+                                                )}>
+                                                    <Icon className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className={cn("text-xs font-bold", isSelected ? opt.text : "text-slate-800")}>{opt.label}</p>
+                                                    <p className="text-[10px] text-slate-400 mt-0.5">{opt.description}</p>
+                                                </div>
+                                                {isSelected && (
+                                                    <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-[#2890F8] text-white flex items-center justify-center shadow-xs">
+                                                        <Check className="w-2.5 h-2.5" />
                                                     </div>
-                                                    <div className="text-center">
-                                                        <p className={`text-sm font-bold ${isSelected ? opt.text : "text-slate-700"}`}>{opt.label}</p>
-                                                        <p className="text-[11px] text-slate-400 mt-0.5">{opt.description}</p>
-                                                    </div>
-                                                    {isSelected && (
-                                                        <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center">
-                                                            <Check className="w-3 h-3 text-white" />
-                                                        </div>
-                                                    )}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
+                            </div>
 
-                                {/* Dates */}
-                                <div className="grid grid-cols-2 gap-4">
+                            {/* Dates & Status */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-2">
                                     <div>
-                                        <label className="block text-sm font-semibold text-slate-700 mb-2">Date de début</label>
+                                        <label className="block text-xs font-bold text-slate-700 mb-1">Date début</label>
                                         <input
                                             type="date"
                                             value={form.startDate}
                                             onChange={e => setForm(p => ({ ...p, startDate: e.target.value }))}
-                                            className="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+                                            className="w-full h-10 px-3 border border-slate-200 rounded-xl text-xs text-slate-900 bg-white focus:outline-none focus:border-[#2890F8] shadow-2xs"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-slate-700 mb-2">Date de fin</label>
+                                        <label className="block text-xs font-bold text-slate-700 mb-1">Date fin</label>
                                         <input
                                             type="date"
                                             value={form.endDate}
                                             onChange={e => setForm(p => ({ ...p, endDate: e.target.value }))}
-                                            className="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+                                            className="w-full h-10 px-3 border border-slate-200 rounded-xl text-xs text-slate-900 bg-white focus:outline-none focus:border-[#2890F8] shadow-2xs"
                                         />
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Statut initial</label>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <button
-                                            type="button"
-                                            onClick={() => setForm((p) => ({ ...p, status: "DRAFT" as MissionStatusValue }))}
-                                            className={`px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all ${form.status === "DRAFT" ? "border-slate-400 bg-slate-100 text-slate-800" : "border-slate-200 bg-white text-slate-600"}`}
-                                        >
-                                            Brouillon
-                                        </button>
+                                    <label className="block text-xs font-bold text-slate-700 mb-1">Statut initial</label>
+                                    <div className="grid grid-cols-2 gap-2">
                                         <button
                                             type="button"
                                             onClick={() => setForm((p) => ({ ...p, status: "ACTIVE" as MissionStatusValue }))}
-                                            className={`px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all ${form.status === "ACTIVE" ? "border-emerald-400 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-600"}`}
+                                            className={cn(
+                                                "h-10 px-3 rounded-xl border text-xs font-bold transition-all",
+                                                form.status === "ACTIVE"
+                                                    ? "border-emerald-500 bg-emerald-50 text-emerald-800 shadow-2xs"
+                                                    : "border-slate-200 bg-white text-slate-600 shadow-2xs"
+                                            )}
                                         >
-                                            Active
+                                            Active immédiate
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setForm((p) => ({ ...p, status: "DRAFT" as MissionStatusValue }))}
+                                            className={cn(
+                                                "h-10 px-3 rounded-xl border text-xs font-bold transition-all",
+                                                form.status === "DRAFT"
+                                                    ? "border-slate-400 bg-slate-100 text-slate-800 shadow-2xs"
+                                                    : "border-slate-200 bg-white text-slate-600 shadow-2xs"
+                                            )}
+                                        >
+                                            Brouillon
                                         </button>
                                     </div>
                                 </div>
                             </div>
-                        )}
+                        </div>
+                    )}
 
-                        {/* ── STEP 2: Strategy ── */}
-                        {step === 2 && (
-                            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                                {/* Info banner */}
-                                <div className="flex items-start gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-2xl">
-                                    <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                        <Target className="w-4 h-4 text-indigo-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-semibold text-indigo-900">Pourquoi c'est important ?</p>
-                                        <p className="text-xs text-indigo-600 mt-0.5">L'ICP et le pitch alimentent l'IA pour générer votre script et guident vos SDRs pendant les appels.</p>
-                                    </div>
+                    {/* ── STEP 2: Strategy ── */}
+                    {step === 2 && (
+                        <div className="space-y-5">
+                            <div className="p-4 bg-gradient-to-r from-blue-50/80 via-white to-indigo-50/60 border border-blue-200/80 rounded-2xl flex items-start gap-3 shadow-2xs">
+                                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow-2xs">
+                                    <Target className="w-4 h-4" />
                                 </div>
-
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                                        ICP — Profil Client Idéal <span className="text-red-500">*</span>
-                                    </label>
-                                    <p className="text-xs text-slate-500 mb-2">Qui cherchez-vous à contacter ? Soyez précis : secteur, taille, poste, problème...</p>
-                                    <textarea
-                                        value={form.icp}
-                                        onChange={e => setForm(p => ({ ...p, icp: e.target.value }))}
-                                        placeholder="Ex: CEOs et DG de startups B2B SaaS entre 10 et 100 employés en France, dans les secteurs RH et finance, qui cherchent à automatiser leur prospection."
-                                        rows={4}
-                                        className={`w-full px-4 py-3 border rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all placeholder:text-slate-400 resize-none ${!form.icp && "border-red-300" || "border-slate-200"}`}
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                                        Pitch Commercial <span className="text-red-500">*</span>
-                                    </label>
-                                    <p className="text-xs text-slate-500 mb-2">Quelle valeur apportez-vous ? En 2-3 phrases, l'essentiel de votre offre.</p>
-                                    <textarea
-                                        value={form.pitch}
-                                        onChange={e => setForm(p => ({ ...p, pitch: e.target.value }))}
-                                        placeholder="Ex: Nous aidons les équipes commerciales à multiplier par 3 le nombre de meetings qualifiés grâce à une plateforme de prospection IA qui automatise les relances et personnalise les messages à grande échelle."
-                                        rows={4}
-                                        className={`w-full px-4 py-3 border rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all placeholder:text-slate-400 resize-none ${!form.pitch && "border-red-300" || "border-slate-200"}`}
-                                    />
+                                    <p className="text-xs font-bold text-blue-950">Pourquoi ce cadrage est clé ?</p>
+                                    <p className="text-[11px] text-blue-800/80 mt-0.5">
+                                        L'ICP et le pitch permettent à l'IA de générer automatiquement un argumentaire téléphonique percutant et personnalisé.
+                                    </p>
                                 </div>
                             </div>
-                        )}
 
-                        {/* ── STEP 3: Script ── */}
-                        {step === 3 && (
-                            <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
-                                {/* AI generate all button */}
-                                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-200 rounded-2xl">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
-                                            <Sparkles className="w-4.5 h-4.5 text-white" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-semibold text-indigo-900">Générer avec l'IA</p>
-                                            <p className="text-xs text-indigo-500">Remplir tout le script automatiquement</p>
-                                        </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">
+                                    ICP — Profil Client Idéal <span className="text-red-500">*</span>
+                                </label>
+                                <p className="text-[11px] text-slate-400 mb-2">Secteur, taille d'entreprise, fonctions décisionnaires, problématiques clés...</p>
+                                <textarea
+                                    value={form.icp}
+                                    onChange={e => setForm(p => ({ ...p, icp: e.target.value }))}
+                                    placeholder="Ex: CEOs et Directeurs Commerciaux de PME B2B (20 à 250 employés) en France dans les secteurs SaaS / Services, qui cherchent à accélérer leur prospection sortante."
+                                    rows={4}
+                                    className="w-full p-4 border border-slate-200 rounded-2xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all placeholder:text-slate-400 resize-none shadow-2xs"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">
+                                    Pitch Commercial &amp; Proposition de Valeur <span className="text-red-500">*</span>
+                                </label>
+                                <p className="text-[11px] text-slate-400 mb-2">En 2-3 phrases, quelle est la promesse principale et le bénéfice différenciant ?</p>
+                                <textarea
+                                    value={form.pitch}
+                                    onChange={e => setForm(p => ({ ...p, pitch: e.target.value }))}
+                                    placeholder="Ex: Suzalink met à disposition des SDRs experts et une plateforme IA pour tripler votre volume de rendez-vous qualifiés sans recruter en interne."
+                                    rows={4}
+                                    className="w-full p-4 border border-slate-200 rounded-2xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all placeholder:text-slate-400 resize-none shadow-2xs"
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ── STEP 3: Script ── */}
+                    {step === 3 && (
+                        <div className="space-y-5">
+                            {/* AI generate all button */}
+                            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-violet-50/90 via-indigo-50/70 to-blue-50/80 border border-violet-200 rounded-2xl shadow-2xs">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-violet-500/20">
+                                        <Sparkles className="w-5 h-5" />
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => generateSection("all")}
-                                        disabled={isGenerating || !form.icp || !form.pitch}
-                                        className="flex items-center gap-2 h-9 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white text-sm font-semibold transition-all shadow-md shadow-indigo-500/30"
-                                    >
-                                        {isGenerating && generatingSection === "all" ? (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                        ) : (
-                                            <Wand2 className="w-4 h-4" />
+                                    <div>
+                                        <p className="text-xs font-black text-violet-950 uppercase tracking-wider">Assistant IA Mistral</p>
+                                        <p className="text-[11px] text-violet-800">Générez tout l'argumentaire à partir de l'ICP et du Pitch</p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => generateSection("all")}
+                                    disabled={isGenerating || !form.icp || !form.pitch}
+                                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-40 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/30"
+                                >
+                                    {isGenerating && generatingSection === "all" ? (
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    ) : (
+                                        <Wand2 className="w-3.5 h-3.5" />
+                                    )}
+                                    Générer tout le script
+                                </button>
+                            </div>
+
+                            {SCRIPT_SECTIONS.map(sec => (
+                                <div key={sec.key} className="space-y-1.5">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <label className="text-xs font-bold text-slate-800">
+                                                {sec.label}
+                                                {sec.required && <span className="text-red-500 ml-1">*</span>}
+                                            </label>
+                                            <span className={cn(
+                                                "text-[9px] font-black uppercase px-2 py-0.5 rounded-full",
+                                                sec.required ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-500"
+                                            )}>
+                                                {sec.step}
+                                            </span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => generateSection(sec.key.replace("script", "").toLowerCase())}
+                                            disabled={isGenerating || !form.icp || !form.pitch}
+                                            className="flex items-center gap-1 text-[11px] font-bold text-violet-600 hover:text-violet-800 disabled:text-slate-400 transition-colors"
+                                        >
+                                            {isGenerating && generatingSection === sec.key.replace("script", "").toLowerCase() ? (
+                                                <Loader2 className="w-3 h-3 animate-spin" />
+                                            ) : (
+                                                <Wand2 className="w-3 h-3" />
+                                            )}
+                                            Générer
+                                        </button>
+                                    </div>
+                                    <textarea
+                                        value={(form as any)[sec.key]}
+                                        onChange={e => setForm(p => ({ ...p, [sec.key]: e.target.value }))}
+                                        placeholder={sec.placeholder}
+                                        rows={3}
+                                        className={cn(
+                                            "w-full p-3.5 border rounded-2xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all placeholder:text-slate-400 resize-none shadow-2xs",
+                                            sec.required && !(form as any)[sec.key] ? "border-amber-300 bg-amber-50/20" : "border-slate-200"
                                         )}
-                                        Générer tout
-                                    </button>
+                                    />
                                 </div>
+                            ))}
+                        </div>
+                    )}
 
-                                {SCRIPT_SECTIONS.map(sec => (
-                                    <div key={sec.key}>
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div>
-                                                <label className="text-sm font-semibold text-slate-700">
-                                                    {sec.label}
-                                                    {sec.required && <span className="text-red-500 ml-1">*</span>}
-                                                </label>
-                                                <span className={`ml-2 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${sec.required ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-500"}`}>
-                                                    {sec.step}
-                                                </span>
-                                            </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => generateSection(sec.key.replace("script", "").toLowerCase())}
-                                                disabled={isGenerating || !form.icp || !form.pitch}
-                                                className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 disabled:text-slate-400 font-medium transition-colors"
-                                            >
-                                                {isGenerating && generatingSection === sec.key.replace("script", "").toLowerCase() ? (
-                                                    <Loader2 className="w-3 h-3 animate-spin" />
-                                                ) : (
-                                                    <Wand2 className="w-3 h-3" />
-                                                )}
-                                                Générer
-                                            </button>
-                                        </div>
-                                        <textarea
-                                            value={(form as any)[sec.key]}
-                                            onChange={e => setForm(p => ({ ...p, [sec.key]: e.target.value }))}
-                                            placeholder={sec.placeholder}
-                                            rows={3}
-                                            className={`w-full px-4 py-3 border rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all placeholder:text-slate-400 resize-none font-mono ${sec.required && !(form as any)[sec.key] ? "border-red-200 bg-red-50/30" : "border-slate-200"
-                                                }`}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {/* ── STEP 4: Review ── */}
-                        {step === 4 && (
-                            <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
-                                {/* Success banner */}
-                                <div className="relative overflow-hidden flex items-center gap-4 p-5 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl">
-                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/30">
-                                        <CheckCircle2 className="w-7 h-7 text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="text-base font-bold text-emerald-900">Tout est prêt !</p>
-                                        <p className="text-sm text-emerald-600 mt-0.5">Vérifiez les informations ci-dessous puis lancez votre mission.</p>
-                                    </div>
-                                </div>
-
-                                {/* Mission card */}
-                                <div className="p-5 bg-white border border-slate-200 rounded-2xl space-y-4">
-                                    <div className="flex items-center gap-3 mb-1">
-                                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${channelOption?.gradient} flex items-center justify-center text-lg font-bold text-white shadow-md`}>
+                    {/* ── STEP 4: Review ── */}
+                    {step === 4 && (
+                        <div className="space-y-5">
+                            {/* Mission Executive Card */}
+                            <div className="relative overflow-hidden rounded-3xl p-6 bg-gradient-to-br from-[#0A1224] via-[#08101E] to-[#050B16] border border-slate-800 shadow-xl shadow-black/20 text-white">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="flex items-center gap-3.5">
+                                        <div className="w-12 h-12 rounded-2xl bg-[#2890F8]/20 border border-[#2890F8]/30 flex items-center justify-center text-lg font-black text-[#2890F8]">
                                             {clientName?.[0] || "M"}
                                         </div>
                                         <div>
-                                            <p className="font-bold text-slate-900">{form.name}</p>
-                                            <p className="text-xs text-slate-500">{clientName}</p>
+                                            <h3 className="text-base font-black tracking-tight">{form.name}</h3>
+                                            <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+                                                <Building2 className="w-3.5 h-3.5 text-[#2890F8]" />
+                                                {clientName}
+                                            </p>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-3 text-xs">
-                                        {[
-                                            { label: "Canal", value: channelOption?.label },
-                                            { label: "Période", value: form.startDate ? `${form.startDate} → ${form.endDate || "Ouvert"}` : "Non définie" },
-                                        ].map(r => (
-                                            <div key={r.label} className="p-3 bg-slate-50 rounded-xl">
-                                                <p className="text-slate-400 font-medium uppercase tracking-wide text-[10px]">{r.label}</p>
-                                                <p className="text-slate-800 font-semibold mt-0.5">{r.value}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    {form.objective && (
-                                        <div className="p-3 bg-slate-50 rounded-xl">
-                                            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide mb-0.5">Objectif</p>
-                                            <p className="text-sm text-slate-700">{form.objective}</p>
-                                        </div>
-                                    )}
+                                    <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
+                                        {form.status === "ACTIVE" ? "Prêt au lancement" : "Brouillon"}
+                                    </span>
                                 </div>
 
-                                {/* Strategy card */}
-                                <div className="p-5 bg-white border border-slate-200 rounded-2xl space-y-3">
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Stratégie</p>
-                                    <div>
-                                        <p className="text-[10px] text-slate-400 font-semibold uppercase mb-1">ICP</p>
-                                        <p className="text-sm text-slate-700 bg-slate-50 p-3 rounded-xl leading-relaxed">{form.icp || "—"}</p>
+                                <div className="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-slate-800/80 text-xs">
+                                    <div className="p-3 bg-white/5 rounded-2xl">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase">Canaux activés</p>
+                                        <p className="text-xs font-bold text-white mt-1">
+                                            {form.channels?.join(" • ") || form.channel}
+                                        </p>
                                     </div>
-                                    <div>
-                                        <p className="text-[10px] text-slate-400 font-semibold uppercase mb-1">Pitch</p>
-                                        <p className="text-sm text-slate-700 bg-slate-50 p-3 rounded-xl leading-relaxed">{form.pitch || "—"}</p>
+                                    <div className="p-3 bg-white/5 rounded-2xl">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase">Période</p>
+                                        <p className="text-xs font-bold text-white mt-1">
+                                            {form.startDate ? `${form.startDate} → ${form.endDate || "Ouvert"}` : "Illimitée"}
+                                        </p>
+                                    </div>
+                                    <div className="p-3 bg-white/5 rounded-2xl">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase">Script d'appel</p>
+                                        <p className="text-xs font-bold text-emerald-400 mt-1 flex items-center gap-1">
+                                            <Check className="w-3.5 h-3.5" /> Prêt &amp; validé
+                                        </p>
                                     </div>
                                 </div>
-
-                                {/* Script card */}
-                                {form.scriptIntro && (
-                                    <div className="p-5 bg-white border border-slate-200 rounded-2xl space-y-3">
-                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Script</p>
-                                        {[
-                                            { label: "Introduction", value: form.scriptIntro },
-                                            { label: "Découverte", value: form.scriptDiscovery },
-                                            { label: "Objections", value: form.scriptObjection },
-                                            { label: "Closing", value: form.scriptClosing },
-                                        ].filter(s => s.value).map(s => (
-                                            <div key={s.label}>
-                                                <p className="text-[10px] text-slate-400 font-semibold uppercase mb-1">{s.label}</p>
-                                                <p className="text-sm text-slate-700 bg-slate-50 p-3 rounded-xl font-mono whitespace-pre-wrap leading-relaxed">{s.value}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
                             </div>
-                        )}
-                    </div>
+
+                            {/* Summary Accordion */}
+                            <div className="p-4 bg-white border border-slate-200/80 rounded-2xl space-y-3 shadow-2xs">
+                                <div>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Profil Client Idéal (ICP)</p>
+                                    <p className="text-xs text-slate-800 mt-0.5 leading-relaxed">{form.icp || "—"}</p>
+                                </div>
+                                <div className="pt-2 border-t border-slate-100">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Pitch Commercial</p>
+                                    <p className="text-xs text-slate-800 mt-0.5 leading-relaxed">{form.pitch || "—"}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* ── Footer ─────────────────────────────────────────────── */}
-                <div className="flex-shrink-0 border-t border-slate-100 bg-slate-50/80 px-8 py-5 flex items-center justify-between gap-4">
-                    {/* Back */}
+                <div className="flex-shrink-0 border-t border-slate-200/80 bg-[#FCFAFF] px-6 sm:px-8 py-4 flex items-center justify-between gap-4">
                     <button
                         type="button"
                         onClick={step === 1 ? onClose : goBack}
-                        className="flex items-center gap-2 h-10 px-5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all"
+                        className="flex items-center gap-1.5 h-10 px-4 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-600 hover:bg-slate-100 transition-all shadow-2xs"
                     >
                         <ChevronLeft className="w-4 h-4" />
                         {step === 1 ? "Annuler" : "Retour"}
                     </button>
 
-                    {/* Step pills */}
-                    <div className="flex items-center gap-1.5">
-                        {STEPS.map(s => (
-                            <div
-                                key={s.id}
-                                className={`rounded-full transition-all duration-300 ${step === s.id
-                                        ? "w-6 h-2 bg-indigo-600"
-                                        : step > s.id
-                                            ? "w-2 h-2 bg-emerald-400"
-                                            : "w-2 h-2 bg-slate-200"
-                                    }`}
-                            />
-                        ))}
+                    <div className="flex items-center gap-2">
+                        {step < 4 ? (
+                            <button
+                                type="button"
+                                onClick={goNext}
+                                disabled={!stepValid(step)}
+                                className="flex items-center gap-2 h-10 px-5 rounded-xl bg-[#0B0F19] hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold transition-all shadow-md shadow-black/10"
+                            >
+                                Continuer
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={handleSubmit}
+                                disabled={isSubmitting}
+                                className="flex items-center gap-2 h-10 px-6 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-40 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-500/20"
+                            >
+                                {isSubmitting ? (
+                                    <><Loader2 className="w-4 h-4 animate-spin" /> Déploiement en cours...</>
+                                ) : (
+                                    <><Rocket className="w-4 h-4" /> Lancer la mission</>
+                                )}
+                            </button>
+                        )}
                     </div>
-
-                    {/* Next / Submit */}
-                    {step < 4 ? (
-                        <button
-                            type="button"
-                            onClick={goNext}
-                            disabled={!stepValid(step)}
-                            className="flex items-center gap-2 h-10 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold transition-all shadow-md shadow-indigo-500/20"
-                        >
-                            Suivant
-                            <ChevronRight className="w-4 h-4" />
-                        </button>
-                    ) : (
-                        <button
-                            type="button"
-                            onClick={handleSubmit}
-                            disabled={isSubmitting}
-                            className="flex items-center gap-2 h-10 px-6 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 disabled:opacity-40 text-white text-sm font-bold transition-all shadow-md shadow-emerald-500/30"
-                        >
-                            {isSubmitting ? (
-                                <><Loader2 className="w-4 h-4 animate-spin" /> Création...</>
-                            ) : (
-                                <><Rocket className="w-4 h-4" /> Lancer la mission</>
-                            )}
-                        </button>
-                    )}
                 </div>
             </div>
         </div>

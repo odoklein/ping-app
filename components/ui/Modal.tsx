@@ -118,8 +118,8 @@ export function Modal({
             onPointerDown={handleOverlayPointerDown}
             onClick={handleOverlayClick}
         >
-            {/* Overlay */}
-            <div className="absolute inset-0 pointer-events-none bg-slate-900/40 backdrop-blur-[4px] animate-fade-in transition-all duration-300" />
+            {/* Overlay - Soft focus without darkening the entire screen */}
+            <div className="absolute inset-0 pointer-events-none bg-slate-900/20 backdrop-blur-[2px] animate-fade-in transition-all duration-300" />
 
             {/* Modal */}
             <div
@@ -127,7 +127,7 @@ export function Modal({
                 tabIndex={-1}
                 onPointerDown={handleModalPointerDown}
                 className={cn(
-                    "relative w-full bg-[var(--elan-surface)] border border-[var(--elan-line)] shadow-xl rounded-2xl overflow-hidden flex flex-col text-[var(--elan-ink)]",
+                    "relative w-full bg-[#FCFAFF] border border-slate-200/80 shadow-2xl shadow-slate-900/10 rounded-3xl overflow-hidden flex flex-col text-slate-900",
                     "transform transition-all duration-300 ease-out animate-scale-in max-h-[85vh]",
                     SIZES[size],
                     className
@@ -136,15 +136,15 @@ export function Modal({
             >
                 {/* Header */}
                 {(title || showCloseButton) && (
-                    <div className="flex-shrink-0 flex items-start justify-between px-6 py-5 border-b border-[var(--elan-line)] bg-[var(--elan-paper)]">
+                    <div className="flex-shrink-0 flex items-start justify-between px-6 py-5 border-b border-slate-200/80 bg-[#FCFAFF]">
                         <div className="pr-8">
                             {title && (
-                                <h2 className="text-xl font-bold text-[var(--elan-ink)]">
+                                <h2 className="text-xl font-bold text-slate-900">
                                     {title}
                                 </h2>
                             )}
                             {description && (
-                                <p className="text-sm text-[var(--elan-slate)] mt-1.5 font-medium">
+                                <p className="text-sm text-slate-500 mt-1.5 font-medium">
                                     {description}
                                 </p>
                             )}
@@ -152,7 +152,7 @@ export function Modal({
                         {showCloseButton && (
                             <button
                                 onClick={onClose}
-                                className="absolute right-4 top-4 p-2 text-[var(--elan-slate)] hover:text-[var(--elan-ink)] hover:bg-[var(--elan-paper-3)] rounded-full transition-all duration-200 z-10"
+                                className="absolute right-4 top-4 p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-all duration-200 z-10"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -160,8 +160,8 @@ export function Modal({
                     </div>
                 )}
 
-                {/* Content - explicit bg and text so content is never white-on-white */}
-                <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 bg-[var(--elan-surface)] text-[var(--elan-ink)]">{children}</div>
+                {/* Content - explicit bg and text */}
+                <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 bg-[#FCFAFF] text-slate-900">{children}</div>
             </div>
         </div>,
         portalContainer

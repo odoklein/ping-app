@@ -12,18 +12,18 @@ import {
     Activity, Target, Send, PhoneMissed, ThumbsUp, PhoneOff,
     CalendarX, RotateCw, SlidersHorizontal, Download, Columns3,
     X, Minus, Radio, Zap, Users, Filter, ArrowUpDown,
-    Eye, EyeOff, MoreHorizontal, Maximize2, Mic,
+    Eye, EyeOff, MoreHorizontal, Maximize2, Mic, Check
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { Card, Button, useToast } from "@/components/ui";
 import { ManagerCallEnrichmentSyncModal } from "@/components/prospection/ManagerCallEnrichmentSyncModal";
 import { ACTION_RESULT_LABELS } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 const UnifiedActionDrawer = dynamic(
     () => import("@/components/drawers/UnifiedActionDrawer").then((m) => ({ default: m.UnifiedActionDrawer })),
     { ssr: false }
 );
-import { cn } from "@/lib/utils";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -83,19 +83,20 @@ const RESULT_CFG: Record<string, {
     text: string; bg: string; border: string; dot: string;
 }> = {
     NO_RESPONSE: { label: "Pas de réponse", icon: PhoneMissed, text: "text-slate-500", bg: "bg-slate-100", border: "border-slate-200", dot: "bg-slate-400" },
-    BAD_CONTACT: { label: "Mauvais contact", icon: PhoneOff, text: "text-red-600", bg: "bg-red-50", border: "border-red-200", dot: "bg-red-400" },
+    BAD_CONTACT: { label: "Mauvais contact", icon: PhoneOff, text: "text-rose-600", bg: "bg-rose-50", border: "border-rose-200", dot: "bg-rose-400" },
     INTERESTED: { label: "Intéressé", icon: ThumbsUp, text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200", dot: "bg-emerald-500" },
     CALLBACK_REQUESTED: { label: "Rappel demandé", icon: RotateCw, text: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200", dot: "bg-amber-500" },
-    MEETING_BOOKED: { label: "RDV planifié", icon: CalendarPlus, text: "text-[var(--elan-petrol)]", bg: "bg-[rgba(255,158,27,0.1)]", border: "border-[rgba(224,124,0,0.22)]", dot: "bg-[var(--elan-amber)]" },
-    MEETING_CANCELLED: { label: "RDV annulé", icon: CalendarX, text: "text-red-600", bg: "bg-red-50", border: "border-red-200", dot: "bg-red-400" },
+    MEETING_BOOKED: { label: "RDV planifié", icon: CalendarPlus, text: "text-blue-700", bg: "bg-blue-50", border: "border-blue-200", dot: "bg-blue-500" },
+    MEETING_CANCELLED: { label: "RDV annulé", icon: CalendarX, text: "text-rose-600", bg: "bg-rose-50", border: "border-rose-200", dot: "bg-rose-400" },
     DISQUALIFIED: { label: "Disqualifié", icon: Ban, text: "text-slate-500", bg: "bg-slate-100", border: "border-slate-200", dot: "bg-slate-300" },
-    ENVOIE_MAIL: { label: "Mail à envoyer", icon: Send, text: "text-[var(--elan-petrol)]", bg: "bg-[rgba(12,59,56,0.08)]", border: "border-[rgba(12,59,56,0.18)]", dot: "bg-[#25745f]" },
+    ENVOIE_MAIL: { label: "Mail à envoyer", icon: Send, text: "text-indigo-700", bg: "bg-indigo-50", border: "border-indigo-200", dot: "bg-indigo-500" },
     MAIL_ENVOYE: { label: "Mail envoyé", icon: Send, text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200", dot: "bg-emerald-500" },
     CONNECTION_SENT: { label: "Connexion envoyée", icon: Linkedin, text: "text-sky-700", bg: "bg-sky-50", border: "border-sky-200", dot: "bg-sky-400" },
     MESSAGE_SENT: { label: "Message envoyé", icon: Linkedin, text: "text-sky-700", bg: "bg-sky-50", border: "border-sky-200", dot: "bg-sky-400" },
     REPLIED: { label: "A répondu", icon: CheckCircle2, text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200", dot: "bg-emerald-500" },
-    NOT_INTERESTED: { label: "Pas intéressé", icon: XCircle, text: "text-red-600", bg: "bg-red-50", border: "border-red-200", dot: "bg-red-400" },
+    NOT_INTERESTED: { label: "Pas intéressé", icon: XCircle, text: "text-rose-600", bg: "bg-rose-50", border: "border-rose-200", dot: "bg-rose-400" },
 };
+
 function getCfg(r: string) {
     return RESULT_CFG[r] ?? { label: r, icon: Target, text: "text-slate-500", bg: "bg-slate-100", border: "border-slate-200", dot: "bg-slate-400" };
 }
@@ -140,49 +141,7 @@ function LivePulse({ label }: { label: string }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// STAT CARD
-// ─────────────────────────────────────────────────────────────────────────────
-
-function StatCard({
-    label, value, icon: Icon, text, bg, border, trend, sparkData, sparkColor,
-}: {
-    label: string; value: string | number; icon: React.ElementType;
-    text: string; bg: string; border: string;
-    trend?: number; sparkData?: number[]; sparkColor?: string;
-}) {
-    return (
-        <div className={cn(
-            "relative overflow-hidden rounded-2xl border bg-white p-5 transition-all duration-200",
-            "hover:shadow-md hover:-translate-y-0.5 cursor-default group",
-            border
-        )}>
-            <div className="flex items-start justify-between mb-3">
-                <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", bg)}>
-                    <Icon className={cn("w-4 h-4", text)} aria-hidden />
-                </div>
-                {trend !== undefined && (
-                    <span className={cn(
-                        "flex items-center gap-0.5 text-[11px] font-bold tabular-nums",
-                        trend > 0 ? "text-emerald-600" : trend < 0 ? "text-red-500" : "text-slate-400"
-                    )}>
-                        {trend > 0 ? <TrendingUp className="w-3 h-3" /> : trend < 0 ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
-                        {Math.abs(trend)}%
-                    </span>
-                )}
-            </div>
-            <p className="text-2xl font-black text-slate-900 tabular-nums leading-none">{value}</p>
-            <p className="text-xs font-semibold text-slate-400 mt-1 uppercase tracking-wider">{label}</p>
-            {sparkData && sparkData.length > 1 && (
-                <div className="absolute right-4 bottom-4 opacity-40 group-hover:opacity-70 transition-opacity">
-                    <Sparkline data={sparkData} color={sparkColor} />
-                </div>
-            )}
-        </div>
-    );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// RESULT BADGE (table cell)
+// RESULT BADGE
 // ─────────────────────────────────────────────────────────────────────────────
 
 function ResultBadge({ result }: { result: string }) {
@@ -199,192 +158,61 @@ function ResultBadge({ result }: { result: string }) {
     );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// LAST ACTION STORY — narrative, channel-aware, past-tense badge
-// ─────────────────────────────────────────────────────────────────────────────
-
-interface ActionStory {
-    label: string;
-    icon: React.ElementType;
-    text: string;
-    bg: string;
-    border: string;
-}
-
-function getLastActionStory(row: ActionRecord): ActionStory {
-    const ch = row.channel;
-    const r = row.result;
-
-    if (ch === "CALL") {
-        switch (r) {
-            case "NO_RESPONSE":
-                return { label: "Appelé, ne répond pas", icon: PhoneMissed, text: "text-slate-600", bg: "bg-slate-100", border: "border-slate-200" };
-            case "BAD_CONTACT":
-                return { label: "Numéro erroné", icon: PhoneOff, text: "text-red-700", bg: "bg-red-50", border: "border-red-200" };
-            case "CALLBACK_REQUESTED":
-                return { label: "Rappel à programmer", icon: RotateCw, text: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200" };
-            case "INTERESTED":
-                return { label: "Conversation positive", icon: ThumbsUp, text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200" };
-            case "MEETING_BOOKED":
-                return { label: "RDV décroché au tél.", icon: CalendarPlus, text: "text-[var(--elan-petrol)]", bg: "bg-[rgba(255,158,27,0.1)]", border: "border-[rgba(224,124,0,0.22)]" };
-            case "MEETING_CANCELLED":
-                return { label: "RDV annulé", icon: CalendarX, text: "text-red-600", bg: "bg-red-50", border: "border-red-200" };
-            case "NOT_INTERESTED":
-                return { label: "Pas intéressé (tél.)", icon: XCircle, text: "text-red-600", bg: "bg-red-50", border: "border-red-200" };
-            case "DISQUALIFIED":
-                return { label: "Disqualifié", icon: Ban, text: "text-slate-500", bg: "bg-slate-100", border: "border-slate-200" };
-        }
-    }
-
-    if (ch === "EMAIL") {
-        switch (r) {
-            case "ENVOIE_MAIL":
-                return { label: "Mail à envoyer", icon: Send, text: "text-[var(--elan-petrol)]", bg: "bg-[rgba(12,59,56,0.08)]", border: "border-[rgba(12,59,56,0.18)]" };
-            case "MAIL_ENVOYE":
-                return { label: "Mail envoyé", icon: Mail, text: "text-sky-700", bg: "bg-sky-50", border: "border-sky-200" };
-            case "REPLIED":
-                return { label: "A répondu au mail", icon: CheckCircle2, text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200" };
-            case "NO_RESPONSE":
-                return { label: "Mail sans réponse", icon: PhoneMissed, text: "text-slate-600", bg: "bg-slate-100", border: "border-slate-200" };
-            case "NOT_INTERESTED":
-                return { label: "A décliné par mail", icon: XCircle, text: "text-red-600", bg: "bg-red-50", border: "border-red-200" };
-            case "INTERESTED":
-                return { label: "Intérêt manifesté (mail)", icon: ThumbsUp, text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200" };
-            case "MEETING_BOOKED":
-                return { label: "RDV pris par mail", icon: CalendarPlus, text: "text-[var(--elan-petrol)]", bg: "bg-[rgba(255,158,27,0.1)]", border: "border-[rgba(224,124,0,0.22)]" };
-            case "BAD_CONTACT":
-                return { label: "Mail invalide", icon: PhoneOff, text: "text-red-700", bg: "bg-red-50", border: "border-red-200" };
-        }
-    }
-
-    if (ch === "LINKEDIN") {
-        switch (r) {
-            case "CONNECTION_SENT":
-                return { label: "Invitation envoyée", icon: Linkedin, text: "text-sky-700", bg: "bg-sky-50", border: "border-sky-200" };
-            case "MESSAGE_SENT":
-                return { label: "Message LinkedIn envoyé", icon: Send, text: "text-sky-700", bg: "bg-sky-50", border: "border-sky-200" };
-            case "REPLIED":
-                return { label: "A répondu sur LinkedIn", icon: CheckCircle2, text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200" };
-            case "NO_RESPONSE":
-                return { label: "Aucune réaction LinkedIn", icon: PhoneMissed, text: "text-slate-600", bg: "bg-slate-100", border: "border-slate-200" };
-            case "NOT_INTERESTED":
-                return { label: "Refus sur LinkedIn", icon: XCircle, text: "text-red-600", bg: "bg-red-50", border: "border-red-200" };
-            case "INTERESTED":
-                return { label: "Intérêt LinkedIn", icon: ThumbsUp, text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200" };
-            case "MEETING_BOOKED":
-                return { label: "RDV pris via LinkedIn", icon: CalendarPlus, text: "text-[var(--elan-petrol)]", bg: "bg-[rgba(255,158,27,0.1)]", border: "border-[rgba(224,124,0,0.22)]" };
-        }
-    }
-
-    const c = getCfg(r);
-    return { label: c.label, icon: c.icon, text: c.text, bg: c.bg, border: c.border };
-}
-
-function getCallbackContext(callbackDate: string | null | undefined): { text: string; tone: "ok" | "soon" | "overdue" } | null {
-    if (!callbackDate) return null;
-    const cb = new Date(callbackDate);
-    if (Number.isNaN(cb.getTime())) return null;
-    const dayMs = 86_400_000;
-    const ms = cb.getTime() - Date.now();
-    const days = Math.round(ms / dayMs);
-    if (ms < -dayMs) return { text: `En retard de ${Math.abs(days)}j`, tone: "overdue" };
-    if (ms < 0) return { text: "Rappel à faire (auj.)", tone: "overdue" };
-    if (days === 0) return { text: "Rappel aujourd'hui", tone: "soon" };
-    if (days === 1) return { text: "Rappel demain", tone: "soon" };
-    if (days < 7) return { text: `Rappel dans ${days}j`, tone: "ok" };
-    return { text: `Rappel ${cb.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}`, tone: "ok" };
-}
-
-function timeAgoShort(iso: string): string {
-    const ms = Date.now() - new Date(iso).getTime();
-    if (ms < 0 || Number.isNaN(ms)) return "";
-    const m = Math.floor(ms / 60_000);
-    if (m < 1) return "à l'instant";
-    if (m < 60) return `il y a ${m} min`;
-    const h = Math.floor(m / 60);
-    if (h < 24) return `il y a ${h}h`;
-    const d = Math.floor(h / 24);
-    if (d < 7) return `il y a ${d}j`;
-    const w = Math.floor(d / 7);
-    if (w < 5) return `il y a ${w}sem`;
-    const mo = Math.floor(d / 30);
-    return `il y a ${mo}mois`;
-}
-
 function LastActionBadge({ row }: { row: ActionRecord }) {
-    const story = getLastActionStory(row);
-    const Icon = story.icon;
-    const cbCtx = row.result === "CALLBACK_REQUESTED" ? getCallbackContext(row.callbackDate) : null;
-    const ago = timeAgoShort(row.createdAt);
-
+    const cfg = getCfg(row.result);
+    const Icon = cfg.icon;
     return (
-        <div className="flex flex-col gap-1 items-start">
-            <span className={cn(
-                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-bold whitespace-nowrap",
-                story.bg, story.text, story.border
-            )}>
-                <Icon className="w-3 h-3 shrink-0" aria-hidden />
-                {story.label}
-            </span>
-            {cbCtx ? (
-                <span className={cn(
-                    "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold tabular-nums whitespace-nowrap",
-                    cbCtx.tone === "overdue" ? "bg-red-100 text-red-700 animate-pulse" :
-                    cbCtx.tone === "soon" ? "bg-amber-100 text-amber-700" :
-                    "bg-slate-100 text-slate-500"
-                )}>
-                    <Clock className="w-2.5 h-2.5" aria-hidden />
-                    {cbCtx.text}
-                </span>
-            ) : ago && (
-                <span className="text-[10px] text-slate-400 font-medium tabular-nums whitespace-nowrap pl-0.5">
-                    {ago}
-                </span>
-            )}
-        </div>
+        <span className={cn(
+            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-bold whitespace-nowrap",
+            cfg.bg, cfg.text, cfg.border
+        )}>
+            <Icon className="w-3 h-3 shrink-0" aria-hidden />
+            {cfg.label}
+        </span>
     );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SORT HEADER
+// TABLE HEADER SORTABLE CELL
 // ─────────────────────────────────────────────────────────────────────────────
 
 function Th({
     label, sortKey, currentKey, dir, onSort, className,
 }: {
-    label: string; sortKey: SortKey; currentKey: SortKey; dir: SortDir;
-    onSort: (k: SortKey) => void; className?: string;
+    label: string; sortKey: SortKey; currentKey: SortKey;
+    dir: SortDir; onSort: (k: SortKey) => void; className?: string;
 }) {
     const active = currentKey === sortKey;
     return (
-        <th className={cn("px-4 py-3 text-left", className)}>
-            <button
-                type="button"
-                onClick={() => onSort(sortKey)}
-                className={cn(
-                    "flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[rgba(255,158,27,0.45)] rounded",
-                    active ? "text-[var(--elan-petrol)]" : "text-slate-400 hover:text-slate-700"
-                )}
-            >
-                {label}
-                <span className="text-current opacity-60">
+        <th
+            scope="col"
+            className={cn(
+                "px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400 select-none cursor-pointer hover:text-slate-700 transition-colors",
+                active && "text-[#2890F8]",
+                className
+            )}
+            onClick={() => onSort(sortKey)}
+        >
+            <div className="flex items-center gap-1">
+                <span>{label}</span>
+                <span className="flex flex-col">
                     {active ? (
                         dir === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                     ) : (
                         <ArrowUpDown className="w-3 h-3 opacity-40" />
                     )}
                 </span>
-            </button>
+            </div>
         </th>
     );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// COLUMN TOGGLE POPOVER
+// COLUMN TOGGLE & DENSITY TOGGLE
 // ─────────────────────────────────────────────────────────────────────────────
 
 const ALL_COLS = [
-    { key: "date", label: "Créée le" },
+    { key: "date", label: "Date" },
     { key: "name", label: "Contact / Société" },
     { key: "sdr", label: "Effectué par" },
     { key: "result", label: "Résultat" },
@@ -396,11 +224,11 @@ type ColKey = (typeof ALL_COLS)[number]["key"];
 function ColToggle({
     visible, onToggle,
 }: {
-    visible: Set<ColKey>;
-    onToggle: (k: ColKey) => void;
+    visible: Set<ColKey>; onToggle: (k: ColKey) => void;
 }) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
         const handler = (e: MouseEvent) => {
             if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
@@ -415,88 +243,79 @@ function ColToggle({
                 type="button"
                 onClick={() => setOpen(o => !o)}
                 aria-label="Colonnes visibles"
-                className={cn(
-                    "h-9 px-3 flex items-center gap-1.5 rounded-xl border text-xs font-semibold transition-all",
-                    open
-                        ? "bg-[rgba(255,158,27,0.1)] border-[rgba(224,124,0,0.24)] text-[var(--elan-petrol)]"
-                        : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
-                )}
+                className="h-9 px-3 flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-bold hover:bg-slate-50 transition-colors"
             >
                 <Columns3 className="w-3.5 h-3.5" aria-hidden />
                 Colonnes
             </button>
             {open && (
-                <div className="absolute right-0 top-11 z-30 w-52 rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-3 space-y-1">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1 pb-1">Afficher / Masquer</p>
-                    {ALL_COLS.map(col => (
-                        <label
-                            key={col.key}
-                            className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-slate-50 cursor-pointer"
-                        >
-                            <span className={cn(
-                                "w-4 h-4 rounded border-2 flex items-center justify-center transition-colors shrink-0",
-                                visible.has(col.key)
-                                    ? "bg-[var(--elan-amber)] border-[var(--elan-amber)]"
-                                    : "bg-white border-slate-300"
-                            )}>
-                                {visible.has(col.key) && (
-                                    <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 8">
-                                        <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
+                <div className="absolute right-0 top-11 z-30 w-48 rounded-2xl bg-white border border-slate-200 shadow-xl p-2 space-y-1">
+                    {ALL_COLS.map(c => {
+                        const active = visible.has(c.key);
+                        return (
+                            <button
+                                key={c.key}
+                                type="button"
+                                onClick={() => onToggle(c.key)}
+                                className={cn(
+                                    "w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors",
+                                    active ? "bg-slate-100 text-slate-900" : "text-slate-400 hover:text-slate-700"
                                 )}
-                            </span>
-                            <input type="checkbox" className="sr-only" checked={visible.has(col.key)}
-                                onChange={() => onToggle(col.key)} />
-                            <span className="text-xs font-medium text-slate-700">{col.label}</span>
-                        </label>
-                    ))}
+                            >
+                                <span>{c.label}</span>
+                                {active && <Check className="w-3.5 h-3.5 text-[#2890F8]" />}
+                            </button>
+                        );
+                    })}
                 </div>
             )}
         </div>
     );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DENSITY TOGGLE
-// ─────────────────────────────────────────────────────────────────────────────
-
-const DENSITY_OPTIONS: { value: Density; label: string; rows: number }[] = [
-    { value: "compact", label: "Compact", rows: 3 },
-    { value: "default", label: "Normal", rows: 4 },
-    { value: "comfortable", label: "Confortable", rows: 5 },
-];
-
-function DensityToggle({ value, onChange }: { value: Density; onChange: (d: Density) => void }) {
+function DensityToggle({
+    value, onChange,
+}: {
+    value: Density; onChange: (d: Density) => void;
+}) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
-        const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
-        document.addEventListener("mousedown", h);
-        return () => document.removeEventListener("mousedown", h);
+        const handler = (e: MouseEvent) => {
+            if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
     }, []);
-    const current = DENSITY_OPTIONS.find(d => d.value === value)!;
+
+    const options: { val: Density; label: string; rows: number }[] = [
+        { val: "compact", label: "Compact", rows: 4 },
+        { val: "default", label: "Standard", rows: 3 },
+        { val: "comfortable", label: "Aéré", rows: 2 },
+    ];
+
     return (
         <div ref={ref} className="relative">
             <button
                 type="button"
                 onClick={() => setOpen(o => !o)}
-                aria-label="Densité du tableau"
-                className={cn(
-                    "h-9 px-3 flex items-center gap-1.5 rounded-xl border text-xs font-semibold transition-all",
-                    "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
-                )}
+                aria-label="Densité d'affichage"
+                className="h-9 px-3 flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-bold hover:bg-slate-50 transition-colors"
             >
                 <SlidersHorizontal className="w-3.5 h-3.5" aria-hidden />
-                {current.label}
+                Densité
             </button>
             {open && (
-                <div className="absolute right-0 top-11 z-30 w-44 rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-2 space-y-1">
-                    {DENSITY_OPTIONS.map(opt => (
-                        <button key={opt.value} type="button"
-                            onClick={() => { onChange(opt.value); setOpen(false); }}
+                <div className="absolute right-0 top-11 z-30 w-40 rounded-2xl bg-white border border-slate-200 shadow-xl p-2 space-y-1">
+                    {options.map(opt => (
+                        <button
+                            key={opt.val}
+                            type="button"
+                            onClick={() => { onChange(opt.val); setOpen(false); }}
                             className={cn(
                                 "w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors",
-                                value === opt.value ? "bg-[rgba(255,158,27,0.1)] text-[var(--elan-petrol)]" : "text-slate-600 hover:bg-slate-50"
+                                value === opt.val ? "bg-slate-100 text-slate-900" : "text-slate-400 hover:text-slate-700"
                             )}
                         >
                             {opt.label}
@@ -538,9 +357,8 @@ function ResultFilterBar({
                         aria-pressed={isActive}
                         className={cn(
                             "flex items-center gap-1.5 pl-2.5 pr-2 py-1.5 rounded-xl border text-[11px] font-bold transition-all duration-150",
-                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(255,158,27,0.45)]",
                             isActive
-                                ? cn(c.bg, c.text, c.border, "shadow-sm")
+                                ? cn(c.bg, c.text, c.border, "shadow-2xs")
                                 : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50"
                         )}
                     >
@@ -560,7 +378,7 @@ function ResultFilterBar({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CSV EXPORT
+// CSV EXPORT & HELPERS
 // ─────────────────────────────────────────────────────────────────────────────
 
 function exportCSV(rows: ActionRecord[], mission: string) {
@@ -615,7 +433,7 @@ export default function ManagerProspectionPage() {
         router.replace(`/manager/prospection?channel=${ch}`, { scroll: false });
     }, [router]);
 
-    // ── data ────────────────────────────────────────────────────────────────
+    // Data state
     const [missions, setMissions] = useState<MissionItem[]>([]);
     const [missionsLoading, setMissionsLoading] = useState(true);
     const [selectedMission, setSelectedMission] = useState<MissionItem | null>(null);
@@ -623,10 +441,9 @@ export default function ManagerProspectionPage() {
     const [stats, setStats] = useState<Record<string, any> | null>(null);
     const [loadingData, setLoadingData] = useState(false);
     const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-    const [newCount, setNewCount] = useState(0); // rows added since last manual refresh
+    const [newCount, setNewCount] = useState(0);
     const { error: showError, success: showSuccess } = useToast();
     const [sdrOptions, setSdrOptions] = useState<{ id: string; name: string }[]>([]);
-    /** Mission picker (avant ouverture d'une mission) */
     const [pickerMissionSearch, setPickerMissionSearch] = useState("");
     const [pickerClientId, setPickerClientId] = useState("");
     const [pickerSdrId, setPickerSdrId] = useState("");
@@ -643,10 +460,9 @@ export default function ManagerProspectionPage() {
     }>>([]);
     const liveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    // ── table state ─────────────────────────────────────────────────────────
+    // Table state
     const [search, setSearch] = useState("");
     const [sdrFilter, setSdrFilter] = useState("");
-    /** Filtre canal sur les lignes d'historique (toutes missions / une mission) */
     const [actionChannelFilter, setActionChannelFilter] = useState<"" | ChannelTabValue>("");
     const [resultFilters, setResultFilters] = useState<Set<string>>(new Set());
     const [dateFrom, setDateFrom] = useState("");
@@ -663,9 +479,8 @@ export default function ManagerProspectionPage() {
     const [liveRefresh, setLiveRefresh] = useState(true);
     const [exporting, setExporting] = useState(false);
     const searchRef = useRef<HTMLInputElement>(null);
-    const prevActionsRef = useRef<ActionRecord[]>([]);
 
-    // ── init SDR list ───────────────────────────────────────────────────────
+    // Init SDR list
     useEffect(() => {
         let cancelled = false;
         fetch("/api/users?role=SDR,BUSINESS_DEVELOPER")
@@ -674,7 +489,7 @@ export default function ManagerProspectionPage() {
         return () => { cancelled = true; };
     }, []);
 
-    // ── missions catalogue (par canal) — filtres mission / client / SDR en local ──
+    // Missions catalog
     const reloadMissionsCatalog = useCallback(() => {
         setMissionsLoading(true);
         const p = new URLSearchParams({ isActive: "true", limit: "100", channel });
@@ -688,7 +503,7 @@ export default function ManagerProspectionPage() {
         reloadMissionsCatalog();
     }, [reloadMissionsCatalog]);
 
-    // ── keyboard shortcut: "/" focuses search ────────────────────────────────
+    // Keyboard shortcut: "/" focuses search
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
             if (e.key === "/" && document.activeElement?.tagName !== "INPUT") {
@@ -711,7 +526,7 @@ export default function ManagerProspectionPage() {
         return () => window.removeEventListener("keydown", handler);
     }, []);
 
-    // ── fetch client booking URL + interlocuteurs when drawer opens (for MEETING_BOOKED flow) ──
+    // Fetch booking URL & contacts
     useEffect(() => {
         if (!drawerAction || !selectedMission?.id) {
             setDrawerClientBookingUrl("");
@@ -775,50 +590,447 @@ export default function ManagerProspectionPage() {
                 });
                 setLastRefresh(new Date());
             }
-                                                        EMAIL: "bg-amber-100 text-amber-600",
-                                                        LINKEDIN: "bg-sky-100 text-sky-600",
-                                                    };
-                                                    const style = badgeStyles[ch] ?? "bg-[rgba(255,158,27,0.12)] text-[var(--elan-petrol)]";
+        } finally {
+            if (!silent) setLoadingData(false);
+        }
+    }, []);
+
+    const fetchAllForExport = useCallback(async (missionId: string): Promise<ActionRecord[]> => {
+        const EXPORT_LIMIT = 5000;
+        const all: ActionRecord[] = [];
+        let pg = 1;
+        let hasMore = true;
+        while (hasMore) {
+            const qs = new URLSearchParams({ missionId, limit: String(EXPORT_LIMIT), page: String(pg) });
+            if (sdrFilter) qs.set("sdrId", sdrFilter);
+            if (dateFrom)  qs.set("from", `${dateFrom}T00:00:00`);
+            if (dateTo)    qs.set("to", `${dateTo}T23:59:59.999`);
+            const json = await fetch(`/api/actions?${qs}`).then(r => r.json());
+            if (!json.success) break;
+            all.push(...(json.data || []));
+            hasMore = json.pagination?.hasMore ?? false;
+            pg++;
+        }
+        return all;
+    }, [sdrFilter, dateFrom, dateTo]);
+
+    const handleExportAll = useCallback(async () => {
+        if (!selectedMission || exporting) return;
+        setExporting(true);
+        try {
+            const raw = await fetchAllForExport(selectedMission.id);
+            const filtered = raw.filter(a => {
+                if (resultFilters.size && !resultFilters.has(a.result)) return false;
+                if (search) {
+                    const key = [getContactName(a), getCompanyName(a), a.note, a.callSummary, a.callTranscription]
+                        .filter(Boolean).join(" ").toLowerCase();
+                    if (!key.includes(search.toLowerCase())) return false;
+                }
+                return true;
+            });
+            exportCSV(filtered, selectedMission.name);
+        } finally {
+            setExporting(false);
+        }
+    }, [selectedMission, exporting, fetchAllForExport, resultFilters, search]);
+
+    useEffect(() => {
+        if (!selectedMission) return;
+        fetchMissionData(selectedMission.id);
+    }, [selectedMission, fetchMissionData]);
+
+    useEffect(() => {
+        if (!selectedMission) return;
+        fetchMissionStats(selectedMission.id);
+    }, [selectedMission, fetchMissionStats]);
+
+    // Live auto-refresh every 30s
+    useEffect(() => {
+        if (!selectedMission || !liveRefresh) {
+            if (liveTimerRef.current) clearInterval(liveTimerRef.current);
+            return;
+        }
+        liveTimerRef.current = setInterval(() => {
+            fetchMissionData(selectedMission.id, true);
+            fetchMissionStats(selectedMission.id);
+        }, 30_000);
+        return () => { if (liveTimerRef.current) clearInterval(liveTimerRef.current); };
+    }, [selectedMission, liveRefresh, fetchMissionData, fetchMissionStats]);
+
+    // Derived missions
+    const missionsForChannel = useMemo(() =>
+        missions.filter(m => m.channels?.includes(channel) ?? m.channel === channel),
+        [missions, channel]);
+
+    const clientPickerOptions = useMemo(() => {
+        const map = new Map<string, string>();
+        missionsForChannel.forEach(m => {
+            if (m.client?.id) map.set(m.client.id, m.client.name);
+        });
+        return [...map.entries()].sort((a, b) => a[1].localeCompare(b[1], "fr"));
+    }, [missionsForChannel]);
+
+    const missionsForPicker = useMemo(() => {
+        let list = missionsForChannel;
+        if (pickerClientId) list = list.filter(m => m.client.id === pickerClientId);
+        if (pickerSdrId) list = list.filter(m =>
+            m.sdrAssignments?.some(a => a.sdrId === pickerSdrId));
+        const q = pickerMissionSearch.trim().toLowerCase();
+        if (q) {
+            list = list.filter(
+                m =>
+                    m.name.toLowerCase().includes(q) ||
+                    m.client.name.toLowerCase().includes(q)
+            );
+        }
+        return list;
+    }, [missionsForChannel, pickerClientId, pickerSdrId, pickerMissionSearch]);
+
+    const pickerHasFilters = !!(pickerMissionSearch.trim() || pickerClientId || pickerSdrId);
+
+    // Result counts
+    const resultCounts = useMemo(() => {
+        const map: Record<string, number> = {};
+        actions.forEach(a => { map[a.result] = (map[a.result] || 0) + 1; });
+        return map;
+    }, [actions]);
+
+    const uniqueResults = useMemo(() =>
+        Array.from(new Set(actions.map(a => a.result))).sort(),
+        [actions]);
+
+    // Sort handler
+    const handleSort = useCallback((key: SortKey) => {
+        setSortKey(prev => {
+            if (prev === key) setSortDir(d => d === "asc" ? "desc" : "asc");
+            else setSortDir("desc");
+            return key;
+        });
+        setPage(1);
+    }, []);
+
+    // Result filter toggle
+    const toggleResult = useCallback((r: string) => {
+        setResultFilters(prev => {
+            const next = new Set(prev);
+            if (next.has(r)) next.delete(r); else next.add(r);
+            return next;
+        });
+        setPage(1);
+    }, []);
+
+    // Column toggle
+    const toggleCol = useCallback((k: ColKey) => {
+        setVisibleCols(prev => {
+            const next = new Set(prev);
+            if (next.has(k)) next.delete(k); else next.add(k);
+            return next;
+        });
+    }, []);
+
+    // Filtered + sorted
+    const processed = useMemo(() => {
+        const fromTs = dateFrom ? new Date(dateFrom).getTime() : null;
+        const toTs = dateTo ? new Date(dateTo + "T23:59:59").getTime() : null;
+        let rows = actions.filter(a => {
+            if (sdrFilter && a.sdr?.id !== sdrFilter) return false;
+            if (resultFilters.size && !resultFilters.has(a.result)) return false;
+            if (search && !a._searchKey?.includes(search.toLowerCase())) return false;
+            if (fromTs || toTs) {
+                const ts = new Date((a.callbackDate as string | null) || a.createdAt).getTime();
+                if (fromTs && ts < fromTs) return false;
+                if (toTs && ts > toTs) return false;
+            }
+            return true;
+        });
+
+        rows.sort((a, b) => {
+            let cmp = 0;
+            if (sortKey === "createdAt") {
+                const ak = (a.callbackDate as string | null) || a.createdAt;
+                const bk = (b.callbackDate as string | null) || b.createdAt;
+                cmp = new Date(ak).getTime() - new Date(bk).getTime();
+            }
+            else if (sortKey === "result") cmp = a.result.localeCompare(b.result);
+            else if (sortKey === "sdr") cmp = (a.sdr?.name || "").localeCompare(b.sdr?.name || "");
+            else if (sortKey === "duration") cmp = (a.duration || 0) - (b.duration || 0);
+            else if (sortKey === "name") {
+                const na = getContactName(a) || getCompanyName(a);
+                const nb = getContactName(b) || getCompanyName(b);
+                cmp = na.localeCompare(nb);
+            }
+            return sortDir === "asc" ? cmp : -cmp;
+        });
+        return rows;
+    }, [actions, sdrFilter, resultFilters, search, dateFrom, dateTo, sortKey, sortDir]);
+
+    const totalPages = Math.max(1, Math.ceil(processed.length / pageSize));
+    const pageRows = processed.slice((page - 1) * pageSize, page * pageSize);
+
+    // Bulk selection
+    const allPageSelected = pageRows.length > 0 && pageRows.every(r => selectedIds.has(r.id));
+    const togglePageSelect = () => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (allPageSelected) pageRows.forEach(r => next.delete(r.id));
+            else pageRows.forEach(r => next.add(r.id));
+            return next;
+        });
+    };
+    const toggleRow = (id: string) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id); else next.add(id);
+            return next;
+        });
+    };
+
+    // Stats
+    const sc = {
+        total: stats?.total ?? 0,
+        rdv: stats?.resultBreakdown?.MEETING_BOOKED ?? 0,
+        interested: stats?.resultBreakdown?.INTERESTED ?? 0,
+        callbacks: stats?.resultBreakdown?.CALLBACK_REQUESTED ?? 0,
+        rate: parseFloat(stats?.conversionRate ?? "0").toFixed(1),
+    };
+
+    const missionSupportsCall = useMemo(() => {
+        if (!selectedMission) return false;
+        const ch = selectedMission.channels?.length
+            ? selectedMission.channels
+            : [selectedMission.channel];
+        return ch.includes("CALL");
+    }, [selectedMission]);
+
+    const hourlySparkData = useMemo(() => {
+        const buckets = Array(8).fill(0);
+        const now = Date.now();
+        actions.forEach(a => {
+            const ago = (now - new Date(a.createdAt).getTime()) / 3600000;
+            const idx = Math.min(7, Math.floor(ago));
+            if (idx >= 0) buckets[7 - idx]++;
+        });
+        return buckets;
+    }, [actions]);
+
+    const rowPy = density === "compact" ? "py-2" : density === "comfortable" ? "py-4" : "py-3";
+    const hasFilters = !!(search || sdrFilter || resultFilters.size || dateFrom || dateTo);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // MISSION PICKER VIEW
+    // ─────────────────────────────────────────────────────────────────────────
+
+    if (!selectedMission) {
+        const ChannelIcon = CHANNEL_TABS.find(t => t.value === channel)?.icon ?? Phone;
+        const channelLabel = CHANNEL_TABS.find(t => t.value === channel)?.label ?? "";
+        return (
+            <Fragment>
+            <div className="w-full min-w-0 space-y-6 max-w-[1600px] mx-auto pb-8">
+                {/* Top Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/70">
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 rounded-xl bg-[#0B0F19] text-[#2890F8] flex items-center justify-center shadow-md shadow-black/20 border border-slate-800">
+                                <Activity className="w-5 h-5" />
+                            </div>
+                            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                                Prospection &amp; Téléphonie
+                            </h1>
+                        </div>
+                        <p className="text-xs text-slate-500 pl-1">
+                            Sélectionnez une mission pour accéder à la télémétrie en direct, aux appels et aux récaps Leexi.
+                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                        {/* Channel selector pill */}
+                        <div role="tablist" aria-label="Canal" className="flex items-center p-1 bg-white rounded-xl border border-slate-200 shadow-2xs">
+                            {CHANNEL_TABS.map(tab => {
+                                const Icon = tab.icon;
+                                const active = channel === tab.value;
+                                return (
+                                    <button
+                                        key={tab.value}
+                                        role="tab"
+                                        aria-selected={active}
+                                        onClick={() => setChannel(tab.value)}
+                                        className={cn(
+                                            "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
+                                            active
+                                                ? "bg-[#0B0F19] text-white shadow-2xs"
+                                                : "text-slate-600 hover:text-slate-900"
+                                        )}
+                                    >
+                                        <Icon className="w-3.5 h-3.5" aria-hidden />
+                                        {tab.label}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {channel === "CALL" && (
+                            <button
+                                type="button"
+                                onClick={() => setBulkCallSyncOpen(true)}
+                                aria-label="Synchroniser les appels Allo pour toutes les missions"
+                                className="flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl hover:border-[#2890F8] hover:shadow-xs transition-all shadow-2xs shrink-0"
+                            >
+                                <Mic className="w-3.5 h-3.5 text-[#2890F8]" aria-hidden />
+                                Sync Allo
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Filtres de sélection de mission */}
+                <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-3.5 flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex-1 min-w-[220px] relative">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" aria-hidden />
+                        <input
+                            id="picker-mission-search"
+                            type="text"
+                            value={pickerMissionSearch}
+                            onChange={e => setPickerMissionSearch(e.target.value)}
+                            placeholder="Rechercher par nom de mission ou client…"
+                            className="w-full h-10 pl-10 pr-9 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 focus:border-[#2890F8] placeholder:text-slate-400 transition-all"
+                        />
+                        {pickerMissionSearch && (
+                            <button
+                                type="button"
+                                onClick={() => setPickerMissionSearch("")}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 transition-colors"
+                            >
+                                <X className="w-3.5 h-3.5 text-slate-400" />
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <select
+                            id="picker-client"
+                            value={pickerClientId}
+                            onChange={e => setPickerClientId(e.target.value)}
+                            className="h-10 px-3 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 cursor-pointer"
+                        >
+                            <option value="">Tous les clients</option>
+                            {clientPickerOptions.map(([id, name]) => (
+                                <option key={id} value={id}>{name}</option>
+                            ))}
+                        </select>
+
+                        <select
+                            id="picker-sdr"
+                            value={pickerSdrId}
+                            onChange={e => setPickerSdrId(e.target.value)}
+                            className="h-10 px-3 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 cursor-pointer"
+                        >
+                            <option value="">Tous les SDR</option>
+                            {sdrOptions.map(s => (
+                                <option key={s.id} value={s.id}>{s.name}</option>
+                            ))}
+                        </select>
+
+                        {pickerHasFilters && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setPickerMissionSearch("");
+                                    setPickerClientId("");
+                                    setPickerSdrId("");
+                                }}
+                                className="h-10 px-3 flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-bold hover:bg-slate-50 shadow-2xs transition-all"
+                            >
+                                <RotateCcw className="w-3.5 h-3.5" aria-hidden />
+                                Réinitialiser
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Mission grid */}
+                {missionsLoading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className="h-44 bg-slate-200/60 rounded-3xl animate-pulse" />
+                        ))}
+                    </div>
+                ) : missionsForChannel.length === 0 ? (
+                    <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm">
+                        <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4 border border-slate-200">
+                            <Target className="w-8 h-8 text-slate-400" />
+                        </div>
+                        <p className="text-base font-bold text-slate-900">Aucune mission {channelLabel}</p>
+                        <p className="text-xs text-slate-400 mt-1">Créez une mission avec ce canal pour la voir ici.</p>
+                    </div>
+                ) : missionsForPicker.length === 0 ? (
+                    <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm">
+                        <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4 border border-slate-200">
+                            <Filter className="w-8 h-8 text-slate-400" />
+                        </div>
+                        <p className="text-base font-bold text-slate-900">Aucune mission ne correspond à vos filtres</p>
+                        <p className="text-xs text-slate-400 mt-1 mb-4">Élargissez ou réinitialisez les critères de recherche.</p>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setPickerMissionSearch("");
+                                setPickerClientId("");
+                                setPickerSdrId("");
+                            }}
+                            className="px-4 py-2 rounded-xl bg-[#2890F8] text-white text-xs font-bold hover:bg-[#1a75ce] transition-colors"
+                        >
+                            Réinitialiser les filtres
+                        </button>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {missionsForPicker.map((mission) => {
+                            const channelList = mission.channels?.length ? mission.channels : [mission.channel];
+                            return (
+                                <div
+                                    key={mission.id}
+                                    onClick={() => setSelectedMission(mission)}
+                                    className="group relative p-6 rounded-3xl bg-white border border-slate-200/80 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden"
+                                >
+                                    <div>
+                                        <div className="flex items-start justify-between gap-3 mb-4">
+                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-center font-black text-lg shadow-md shadow-black/10 group-hover:scale-105 transition-transform flex-shrink-0">
+                                                {mission.client?.name?.[0] || "M"}
+                                            </div>
+
+                                            <div className="flex items-center gap-1">
+                                                {channelList.map((ch) => {
+                                                    const Icon = CHANNEL_ICONS[ch] ?? Phone;
                                                     return (
-                                                        <div
+                                                        <span
                                                             key={ch}
-                                                            className={cn(
-                                                                "w-9 h-9 rounded-xl flex items-center justify-center shadow-sm group-hover:-translate-y-0.5 transition-transform",
-                                                                style
-                                                            )}
+                                                            className="px-2 py-0.5 rounded-lg bg-blue-50 text-blue-700 text-[10px] font-bold uppercase flex items-center gap-1"
                                                         >
-                                                            <Icon className="w-4 h-4" aria-hidden />
-                                                        </div>
+                                                            <Icon className="w-3 h-3" />
+                                                            {ch}
+                                                        </span>
                                                     );
-                                                })
-                                            ) : (
-                                                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[rgba(12,59,56,0.1)] to-[rgba(255,158,27,0.14)] flex items-center justify-center shadow-sm group-hover:-translate-y-0.5 transition-transform">
-                                                    <ChannelIconCard className="w-5 h-5 text-[var(--elan-petrol)]" aria-hidden />
-                                                </div>
-                                            )}
+                                                })}
+                                            </div>
                                         </div>
-                                        <div className="w-7 h-7 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center group-hover:bg-[rgba(255,158,27,0.1)] group-hover:border-[rgba(224,124,0,0.22)] transition-colors">
-                                            <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[var(--elan-amber-deep)] transition-colors" aria-hidden />
+
+                                        <div>
+                                            <h3 className="text-base font-bold text-slate-900 group-hover:text-[#2890F8] transition-colors truncate">
+                                                {mission.name}
+                                            </h3>
+                                            <p className="text-xs text-slate-400 mt-1 flex items-center gap-1.5 truncate">
+                                                <Building2 className="w-3.5 h-3.5" aria-hidden />
+                                                {mission.client?.name ?? "Sans client"}
+                                            </p>
                                         </div>
                                     </div>
 
-                                    <div className="relative">
-                                        <p className="text-base font-black text-slate-900 group-hover:text-[var(--elan-petrol)] transition-colors leading-snug">
-                                            {mission.name}
-                                        </p>
-                                        <p className="text-xs font-semibold text-slate-400 mt-1.5 flex items-center gap-1">
-                                            <Building2 className="w-3 h-3" aria-hidden />
-                                            {mission.client?.name ?? "Sans client"}
-                                        </p>
-                                    </div>
-
-                                    <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between relative">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                            Ouvrir le tableau de bord
+                                    <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-400">
+                                        <span>Centre de contrôle</span>
+                                        <span className="text-[#2890F8] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                                            Accéder <ChevronRight className="w-3.5 h-3.5" />
                                         </span>
-                                        <Activity className="w-3.5 h-3.5 text-slate-300 group-hover:text-[var(--elan-amber)] transition-colors" aria-hidden />
                                     </div>
-                                </button>
+                                </div>
                             );
                         })}
                     </div>
@@ -845,159 +1057,233 @@ export default function ManagerProspectionPage() {
     // ─────────────────────────────────────────────────────────────────────────
 
     return (
-        <div className="elan-page pb-8">
+        <div className="w-full min-w-0 space-y-6 max-w-[1600px] mx-auto pb-8">
 
-            {/* ── Header ────────────────────────────────────────────────── */}
-            <div className="flex flex-col gap-3 pt-2">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                    <div className="flex items-center gap-3">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setSelectedMission(null);
-                                setActions([]);
-                                setStats(null);
-                                setSearch("");
-                                setSdrFilter("");
-                                setActionChannelFilter("");
-                                setResultFilters(new Set());
-                                setDateFrom("");
-                                setDateTo("");
-                                setPage(1);
-                                setSelectedIds(new Set());
-                                setNewCount(0);
-                            }}
-                            aria-label="Retour aux missions"
-                            className="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(255,158,27,0.45)]"
-                        >
-                            <ArrowLeft className="w-4 h-4 text-slate-600" aria-hidden />
-                        </button>
-                        <div>
-                            <h1 className="text-xl font-black text-slate-900 leading-tight">{selectedMission.name}</h1>
-                            <p className="text-xs font-semibold text-slate-400 flex items-center gap-1 mt-0.5">
-                                <Building2 className="w-3 h-3" aria-hidden />
-                                {selectedMission.client.name}
-                            </p>
+            {/* ── Top Header ── */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/70">
+                <div className="flex items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setSelectedMission(null);
+                            setActions([]);
+                            setStats(null);
+                            setSearch("");
+                            setSdrFilter("");
+                            setActionChannelFilter("");
+                            setResultFilters(new Set());
+                            setDateFrom("");
+                            setDateTo("");
+                            setPage(1);
+                            setSelectedIds(new Set());
+                            setNewCount(0);
+                        }}
+                        aria-label="Retour aux missions"
+                        className="w-10 h-10 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition-colors shadow-2xs"
+                    >
+                        <ArrowLeft className="w-4 h-4 text-slate-600" aria-hidden />
+                    </button>
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{selectedMission.name}</h1>
+                            {liveRefresh && <LivePulse label="Live" />}
                         </div>
-                        {liveRefresh && <LivePulse label="Actualisation auto" />}
-                        {newCount > 0 && (
-                            <button
-                                type="button"
-                                onClick={() => { setNewCount(0); setPage(1); }}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--elan-petrol)] text-white text-xs font-bold shadow hover:bg-[#114b46] transition-colors animate-bounce"
-                            >
-                                <Zap className="w-3 h-3" aria-hidden />
-                                +{newCount} nouvelles
-                            </button>
-                        )}
-                    </div>
-
-                    <div className="flex items-center gap-2 flex-wrap">
-                        {/* Live toggle */}
-                        <button
-                            type="button"
-                            onClick={() => setLiveRefresh(v => !v)}
-                            aria-pressed={liveRefresh}
-                            aria-label={liveRefresh ? "Désactiver l'actualisation automatique" : "Activer l'actualisation automatique"}
-                            className={cn(
-                                "h-9 px-3 flex items-center gap-1.5 rounded-xl border text-xs font-bold transition-all",
-                                liveRefresh
-                                    ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
-                                    : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+                        <p className="text-xs font-semibold text-slate-400 flex items-center gap-1.5 mt-0.5">
+                            <Building2 className="w-3.5 h-3.5" aria-hidden />
+                            {selectedMission.client.name}
+                            {lastRefresh && (
+                                <span className="text-slate-400 font-normal ml-2">
+                                    • Mis à jour à {lastRefresh.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                                </span>
                             )}
-                        >
-                            <Radio className={cn("w-3.5 h-3.5", liveRefresh && "animate-pulse")} aria-hidden />
-                            Live
-                        </button>
+                        </p>
+                    </div>
 
-                        {/* Manual refresh */}
+                    {newCount > 0 && (
                         <button
                             type="button"
-                            onClick={() => {
-                                fetchMissionData(selectedMission.id);
-                                fetchMissionStats(selectedMission.id);
-                                setNewCount(0);
-                            }}
-                            disabled={loadingData}
-                            aria-label="Actualiser les données"
-                            className="h-9 px-3 flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-bold hover:bg-slate-50 transition-all disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
+                            onClick={() => { setNewCount(0); setPage(1); }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#2890F8] text-white text-xs font-bold shadow-md hover:bg-[#1a75ce] transition-colors animate-bounce ml-2"
                         >
-                            <RefreshCw className={cn("w-3.5 h-3.5", loadingData && "animate-spin")} aria-hidden />
-                            Actualiser
+                            <Zap className="w-3 h-3" aria-hidden />
+                            +{newCount} nouvelles
                         </button>
+                    )}
+                </div>
 
-                        {missionSupportsCall && (
-                            <button
-                                type="button"
-                                onClick={() => setCallSyncModalOpen(true)}
-                                aria-label="Synchroniser les appels Allo"
-                                className="h-9 px-3 flex items-center gap-1.5 rounded-xl border border-[rgba(224,124,0,0.22)] bg-[rgba(255,158,27,0.1)] text-[var(--elan-petrol)] text-xs font-bold hover:bg-[rgba(255,158,27,0.16)] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(255,158,27,0.45)]"
-                            >
-                                <Mic className="w-3.5 h-3.5" aria-hidden />
-                                Sync appels
-                            </button>
+                <div className="flex items-center gap-2 flex-wrap">
+                    {/* Live toggle */}
+                    <button
+                        type="button"
+                        onClick={() => setLiveRefresh(v => !v)}
+                        aria-pressed={liveRefresh}
+                        className={cn(
+                            "h-9 px-3 flex items-center gap-1.5 rounded-xl border text-xs font-bold transition-all shadow-2xs",
+                            liveRefresh
+                                ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                                : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
                         )}
+                    >
+                        <Radio className={cn("w-3.5 h-3.5", liveRefresh && "animate-pulse")} aria-hidden />
+                        Live
+                    </button>
 
-                        {/* Export */}
+                    {/* Manual refresh */}
+                    <button
+                        type="button"
+                        onClick={() => {
+                            fetchMissionData(selectedMission.id);
+                            fetchMissionStats(selectedMission.id);
+                            setNewCount(0);
+                        }}
+                        disabled={loadingData}
+                        className="h-9 px-3 flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-bold hover:bg-slate-50 transition-all disabled:opacity-60 shadow-2xs"
+                    >
+                        <RefreshCw className={cn("w-3.5 h-3.5", loadingData && "animate-spin")} aria-hidden />
+                        Actualiser
+                    </button>
+
+                    {missionSupportsCall && (
                         <button
                             type="button"
-                            onClick={handleExportAll}
-                            disabled={exporting}
-                            aria-label="Exporter en CSV"
-                            className="h-9 px-3 flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-bold hover:bg-slate-50 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => setCallSyncModalOpen(true)}
+                            className="h-9 px-3.5 flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 text-xs font-bold hover:bg-blue-100 transition-all shadow-2xs"
                         >
-                            {exporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden /> : <Download className="w-3.5 h-3.5" aria-hidden />}
-                            {exporting ? "Export en cours…" : "Export CSV"}
+                            <Mic className="w-3.5 h-3.5" aria-hidden />
+                            Sync appels
                         </button>
+                    )}
+
+                    {/* Export */}
+                    <button
+                        type="button"
+                        onClick={handleExportAll}
+                        disabled={exporting}
+                        className="h-9 px-3 flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-bold hover:bg-slate-50 transition-all shadow-2xs disabled:opacity-50"
+                    >
+                        {exporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                        {exporting ? "Export…" : "Export CSV"}
+                    </button>
+                </div>
+            </div>
+
+            {/* ── 5 Executive KPI Telemetry Strip ── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                {/* 1. Midnight Sapphire (Total Actions) */}
+                <div className="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-[#0A1224] via-[#08101E] to-[#050B16] border border-slate-800/80 shadow-lg shadow-black/20 flex flex-col justify-between group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-blue-500/15 transition-all" />
+                    <div className="flex items-center justify-between z-10">
+                        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-[#2890F8]">
+                            <BarChart3 className="w-5 h-5" />
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[#2890F8] text-[10px] font-bold">
+                            Télémétrie
+                        </span>
+                    </div>
+                    <div className="my-3 z-10">
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Actions Totales</p>
+                        <p className="text-3xl sm:text-4xl font-black text-white tracking-tight mt-0.5 tabular-nums">
+                            {sc.total}
+                        </p>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/60 z-10">
+                        <span>Flux d&apos;activité SDR</span>
+                        <Sparkline data={hourlySparkData} color="#2890F8" />
                     </div>
                 </div>
 
-                {/* Channel tabs */}
-                <div role="tablist" aria-label="Canal" className="flex gap-1 p-1.5 bg-slate-100 rounded-2xl w-fit">
-                    {CHANNEL_TABS.map(tab => {
-                        const Icon = tab.icon;
-                        const active = channel === tab.value;
-                        return (
-                            <button
-                                key={tab.value}
-                                role="tab"
-                                aria-selected={active}
-                                onClick={() => { setChannel(tab.value); setSelectedMission(null); }}
-                                className={cn(
-                                    "flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all",
-                                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(255,158,27,0.45)]",
-                                    active ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-900/5" : "text-slate-500 hover:text-slate-800"
-                                )}
-                            >
-                                <Icon className="w-4 h-4" aria-hidden />
-                                {tab.label}
-                            </button>
-                        );
-                    })}
+                {/* 2. Obsidian Gold (RDV Planifiés) */}
+                <div className="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-[#0B0F19] via-[#090C14] to-[#04060A] border border-amber-900/40 shadow-lg shadow-black/20 flex flex-col justify-between group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-amber-500/15 transition-all" />
+                    <div className="flex items-center justify-between z-10">
+                        <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                            <CalendarPlus className="w-5 h-5" />
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[10px] font-bold">
+                            Succès RDV
+                        </span>
+                    </div>
+                    <div className="my-3 z-10">
+                        <p className="text-xs font-bold text-amber-200/70 uppercase tracking-wider">RDV Planifiés</p>
+                        <p className="text-3xl sm:text-4xl font-black text-amber-100 tracking-tight mt-0.5 tabular-nums">
+                            {sc.rdv}
+                        </p>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-amber-200/60 pt-2 border-t border-amber-900/40 z-10">
+                        <span>Objectif de conversion</span>
+                        <span className="text-amber-400 font-bold">{sc.rate}%</span>
+                    </div>
                 </div>
 
-                {/* Last refresh timestamp */}
-                {lastRefresh && (
-                    <p className="text-[11px] text-slate-400 font-medium">
-                        Dernière mise à jour :{" "}
-                        <time dateTime={lastRefresh.toISOString()}>
-                            {lastRefresh.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
-                        </time>
-                    </p>
-                )}
+                {/* 3. Mint Emerald (Intéressés) */}
+                <div className="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-emerald-50/90 via-emerald-50/50 to-teal-50/70 border border-emerald-200/80 shadow-2xs flex flex-col justify-between group">
+                    <div className="flex items-center justify-between z-10">
+                        <div className="w-10 h-10 rounded-2xl bg-emerald-100/80 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-2xs">
+                            <ThumbsUp className="w-5 h-5" />
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-100/80 border border-emerald-200 text-emerald-800 text-[10px] font-bold">
+                            Intérêt
+                        </span>
+                    </div>
+                    <div className="my-3 z-10">
+                        <p className="text-xs font-bold text-emerald-900/60 uppercase tracking-wider">Intéressés</p>
+                        <p className="text-3xl sm:text-4xl font-black text-emerald-950 tracking-tight mt-0.5 tabular-nums">
+                            {sc.interested}
+                        </p>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-emerald-800 pt-2 border-t border-emerald-200/60 z-10">
+                        <span>Leads qualifiés chauds</span>
+                        <ChevronRight className="w-4 h-4 text-emerald-600" />
+                    </div>
+                </div>
+
+                {/* 4. Solar Amber (Rappels Demandés) */}
+                <div className="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-amber-50/90 via-amber-50/50 to-orange-50/70 border border-amber-200/80 shadow-2xs flex flex-col justify-between group">
+                    <div className="flex items-center justify-between z-10">
+                        <div className="w-10 h-10 rounded-2xl bg-amber-100/80 border border-amber-200 flex items-center justify-center text-amber-600 shadow-2xs">
+                            <Clock className="w-5 h-5" />
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-amber-100/80 border border-amber-200 text-amber-800 text-[10px] font-bold">
+                            Rappels
+                        </span>
+                    </div>
+                    <div className="my-3 z-10">
+                        <p className="text-xs font-bold text-amber-900/60 uppercase tracking-wider">Rappels Demandés</p>
+                        <p className="text-3xl sm:text-4xl font-black text-amber-950 tracking-tight mt-0.5 tabular-nums">
+                            {sc.callbacks}
+                        </p>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-amber-800 pt-2 border-t border-amber-200/60 z-10">
+                        <span>À recontacter sous 48h</span>
+                        <ChevronRight className="w-4 h-4 text-amber-600" />
+                    </div>
+                </div>
+
+                {/* 5. Violet Sapphire (Taux de Conversion) */}
+                <div className="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-violet-50/90 via-indigo-50/50 to-purple-50/70 border border-violet-200/80 shadow-2xs flex flex-col justify-between group">
+                    <div className="flex items-center justify-between z-10">
+                        <div className="w-10 h-10 rounded-2xl bg-violet-100/80 border border-violet-200 flex items-center justify-center text-violet-600 shadow-2xs">
+                            <TrendingUp className="w-5 h-5" />
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-violet-100/80 border border-violet-200 text-violet-800 text-[10px] font-bold">
+                            Performance
+                        </span>
+                    </div>
+                    <div className="my-3 z-10">
+                        <p className="text-xs font-bold text-violet-900/60 uppercase tracking-wider">Taux de Conversion</p>
+                        <p className="text-3xl sm:text-4xl font-black text-violet-950 tracking-tight mt-0.5 tabular-nums">
+                            {sc.rate}%
+                        </p>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-violet-800 pt-2 border-t border-violet-200/60 z-10">
+                        <span>Benchmark SDR</span>
+                        <Sparkles className="w-4 h-4 text-violet-600" />
+                    </div>
+                </div>
             </div>
 
-            {/* ── Stat cards ────────────────────────────────────────────── */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                <StatCard label="Actions totales" value={sc.total} icon={BarChart3} text="text-slate-600" bg="bg-slate-100" border="border-slate-200" sparkData={hourlySparkData} sparkColor="#64748b" />
-                <StatCard label="RDV planifiés" value={sc.rdv} icon={CalendarPlus} text="text-[var(--elan-petrol)]" bg="bg-[rgba(255,158,27,0.1)]" border="border-[rgba(224,124,0,0.22)]" sparkData={hourlySparkData.map(() => Math.floor(Math.random() * 3))} sparkColor="#e07c00" />
-                <StatCard label="Intéressés" value={sc.interested} icon={ThumbsUp} text="text-emerald-600" bg="bg-emerald-50" border="border-emerald-200" sparkData={hourlySparkData.map(v => Math.round(v * 0.4))} sparkColor="#10b981" />
-                <StatCard label="Rappels demandés" value={sc.callbacks} icon={Clock} text="text-amber-600" bg="bg-amber-50" border="border-amber-200" sparkData={hourlySparkData.map(v => Math.round(v * 0.2))} sparkColor="#f59e0b" />
-                <StatCard label="Taux conv. RDV" value={`${sc.rate}%`} icon={TrendingUp} text="text-[var(--elan-petrol)]" bg="bg-[rgba(12,59,56,0.08)]" border="border-[rgba(12,59,56,0.18)]" />
-            </div>
-
-            {/* ── Filter & search bar ───────────────────────────────────── */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-3">
+            {/* ── Filter & Search Bar ── */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-3.5 space-y-3">
                 <div className="flex flex-wrap items-center gap-3">
                     {/* Search */}
                     <div className="flex-1 min-w-[220px] relative">
@@ -1005,38 +1291,31 @@ export default function ManagerProspectionPage() {
                         <input
                             ref={searchRef}
                             type="text"
-                            placeholder='Rechercher…  ( / )'
+                            placeholder="Rechercher un contact, une société, une note… ( / )"
                             value={search}
                             onChange={e => { setSearch(e.target.value); setPage(1); }}
-                            className="w-full h-9 pl-10 pr-8 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[rgba(255,158,27,0.28)] focus:border-[var(--elan-amber-deep)] transition-all placeholder:text-slate-400"
-                            aria-label="Rechercher un contact ou une société"
+                            className="w-full h-10 pl-10 pr-8 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 focus:border-[#2890F8] transition-all placeholder:text-slate-400"
                         />
                         {search && (
                             <button
                                 type="button"
                                 onClick={() => setSearch("")}
-                                aria-label="Effacer la recherche"
-                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors"
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition-colors"
                             >
-                                <X className="w-3.5 h-3.5" aria-hidden />
+                                <X className="w-3.5 h-3.5" />
                             </button>
                         )}
                     </div>
-
-                    <div className="w-px h-7 bg-slate-100 shrink-0 hidden sm:block" aria-hidden />
 
                     {/* SDR filter */}
                     <select
                         value={sdrFilter}
                         onChange={e => { setSdrFilter(e.target.value); setPage(1); }}
-                        aria-label="Filtrer par utilisateur (auteur de l'action)"
-                        className="h-9 px-3 text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-[var(--elan-amber-deep)] min-w-[160px] cursor-pointer"
+                        className="h-10 px-3 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 min-w-[150px] cursor-pointer"
                     >
                         <option value="">Tous les utilisateurs</option>
                         {sdrOptions.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
-
-                    <div className="w-px h-7 bg-slate-100 shrink-0 hidden sm:block" aria-hidden />
 
                     <select
                         value={actionChannelFilter}
@@ -1044,8 +1323,7 @@ export default function ManagerProspectionPage() {
                             setActionChannelFilter((e.target.value || "") as "" | ChannelTabValue);
                             setPage(1);
                         }}
-                        aria-label="Filtrer par canal de l'action"
-                        className="h-9 px-3 text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-[var(--elan-amber-deep)] min-w-[140px] cursor-pointer"
+                        className="h-10 px-3 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 min-w-[130px] cursor-pointer"
                     >
                         <option value="">Tous canaux</option>
                         <option value="CALL">Appels</option>
@@ -1053,25 +1331,20 @@ export default function ManagerProspectionPage() {
                         <option value="LINKEDIN">LinkedIn</option>
                     </select>
 
-                    <div className="w-px h-7 bg-slate-100 shrink-0 hidden sm:block" aria-hidden />
-
-                    {/* Date range filter (création de l'action) */}
+                    {/* Date range filter */}
                     <div className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" aria-hidden />
                         <input
                             type="date"
                             value={dateFrom}
                             onChange={e => { setDateFrom(e.target.value); setPage(1); }}
-                            aria-label="Date de début (création de l'action)"
-                            className="h-9 px-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-[var(--elan-amber-deep)] cursor-pointer"
+                            className="h-10 px-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-[#2890F8] cursor-pointer"
                         />
                         <span className="text-xs text-slate-400 font-medium">→</span>
                         <input
                             type="date"
                             value={dateTo}
                             onChange={e => { setDateTo(e.target.value); setPage(1); }}
-                            aria-label="Date de fin (création de l'action)"
-                            className="h-9 px-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-[var(--elan-amber-deep)] cursor-pointer"
+                            className="h-10 px-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-[#2890F8] cursor-pointer"
                         />
                     </div>
 
@@ -1088,10 +1361,9 @@ export default function ManagerProspectionPage() {
                                     setDateTo("");
                                     setPage(1);
                                 }}
-                                className="h-9 px-3 flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 text-red-600 text-xs font-bold hover:bg-red-100 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
-                                aria-label="Réinitialiser tous les filtres"
+                                className="h-10 px-3 flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 text-red-600 text-xs font-bold hover:bg-red-100 transition-all"
                             >
-                                <RotateCcw className="w-3.5 h-3.5" aria-hidden />
+                                <RotateCcw className="w-3.5 h-3.5" />
                                 Réinitialiser
                             </button>
                         )}
@@ -1099,7 +1371,7 @@ export default function ManagerProspectionPage() {
                         <DensityToggle value={density} onChange={setDensity} />
 
                         {/* Page Size Select */}
-                        <div className="flex items-center gap-1.5 h-9 px-2 bg-slate-50 border border-slate-200 rounded-xl">
+                        <div className="flex items-center gap-1.5 h-10 px-2.5 bg-slate-50 border border-slate-200 rounded-xl">
                             <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">Lignes :</span>
                             <select
                                 value={pageSize}
@@ -1119,46 +1391,34 @@ export default function ManagerProspectionPage() {
 
                 {/* Result filter chips */}
                 {uniqueResults.length > 0 && (
-                    <ResultFilterBar
-                        results={uniqueResults}
-                        active={resultFilters}
-                        onToggle={toggleResult}
-                        counts={resultCounts}
-                    />
+                    <div className="pt-2 border-t border-slate-100">
+                        <ResultFilterBar
+                            results={uniqueResults}
+                            active={resultFilters}
+                            onToggle={toggleResult}
+                            counts={resultCounts}
+                        />
+                    </div>
                 )}
-
-                {/* Active filter summary */}
-                <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-xs font-semibold text-slate-400">
-                        {processed.length} ligne{processed.length !== 1 ? "s" : ""}
-                        {hasFilters && ` sur ${actions.length}`}
-                    </p>
-                    {selectedIds.size > 0 && (
-                        <span className="px-2 py-0.5 rounded-full bg-[rgba(255,158,27,0.1)] text-[var(--elan-petrol)] text-[11px] font-bold">
-                            {selectedIds.size} sélectionné{selectedIds.size > 1 ? "s" : ""}
-                        </span>
-                    )}
-                </div>
             </div>
 
-            {/* ── Bulk action bar ───────────────────────────────────────── */}
+            {/* ── Bulk action bar ── */}
             {selectedIds.size > 0 && (
-                <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-[var(--elan-petrol)] text-white shadow-lg shadow-[rgba(12,59,56,0.18)] animate-in slide-in-from-bottom-2 duration-200">
-                    <span className="text-sm font-bold">{selectedIds.size} action{selectedIds.size > 1 ? "s" : ""} sélectionnée{selectedIds.size > 1 ? "s" : ""}</span>
+                <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-[#0B0F19] text-white shadow-xl shadow-black/20 border border-slate-800 animate-in slide-in-from-bottom-2 duration-200">
+                    <span className="text-xs font-bold text-[#2890F8]">{selectedIds.size} action{selectedIds.size > 1 ? "s" : ""} sélectionnée{selectedIds.size > 1 ? "s" : ""}</span>
                     <div className="flex-1" />
                     <button
                         type="button"
                         onClick={() => exportCSV(processed.filter(r => selectedIds.has(r.id)), selectedMission.name + "_selection")}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-xs font-bold transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition-colors"
                     >
                         <Download className="w-3.5 h-3.5" aria-hidden />
-                        Exporter la sélection
+                        Exporter
                     </button>
                     <button
                         type="button"
                         onClick={() => setSelectedIds(new Set())}
-                        aria-label="Désélectionner tout"
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-xs font-bold transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition-colors"
                     >
                         <X className="w-3.5 h-3.5" aria-hidden />
                         Désélectionner
@@ -1166,18 +1426,21 @@ export default function ManagerProspectionPage() {
                 </div>
             )}
 
-            {/* ── Table ─────────────────────────────────────────────────── */}
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            {/* ── Table View ── */}
+            <div className="rounded-3xl border border-slate-200/80 bg-white shadow-2xs overflow-hidden">
                 {loadingData && actions.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-24 gap-3">
-                        <Loader2 className="w-8 h-8 text-[var(--elan-amber)] animate-spin" />
-                        <p className="text-sm font-medium text-slate-500">Chargement des données…</p>
+                    <div className="grid gap-3 p-6">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className="h-12 bg-slate-100 rounded-xl animate-pulse" />
+                        ))}
                     </div>
                 ) : processed.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-24 gap-3">
-                        <Filter className="w-9 h-9 text-slate-200" />
-                        <p className="text-sm font-bold text-slate-600">Aucun résultat</p>
-                        <p className="text-xs text-slate-400">Modifiez vos filtres pour voir des données.</p>
+                    <div className="text-center py-20 bg-white">
+                        <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3 border border-slate-200">
+                            <Filter className="w-7 h-7 text-slate-400" />
+                        </div>
+                        <p className="text-sm font-bold text-slate-900">Aucun résultat trouvé</p>
+                        <p className="text-xs text-slate-400 mt-1 mb-4">Modifiez vos filtres ou élargissez la recherche.</p>
                         <button
                             type="button"
                             onClick={() => {
@@ -1188,7 +1451,7 @@ export default function ManagerProspectionPage() {
                                 setDateFrom("");
                                 setDateTo("");
                             }}
-                            className="mt-1 px-4 py-2 rounded-xl bg-[rgba(255,158,27,0.1)] border border-[rgba(224,124,0,0.22)] text-[var(--elan-petrol)] text-xs font-bold hover:bg-[rgba(255,158,27,0.16)] transition-colors"
+                            className="px-4 py-2 rounded-xl bg-[#2890F8] text-white text-xs font-bold hover:bg-[#1a75ce] transition-colors"
                         >
                             Réinitialiser les filtres
                         </button>
@@ -1198,24 +1461,22 @@ export default function ManagerProspectionPage() {
                         <table className="w-full border-collapse" role="grid" aria-label="Historique des actions">
                             <thead>
                                 <tr className="border-b border-slate-100 bg-slate-50/80">
-                                    {/* Checkbox */}
                                     <th className="w-10 px-4 py-3">
                                         <input
                                             type="checkbox"
                                             checked={allPageSelected}
                                             onChange={togglePageSelect}
-                                            aria-label="Sélectionner toute la page"
-                                            className="w-4 h-4 rounded border-slate-300 text-[var(--elan-petrol)] accent-[var(--elan-amber)] cursor-pointer"
+                                            className="w-4 h-4 rounded border-slate-300 accent-[#2890F8] cursor-pointer"
                                         />
                                     </th>
                                     {visibleCols.has("date") && (
-                                        <Th label="Créée le" sortKey="createdAt" currentKey={sortKey} dir={sortDir} onSort={handleSort} />
+                                        <Th label="Date" sortKey="createdAt" currentKey={sortKey} dir={sortDir} onSort={handleSort} />
                                     )}
                                     {visibleCols.has("name") && (
                                         <Th label="Contact / Société" sortKey="name" currentKey={sortKey} dir={sortDir} onSort={handleSort} className="min-w-[200px]" />
                                     )}
                                     {visibleCols.has("sdr") && (
-                                        <Th label="Effectué par" sortKey="sdr" currentKey={sortKey} dir={sortDir} onSort={handleSort} />
+                                        <Th label="Auteur" sortKey="sdr" currentKey={sortKey} dir={sortDir} onSort={handleSort} />
                                     )}
                                     {visibleCols.has("result") && (
                                         <Th label="Résultat" sortKey="result" currentKey={sortKey} dir={sortDir} onSort={handleSort} />
@@ -1228,13 +1489,11 @@ export default function ManagerProspectionPage() {
                                     {visibleCols.has("duration") && (
                                         <Th label="Durée" sortKey="duration" currentKey={sortKey} dir={sortDir} onSort={handleSort} />
                                     )}
-                                    {/* Row action */}
                                     <th className="w-10 px-2 py-3" aria-hidden />
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {pageRows.map((row, idx) => {
-                                    const cfg = getCfg(row.result);
                                     const isSelected = selectedIds.has(row.id);
                                     const displaySummary = getActionDisplaySummary(row);
                                     const contactName = getContactName(row);
@@ -1249,7 +1508,7 @@ export default function ManagerProspectionPage() {
                                             className={cn(
                                                 "group cursor-pointer transition-colors duration-100",
                                                 isSelected
-                                                    ? "bg-[rgba(255,158,27,0.08)] hover:bg-[rgba(255,158,27,0.12)]"
+                                                    ? "bg-blue-50/50 hover:bg-blue-50"
                                                     : "hover:bg-slate-50/70"
                                             )}
                                             aria-selected={isSelected}
@@ -1264,8 +1523,7 @@ export default function ManagerProspectionPage() {
                                                     type="checkbox"
                                                     checked={isSelected}
                                                     onChange={() => toggleRow(row.id)}
-                                                    aria-label={`Sélectionner ${name}`}
-                                                    className="w-4 h-4 rounded border-slate-300 text-[var(--elan-petrol)] accent-[var(--elan-amber)] cursor-pointer"
+                                                    className="w-4 h-4 rounded border-slate-300 accent-[#2890F8] cursor-pointer"
                                                 />
                                             </td>
 
@@ -1274,30 +1532,18 @@ export default function ManagerProspectionPage() {
                                                 <td className={cn("px-4 whitespace-nowrap", rowPy)}>
                                                     {(() => {
                                                         const d = new Date(row.createdAt);
-                                                        const cb = row.callbackDate
-                                                            ? new Date(row.callbackDate as string)
-                                                            : null;
+                                                        const cb = row.callbackDate ? new Date(row.callbackDate as string) : null;
                                                         return (
                                                             <>
-                                                                <p className="text-sm font-semibold text-slate-800 tabular-nums">
-                                                                    {d.toLocaleDateString("fr-FR", {
-                                                                        day: "2-digit",
-                                                                        month: "short",
-                                                                    })}
+                                                                <p className="text-xs font-semibold text-slate-800 tabular-nums">
+                                                                    {d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}
                                                                 </p>
-                                                                <p className="text-[11px] text-slate-400 font-medium tabular-nums">
-                                                                    {d.toLocaleTimeString("fr-FR", {
-                                                                        hour: "2-digit",
-                                                                        minute: "2-digit",
-                                                                    })}
+                                                                <p className="text-[10px] text-slate-400 font-medium tabular-nums">
+                                                                    {d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
                                                                 </p>
                                                                 {cb && !Number.isNaN(cb.getTime()) && (
                                                                     <p className="text-[10px] text-amber-700 font-semibold mt-0.5 tabular-nums">
-                                                                        Rappel :{" "}
-                                                                        {cb.toLocaleDateString("fr-FR", {
-                                                                            day: "2-digit",
-                                                                            month: "short",
-                                                                        })}
+                                                                        Rappel : {cb.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}
                                                                     </p>
                                                                 )}
                                                             </>
@@ -1309,11 +1555,8 @@ export default function ManagerProspectionPage() {
                                             {/* Name */}
                                             {visibleCols.has("name") && (
                                                 <td className={cn("px-4", rowPy)}>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={cn(
-                                                            "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-bold text-xs",
-                                                            "bg-slate-100 text-slate-600"
-                                                        )} aria-hidden>
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200/80 flex items-center justify-center font-bold text-xs text-slate-700 shrink-0">
                                                             {row.contactId ? (
                                                                 (row.contact?.firstName?.[0] || row.contact?.lastName?.[0] || "?").toUpperCase()
                                                             ) : (
@@ -1321,7 +1564,7 @@ export default function ManagerProspectionPage() {
                                                             )}
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <p className="text-sm font-semibold text-slate-900 truncate max-w-[180px]">{name}</p>
+                                                            <p className="text-xs font-bold text-slate-900 truncate max-w-[180px]">{name}</p>
                                                             {showCompany && (
                                                                 <p className="text-[11px] text-slate-400 font-medium truncate max-w-[180px]">{companyName}</p>
                                                             )}
@@ -1333,8 +1576,8 @@ export default function ManagerProspectionPage() {
                                             {/* SDR */}
                                             {visibleCols.has("sdr") && (
                                                 <td className={cn("px-4", rowPy)}>
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-black text-slate-600 shrink-0" aria-hidden>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[9px] font-black text-slate-600 shrink-0">
                                                             {(row.sdr?.name?.[0] || "?").toUpperCase()}
                                                         </div>
                                                         <span className="text-xs font-semibold text-slate-700 whitespace-nowrap">{row.sdr?.name || "Non assigné"}</span>
@@ -1342,22 +1585,19 @@ export default function ManagerProspectionPage() {
                                                 </td>
                                             )}
 
-                                            {/* Result — narrative "last action" badge (channel-aware) */}
+                                            {/* Result */}
                                             {visibleCols.has("result") && (
                                                 <td className={cn("px-4", rowPy)}>
                                                     <LastActionBadge row={row} />
                                                 </td>
                                             )}
 
-                                            {/* Résumé (callSummary) + note */}
+                                            {/* Note / Résumé */}
                                             {visibleCols.has("note") && (
                                                 <td className={cn("px-4 max-w-[320px]", rowPy)}>
                                                     <div className="min-w-0 flex-1">
                                                         {displaySummary ? (
-                                                            <p
-                                                                className="text-xs text-slate-600 line-clamp-2"
-                                                                title={displaySummary}
-                                                            >
+                                                            <p className="text-xs text-slate-600 line-clamp-2" title={displaySummary}>
                                                                 {displaySummary}
                                                             </p>
                                                         ) : (
@@ -1375,7 +1615,7 @@ export default function ManagerProspectionPage() {
                                                             {Math.floor(row.duration / 60)}:{String(row.duration % 60).padStart(2, "0")}
                                                         </span>
                                                     ) : (
-                                                        <span className="text-slate-400 text-xs">Non renseigné</span>
+                                                        <span className="text-slate-400 text-xs">-</span>
                                                     )}
                                                 </td>
                                             )}
@@ -1385,10 +1625,9 @@ export default function ManagerProspectionPage() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setDrawerAction(row)}
-                                                    aria-label={`Ouvrir les détails de ${name}`}
-                                                    className="rounded p-1 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[rgba(255,158,27,0.45)]"
+                                                    className="p-1 rounded-lg hover:bg-slate-200/60 transition-colors text-slate-400 hover:text-[#2890F8]"
                                                 >
-                                                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[var(--elan-amber)] transition-colors" aria-hidden />
+                                                    <ChevronRight className="w-4 h-4" />
                                                 </button>
                                             </td>
                                         </tr>
@@ -1399,7 +1638,7 @@ export default function ManagerProspectionPage() {
                     </div>
                 )}
 
-                {/* ── Pagination ───────────────────────────────────────── */}
+                {/* ── Pagination ── */}
                 {totalPages > 1 && (
                     <div className="flex items-center justify-between px-5 py-4 border-t border-slate-100 bg-slate-50/50">
                         <p className="text-xs font-semibold text-slate-400">
@@ -1410,7 +1649,6 @@ export default function ManagerProspectionPage() {
                                 type="button"
                                 onClick={() => setPage(1)}
                                 disabled={page === 1}
-                                aria-label="Première page"
                                 className="h-8 w-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-xs font-bold"
                             >
                                 «
@@ -1419,13 +1657,11 @@ export default function ManagerProspectionPage() {
                                 type="button"
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page === 1}
-                                aria-label="Page précédente"
                                 className="h-8 w-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                             >
-                                <ChevronUp className="w-3.5 h-3.5 -rotate-90" aria-hidden />
+                                <ChevronUp className="w-3.5 h-3.5 -rotate-90" />
                             </button>
 
-                            {/* Page number buttons */}
                             {Array.from({ length: Math.min(7, totalPages) }, (_, i) => {
                                 let p: number;
                                 if (totalPages <= 7) p = i + 1;
@@ -1437,12 +1673,10 @@ export default function ManagerProspectionPage() {
                                         key={p}
                                         type="button"
                                         onClick={() => setPage(p)}
-                                        aria-label={`Page ${p}`}
-                                        aria-current={page === p ? "page" : undefined}
                                         className={cn(
                                             "h-8 w-8 flex items-center justify-center rounded-lg text-xs font-bold transition-colors",
                                             page === p
-                                                ? "bg-[var(--elan-petrol)] text-white shadow-sm"
+                                                ? "bg-[#0B0F19] text-white shadow-2xs"
                                                 : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                                         )}
                                     >
@@ -1455,16 +1689,14 @@ export default function ManagerProspectionPage() {
                                 type="button"
                                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 disabled={page === totalPages}
-                                aria-label="Page suivante"
                                 className="h-8 w-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                             >
-                                <ChevronDown className="w-3.5 h-3.5 -rotate-90" aria-hidden />
+                                <ChevronDown className="w-3.5 h-3.5 -rotate-90" />
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setPage(totalPages)}
                                 disabled={page === totalPages}
-                                aria-label="Dernière page"
                                 className="h-8 w-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-xs font-bold"
                             >
                                 »
@@ -1474,21 +1706,7 @@ export default function ManagerProspectionPage() {
                 )}
             </div>
 
-            {/* ── Keyboard hints ────────────────────────────────────────── */}
-            <div className="flex items-center gap-4 px-1" role="note" aria-label="Raccourcis clavier">
-                {[
-                    ["  /  ", "Rechercher"],
-                    ["Esc", "Effacer filtres"],
-                    ["Clic rangée", "Ouvrir le contact"],
-                ].map(([key, label]) => (
-                    <span key={key} className="flex items-center gap-1.5 text-[10px] text-slate-400 font-medium">
-                        <kbd className="px-1.5 py-0.5 rounded border border-slate-200 bg-slate-50 text-slate-500 font-mono text-[10px]">{key}</kbd>
-                        {label}
-                    </span>
-                ))}
-            </div>
-
-            {/* ── Unified Action Drawer ────────────────────────────────── */}
+            {/* ── Unified Action Drawer ── */}
             {missionSupportsCall && (
                 <ManagerCallEnrichmentSyncModal
                     isOpen={callSyncModalOpen}
@@ -1521,7 +1739,6 @@ export default function ManagerProspectionPage() {
                         fetchMissionStats(selectedMission.id);
                     }}
                     onContactSelect={(newContactId) => {
-                        // Switch drawer context to the new contact
                         setDrawerAction({
                             ...drawerAction,
                             contactId: newContactId,

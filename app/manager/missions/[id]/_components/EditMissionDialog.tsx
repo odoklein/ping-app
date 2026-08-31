@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Modal, Button, Select, useToast } from "@/components/ui";
-import { Save, Loader2 } from "lucide-react";
+import { useToast } from "@/components/ui";
+import { Save, Loader2, X, Building2, Phone, Mail, Linkedin, Calendar, Check, AlertCircle } from "lucide-react";
 import { MISSION_STATUS_TABS } from "@/lib/constants/missionStatus";
 import type { MissionStatusValue } from "@/lib/constants/missionStatus";
+import { cn } from "@/lib/utils";
 
 interface Client {
     id: string;
@@ -40,6 +41,12 @@ interface EditMissionDialogProps {
     mission: MissionData | null;
     onSaved: () => void;
 }
+
+const CHANNELS = [
+    { value: "CALL", label: "📞 Appel téléphonique", color: "blue" },
+    { value: "EMAIL", label: "📧 Email", color: "violet" },
+    { value: "LINKEDIN", label: "💼 LinkedIn", color: "sky" },
+];
 
 export function EditMissionDialog({ isOpen, onClose, mission, onSaved }: EditMissionDialogProps) {
     const { success, error: showError } = useToast();
@@ -133,66 +140,114 @@ export function EditMissionDialog({ isOpen, onClose, mission, onSaved }: EditMis
         }
     };
 
-    if (!mission) return null;
+    if (!isOpen || !mission) return null;
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Modifier la mission" size="lg">
-            <form onSubmit={handleSubmit} className="space-y-5">
-                <Select
-                    label="Client *"
-                    placeholder="Sélectionner un client..."
-                    options={clients.map((c) => ({ value: c.id, label: c.name }))}
-                    value={formData.clientId}
-                    onChange={(value) => setFormData((prev) => ({ ...prev, clientId: value }))}
-                    error={errors.clientId}
-                    searchable
-                    disabled={isLoadingClients}
-                />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop - Soft focus without darkening the entire screen */}
+            <div
+                className="absolute inset-0 bg-slate-900/20 backdrop-blur-[2px] transition-opacity"
+                onClick={onClose}
+            />
 
-                <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Nom de la mission *</label>
-                    <input
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                        placeholder="Ex: Prospection SaaS Q1 2026"
-                        className={`w-full px-4 py-3 bg-white border rounded-xl text-slate-900 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 ${errors.name ? "border-red-500" : "border-slate-200"}`}
-                    />
-                    {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
+            {/* Dialog Container with #FCFAFF soft background */}
+            <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col bg-[#FCFAFF] rounded-3xl shadow-2xl shadow-slate-900/10 overflow-hidden border border-slate-200/80 animate-in fade-in zoom-in-95 duration-200">
+                
+                {/* ── Top Header ── */}
+                <div className="relative overflow-hidden bg-gradient-to-br from-[#0B0F19] via-[#0D1527] to-[#04060A] px-6 sm:px-8 py-5 border-b border-slate-800 flex-shrink-0">
+                    <div className="relative z-10 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-[#2890F8]/20 border border-[#2890F8]/30 flex items-center justify-center text-[#2890F8] shadow-md shadow-blue-500/20">
+                                <Building2 className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-black text-white tracking-tight">
+                                    Modifier la Mission
+                                </h2>
+                                <p className="text-xs text-slate-400 mt-0.5">
+                                    {formData.name || "Configuration générale de la mission"}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors text-white/70 hover:text-white"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    </div>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Objectif</label>
-                    <textarea
-                        value={formData.objective}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, objective: e.target.value }))}
-                        placeholder="Ex: Générer 50 meetings qualifiés"
-                        rows={3}
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 resize-none"
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Canaux *</label>
-                    <p className="text-xs text-slate-500 mb-2">Sélectionnez un ou plusieurs canaux pour cette mission.</p>
-                    <div className="flex flex-wrap gap-3">
-                        {[
-                            { value: "CALL", label: "Appel téléphonique" },
-                            { value: "EMAIL", label: "Email" },
-                            { value: "LINKEDIN", label: "LinkedIn" },
-                        ].map((opt) => {
-                            const isSelected = formData.channels.includes(opt.value);
-                            return (
-                                <label
-                                    key={opt.value}
-                                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 cursor-pointer transition-all ${
-                                        isSelected ? "border-indigo-500 bg-indigo-50" : "border-slate-200 bg-white hover:border-slate-300"
-                                    }`}
+                {/* ── Form Body ── */}
+                <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-5">
+                    
+                    {/* Client & Name */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                                Compte Client <span className="text-red-500">*</span>
+                            </label>
+                            {isLoadingClients ? (
+                                <div className="h-11 bg-slate-100 rounded-xl animate-pulse" />
+                            ) : (
+                                <select
+                                    value={formData.clientId}
+                                    onChange={(e) => setFormData((prev) => ({ ...prev, clientId: e.target.value }))}
+                                    className="w-full h-11 px-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] cursor-pointer"
                                 >
-                                    <input
-                                        type="checkbox"
-                                        checked={isSelected}
-                                        onChange={() => {
+                                    <option value="">Sélectionner un client...</option>
+                                    {clients.map((c) => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
+                            )}
+                            {errors.clientId && <p className="text-[11px] text-red-500 font-semibold mt-1">{errors.clientId}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                                Nom de la mission <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.name}
+                                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                                placeholder="Ex: Prospection SaaS Q1 2026"
+                                className={cn(
+                                    "w-full h-11 px-3.5 border rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8]",
+                                    errors.name ? "border-red-400 bg-red-50/20" : "border-slate-200"
+                                )}
+                            />
+                            {errors.name && <p className="text-[11px] text-red-500 font-semibold mt-1">{errors.name}</p>}
+                        </div>
+                    </div>
+
+                    {/* Objective */}
+                    <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">Objectif</label>
+                        <textarea
+                            value={formData.objective}
+                            onChange={(e) => setFormData((prev) => ({ ...prev, objective: e.target.value }))}
+                            placeholder="Ex: Générer 50 rendez-vous qualifiés..."
+                            rows={2}
+                            className="w-full p-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] resize-none"
+                        />
+                    </div>
+
+                    {/* Channels */}
+                    <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                            Canaux activés <span className="text-red-500">*</span>
+                        </label>
+                        <div className="flex flex-wrap gap-2.5">
+                            {CHANNELS.map((opt) => {
+                                const isSelected = formData.channels.includes(opt.value);
+                                return (
+                                    <button
+                                        type="button"
+                                        key={opt.value}
+                                        onClick={() => {
                                             const next = isSelected
                                                 ? formData.channels.filter((c) => c !== opt.value)
                                                 : [...formData.channels, opt.value];
@@ -203,76 +258,103 @@ export function EditMissionDialog({ isOpen, onClose, mission, onSaved }: EditMis
                                                 channel: next[0],
                                             }));
                                         }}
-                                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                                    />
-                                    <span className="text-sm font-medium text-slate-700">{opt.label}</span>
-                                    </label>
-                            );
-                        })}
+                                        className={cn(
+                                            "flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-bold transition-all",
+                                            isSelected
+                                                ? "border-[#2890F8] bg-blue-50 text-blue-800 shadow-2xs"
+                                                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                                        )}
+                                    >
+                                        <div className={cn(
+                                            "w-4 h-4 rounded-md flex items-center justify-center text-white",
+                                            isSelected ? "bg-[#2890F8]" : "bg-slate-200"
+                                        )}>
+                                            {isSelected && <Check className="w-3 h-3" />}
+                                        </div>
+                                        {opt.label}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        {errors.channels && <p className="text-[11px] text-red-500 font-semibold mt-1">{errors.channels}</p>}
                     </div>
-                    {errors.channels && <p className="text-sm text-red-500 mt-1">{errors.channels}</p>}
-                </div>
 
-                <div>
-                    <Select
-                        label="Statut"
-                        options={MISSION_STATUS_TABS.filter((s) => s.value !== "all").map((s) => ({
-                            value: s.value,
-                            label: s.label,
-                        }))}
-                        value={formData.status}
-                        onChange={(value) => setFormData((prev) => ({ ...prev, status: value as MissionStatusValue }))}
-                    />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
+                    {/* Status */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Date de début</label>
-                        <input
-                            type="date"
-                            value={formData.startDate}
-                            onChange={(e) => setFormData((prev) => ({ ...prev, startDate: e.target.value }))}
-                            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-                        />
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">Statut de la mission</label>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {[
+                                { val: "ACTIVE", label: "🟢 Active" },
+                                { val: "PAUSED", label: "🟡 En pause" },
+                                { val: "DRAFT", label: "⚪ Brouillon" },
+                                { val: "COMPLETED", label: "🟣 Terminée" },
+                            ].map(s => (
+                                <button
+                                    type="button"
+                                    key={s.val}
+                                    onClick={() => setFormData(prev => ({ ...prev, status: s.val as MissionStatusValue }))}
+                                    className={cn(
+                                        "h-10 px-3 rounded-xl border text-xs font-bold transition-all",
+                                        formData.status === s.val
+                                            ? "border-[#2890F8] bg-blue-50 text-blue-900 shadow-2xs"
+                                            : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                                    )}
+                                >
+                                    {s.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Date de fin</label>
-                        <input
-                            type="date"
-                            value={formData.endDate}
-                            onChange={(e) => setFormData((prev) => ({ ...prev, endDate: e.target.value }))}
-                            className={`w-full px-4 py-3 bg-white border rounded-xl text-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 ${errors.endDate ? "border-red-500" : "border-slate-200"}`}
-                        />
-                        {errors.endDate && <p className="text-sm text-red-500 mt-1">{errors.endDate}</p>}
-                        {formData.endDate &&
-                            mission.endDate &&
-                            new Date(formData.endDate) < new Date(mission.endDate.toString().split("T")[0]) && (
-                                <p className="text-sm text-amber-600 mt-1">
-                                    La mission se termine avant certains créneaux déjà planifiés. Ces créneaux ne s&apos;afficheront plus sur le planning.
-                                </p>
+
+                    {/* Dates */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5">Date de début</label>
+                            <input
+                                type="date"
+                                value={formData.startDate}
+                                onChange={(e) => setFormData((prev) => ({ ...prev, startDate: e.target.value }))}
+                                className="w-full h-11 px-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:border-[#2890F8] cursor-pointer"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5">Date de fin</label>
+                            <input
+                                type="date"
+                                value={formData.endDate}
+                                onChange={(e) => setFormData((prev) => ({ ...prev, endDate: e.target.value }))}
+                                className={cn(
+                                    "w-full h-11 px-3.5 border rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:border-[#2890F8] cursor-pointer",
+                                    errors.endDate ? "border-red-400" : "border-slate-200"
+                                )}
+                            />
+                            {errors.endDate && <p className="text-[11px] text-red-500 font-semibold mt-1">{errors.endDate}</p>}
+                        </div>
+                    </div>
+
+                    {/* Footer Actions */}
+                    <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-200">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="h-10 px-4 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all"
+                        >
+                            Annuler
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={isSaving}
+                            className="flex items-center gap-2 h-10 px-5 rounded-xl bg-[#0B0F19] hover:bg-slate-800 text-white text-xs font-bold shadow-md shadow-black/10 transition-all disabled:opacity-50"
+                        >
+                            {isSaving ? (
+                                <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Enregistrement...</>
+                            ) : (
+                                <><Save className="w-3.5 h-3.5" /> Enregistrer les modifications</>
                             )}
+                        </button>
                     </div>
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
-                    <Button variant="secondary" type="button" onClick={onClose}>
-                        Annuler
-                    </Button>
-                    <Button variant="primary" type="submit" disabled={isSaving} className="gap-2">
-                        {isSaving ? (
-                            <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                Enregistrement...
-                            </>
-                        ) : (
-                            <>
-                                <Save className="w-4 h-4" />
-                                Enregistrer
-                            </>
-                        )}
-                    </Button>
-                </div>
-            </form>
-        </Modal>
+                </form>
+            </div>
+        </div>
     );
 }

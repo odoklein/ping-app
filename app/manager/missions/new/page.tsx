@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useToast, Button } from "@/components/ui";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Rocket, Sparkles, Building2 } from "lucide-react";
 import Link from "next/link";
 import { WizardForm, WizardStep } from "@/components/common/WizardForm";
 import { MissionDetails } from "./_components/MissionDetails";
@@ -51,7 +51,6 @@ export default function NewMissionPage() {
     const [clients, setClients] = useState<Client[]>([]);
     const [isLoadingClients, setIsLoadingClients] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
 
     // ============================================
     // FETCH CLIENTS
@@ -122,7 +121,7 @@ export default function NewMissionPage() {
 
             if (res.success) {
                 success(
-                    "Mission créée", 
+                    "Mission créée 🎉", 
                     res.message || "La mission a été créée avec succès."
                 );
                 router.push(`/manager/missions/${res.missionId}`);
@@ -154,11 +153,11 @@ export default function NewMissionPage() {
                 />
             ),
             isValid: isStep1Valid,
-            validationError: !isStep1Valid ? "Veuillez corriger les erreurs" : undefined
+            validationError: !isStep1Valid ? "Veuillez renseigner tous les champs obligatoires" : undefined
         },
         {
             id: "script",
-            label: "Script",
+            label: "Script Commercial IA",
             component: (
                 <ScriptBuilder
                     data={missionData}
@@ -172,7 +171,7 @@ export default function NewMissionPage() {
         },
         {
             id: "review",
-            label: "Récapitulatif",
+            label: "Récapitulatif & Lancement",
             component: (
                 <ReviewLaunch
                     data={missionData}
@@ -188,31 +187,44 @@ export default function NewMissionPage() {
     // ============================================
 
     return (
-        <div className="elan-page mx-auto max-w-5xl pb-16">
+        <div className="w-full min-w-0 space-y-6 max-w-5xl mx-auto pb-16">
             {/* Header */}
-            <div className="flex items-center gap-4">
-                <Link href="/manager/missions">
-                    <Button variant="ghost" size="sm">
-                        <ArrowLeft className="w-4 h-4" />
-                    </Button>
+            <div className="flex items-center gap-3 pb-2 border-b border-slate-200/70">
+                <Link
+                    href="/manager/missions"
+                    className="w-10 h-10 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition-colors shadow-2xs"
+                >
+                    <ArrowLeft className="w-4 h-4 text-slate-600" />
                 </Link>
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Nouvelle mission</h1>
-                    <p className="text-slate-500 mt-1">
-                        Créez votre mission et configurez votre stratégie en une seule étape
-                    </p>
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-[#0B0F19] text-[#2890F8] flex items-center justify-center shadow-md shadow-black/20 border border-slate-800">
+                        <Rocket className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                            Création d'une Nouvelle Mission
+                        </h1>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                            Configurez la stratégie commerciale, l'ICP et les scripts d'appel en quelques minutes.
+                        </p>
+                    </div>
                 </div>
             </div>
 
             {/* Wizard */}
             {isLoadingClients ? (
-                <div className="p-12 text-center text-slate-500">Chargement...</div>
+                <div className="p-16 text-center text-slate-400">
+                    <div className="w-8 h-8 rounded-full border-2 border-slate-300 border-t-indigo-600 animate-spin mx-auto mb-3" />
+                    <p className="text-xs font-bold">Chargement des comptes clients...</p>
+                </div>
             ) : (
-                <WizardForm
-                    steps={steps}
-                    onComplete={handleComplete}
-                    isSubmitting={isSubmitting}
-                />
+                <div className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs p-6 sm:p-8">
+                    <WizardForm
+                        steps={steps}
+                        onComplete={handleComplete}
+                        isSubmitting={isSubmitting}
+                    />
+                </div>
             )}
         </div>
     );
