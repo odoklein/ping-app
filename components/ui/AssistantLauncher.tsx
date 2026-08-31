@@ -32,10 +32,10 @@ export function AssistantLauncher() {
                 className={cn(
                     "relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200",
                     "border border-slate-200 bg-white text-slate-500",
-                    "hover:border-violet-300 hover:text-violet-600 hover:bg-violet-50 hover:shadow-md hover:scale-105",
+                    "hover:border-[#2890F8]/40 hover:text-[#2890F8] hover:bg-[#e6f0fa] hover:shadow-md hover:scale-105",
                     "active:scale-95",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2",
-                    isOpen && "border-violet-300 text-violet-600 bg-violet-50 shadow-sm"
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2890F8]/40 focus-visible:ring-offset-2",
+                    isOpen && "border-[#2890F8] text-[#2890F8] bg-[#e6f0fa] shadow-sm"
                 )}
                 title="Assistant CRM (Ctrl/Cmd+Shift+K)"
                 aria-label="Ouvrir l'assistant CRM (Ctrl+Shift+K)"
@@ -45,7 +45,7 @@ export function AssistantLauncher() {
                 <MessageCircle className="w-4 h-4" />
                 {/* Active indicator dot */}
                 <span className={cn(
-                    "absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-violet-500 border border-white transition-all duration-300",
+                    "absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#2890F8] border border-white transition-all duration-300",
                     isOpen ? "scale-100 opacity-100" : "scale-0 opacity-0"
                 )} />
             </button>

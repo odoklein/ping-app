@@ -214,8 +214,8 @@ export function NotificationBell() {
                         "relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200",
                         "border focus:outline-none",
                         isOpen
-                            ? "bg-violet-100 border-violet-200 text-violet-600 shadow-sm"
-                            : "bg-white border-slate-200 text-slate-500 hover:border-violet-200 hover:text-violet-600 hover:bg-violet-50 hover:shadow-sm"
+                            ? "bg-[#e6f0fa] border-[#2890F8]/30 text-[#2890F8] shadow-sm"
+                            : "bg-white border-slate-200 text-slate-500 hover:border-[#2890F8]/30 hover:text-[#2890F8] hover:bg-[#e6f0fa] hover:shadow-sm"
                     )}
                     aria-label="Notifications"
                 >
@@ -225,7 +225,7 @@ export function NotificationBell() {
                     {unreadCount > 0 && (
                         <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[9px] font-black text-white leading-none"
                             style={{
-                                background: "linear-gradient(135deg, #EF4444, #DC2626)",
+                                background: "linear-gradient(135deg, #2890F8, #1a75ce)",
                                 animation: "badgePop 0.3s cubic-bezier(0.34,1.56,0.64,1)",
                                 boxShadow: "0 0 0 2px white",
                             }}>
@@ -242,19 +242,19 @@ export function NotificationBell() {
                             animation: "notifDrop 0.22s cubic-bezier(0.22,1,0.36,1)",
                             borderRadius: "20px",
                             background: "white",
-                            boxShadow: "0 20px 60px rgba(0,0,0,0.12), 0 4px 20px rgba(99,102,241,0.08), 0 0 0 1px rgba(226,232,240,0.8)",
+                            boxShadow: "0 20px 60px rgba(0,0,0,0.12), 0 4px 20px rgba(40,144,248,0.08), 0 0 0 1px rgba(226,232,240,0.8)",
                         }}
                     >
                         {/* ── Header ── */}
                         <div className="px-4 pt-4 pb-3" style={{ borderBottom: "1px solid #F1F5F9" }}>
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">
-                                    <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center">
-                                        <Bell className="w-3.5 h-3.5 text-violet-600" />
+                                    <div className="w-7 h-7 rounded-lg bg-[#e6f0fa] flex items-center justify-center">
+                                        <Bell className="w-3.5 h-3.5 text-[#2890F8]" />
                                     </div>
                                     <span className="font-bold text-[15px] text-slate-800">Notifications</span>
                                     {unreadCount > 0 && (
-                                        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-violet-100 text-violet-700">
+                                        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#e6f0fa] text-[#2890F8]">
                                             {unreadCount} nouvelle{unreadCount > 1 ? "s" : ""}
                                         </span>
                                     )}
@@ -266,7 +266,7 @@ export function NotificationBell() {
                                                 "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-all duration-200",
                                                 justMarkedAll
                                                     ? "bg-emerald-100 text-emerald-600"
-                                                    : "text-violet-600 hover:bg-violet-50"
+                                                    : "text-[#2890F8] hover:bg-[#e6f0fa]"
                                             )}>
                                             {justMarkedAll ? <Check className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
                                             {justMarkedAll ? "Fait !" : "Tout lire"}

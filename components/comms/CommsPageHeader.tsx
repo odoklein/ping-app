@@ -25,12 +25,12 @@ export function CommsPageHeader({
         >
             <div className="flex min-w-0 items-center gap-3">
                 {icon && (
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#0C3B38] text-white shadow-sm">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#080808] text-white shadow-sm">
                         {icon}
                     </div>
                 )}
                 <div className="min-w-0">
-                        <h1 className="truncate text-[17px] font-semibold tracking-[-0.02em] text-[#0C3B38] dark:text-white sm:text-lg">
+                        <h1 className="truncate text-[17px] font-semibold tracking-[-0.02em] text-[#080808] dark:text-white sm:text-lg">
                         {title}
                     </h1>
                     {subtitle && (

@@ -935,13 +935,18 @@ export function MailboxManagerDialog({ isOpen = false, onClose = () => undefined
                                     </div>
                                     <h3 className="text-lg font-medium text-slate-900 mb-1">
                                         Aucune boîte mail
+                                    <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center mx-auto mb-4 shadow-sm">
+                                        <Mail className="w-8 h-8 text-slate-400" />
+                                    </div>
+                                    <h3 className="text-lg font-medium text-slate-900 mb-1">
+                                        Aucune boîte mail
                                     </h3>
                                     <p className="text-sm text-slate-500 mb-6">
                                         Connectez une boîte mail pour commencer
                                     </p>
                                     <button
                                         onClick={() => setView('add')}
-                                        className="inline-flex h-10 items-center px-4 rounded-lg bg-[#FF9E1B] text-[#15201E] font-bold hover:bg-[#F09212]"
+                                        className="inline-flex h-10 items-center px-4 rounded-lg bg-[#2890F8] text-white font-bold hover:bg-[#1a75ce] shadow-sm transition-colors"
                                     >
                                         Connecter une boîte
                                     </button>
@@ -951,7 +956,7 @@ export function MailboxManagerDialog({ isOpen = false, onClose = () => undefined
                                     {mailboxes.map((mailbox) => (
                                         <div
                                             key={mailbox.id}
-                                            className="group relative bg-white border border-[#DDE5E2] rounded-xl overflow-hidden hover:border-[#B8CAC5] hover:shadow-[0_10px_28px_rgba(31,77,71,0.08)] transition-all"
+                                            className="group relative bg-white border border-[#DDE5E2] rounded-xl overflow-hidden hover:border-[#B8CAC5] hover:shadow-[0_10px_28px_rgba(40,144,248,0.08)] transition-all"
                                         >
                                             {/* Status Header */}
                                             <div className="h-1.5 w-full" style={{ backgroundColor: getProviderColor(mailbox.provider) }} />
@@ -1040,7 +1045,7 @@ export function MailboxManagerDialog({ isOpen = false, onClose = () => undefined
                                                 <div className="flex items-center gap-2">
                                                     <button
                                                         onClick={() => setSignatureMailbox(mailbox)}
-                                                        className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-[#CBD8D4] bg-white px-3 py-2.5 text-sm font-bold text-[#1F4D47] transition-colors hover:bg-[#F1F4F3] active:translate-y-px"
+                                                        className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-[#CBD8D4] bg-white px-3 py-2.5 text-sm font-bold text-[#2890F8] transition-colors hover:bg-[#e6f0fa] active:translate-y-px"
                                                     >
                                                         <PenLine className="h-4 w-4" />
                                                         {mailbox.signatureHtml ? "Modifier la signature" : "Ajouter une signature"}
@@ -1048,7 +1053,7 @@ export function MailboxManagerDialog({ isOpen = false, onClose = () => undefined
                                                     <button
                                                         onClick={() => handleSync(mailbox.id)}
                                                         disabled={syncingMailboxes.has(mailbox.id)}
-                                                        className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 border border-[#CBD8D4] bg-white hover:bg-[#F1F4F3] text-[#1F4D47] text-sm font-bold rounded-lg transition-colors disabled:opacity-50 active:translate-y-px"
+                                                        className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 border border-[#CBD8D4] bg-white hover:bg-[#e6f0fa] text-[#2890F8] text-sm font-bold rounded-lg transition-colors disabled:opacity-50 active:translate-y-px"
                                                     >
                                                         {syncingMailboxes.has(mailbox.id) ? (
                                                             <Loader2 className="w-4 h-4 animate-spin" />
