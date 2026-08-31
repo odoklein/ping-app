@@ -13,9 +13,14 @@ import {
     Loader2,
     Lock,
     Mail,
-    ShieldCheck,
+    Shield,
     Trash2,
     UserCircle2,
+    Sparkles,
+    Zap,
+    CheckCircle2,
+    Activity,
+    LockKeyhole
 } from "lucide-react";
 import { ElanLogo } from "@/components/brand/ElanLogo";
 import { CadenceBars } from "@/components/brand/CadenceBars";
@@ -26,12 +31,12 @@ import {
     saveRecentAccount,
     type RecentAccount,
 } from "@/lib/auth-recent-accounts";
+import { cn } from "@/lib/utils";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Helpers
 // ──────────────────────────────────────────────────────────────────────────────
 
-/** Derive two-letter initials from a display name */
 function getInitials(name: string): string {
     const parts = name.trim().split(/\s+/).filter(Boolean);
     if (parts.length === 0) return "?";
@@ -39,7 +44,6 @@ function getInitials(name: string): string {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-/** Deterministic hue from a string — ensures each user gets a consistent color */
 function getAvatarHue(str: string): number {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -48,7 +52,6 @@ function getAvatarHue(str: string): number {
     return Math.abs(hash) % 360;
 }
 
-/** Turn "john.doe@acme.fr" into a friendly "John Doe" fallback name */
 function prettyNameFromEmail(email: string): string {
     const local = (email.split("@")[0] || email).trim();
     const words = local.split(/[._-]+/).filter(Boolean);
@@ -56,7 +59,6 @@ function prettyNameFromEmail(email: string): string {
     return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
 
-/** Relative time in French, e.g. "il y a 2 h" */
 function formatRelativeTime(ts: number): string {
     if (!ts) return "";
     const diff = Date.now() - ts;
@@ -72,12 +74,11 @@ function formatRelativeTime(ts: number): string {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** Map a NextAuth error code to a human message (FR) */
 function mapError(code: string | null | undefined): string {
     if (!code) return "";
     if (code.includes("verrouillé") || code.includes("Trop")) return code;
     if (code === "CredentialsSignin") return "Adresse e-mail ou mot de passe incorrect.";
-    return "La connexion a échoué. Réessayez dans un instant.";
+    return "La connexion a échoué. Veuillez vérifier vos identifiants.";
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -90,7 +91,7 @@ export default function LoginForm() {
     const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
     const errorCode = searchParams.get("error");
 
-    // ── form state ──────────────────────────────────────────────────────────
+    // Form state
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -99,7 +100,7 @@ export default function LoginForm() {
     const [error, setError] = useState("");
     const [mounted, setMounted] = useState(false);
 
-    // ── recent accounts ─────────────────────────────────────────────────────
+    // Recent accounts
     const [recentAccounts, setRecentAccounts] = useState<RecentAccount[]>([]);
     const [view, setView] = useState<"accounts" | "credentials">("accounts");
     const [selectedAccount, setSelectedAccount] = useState<RecentAccount | null>(null);
@@ -112,7 +113,6 @@ export default function LoginForm() {
         return () => cancelAnimationFrame(frame);
     }, []);
 
-    // Surface URL-provided errors (e.g. expired session) once, in-place.
     useEffect(() => {
         if (errorCode) {
             setError(mapError(errorCode));
@@ -120,14 +120,12 @@ export default function LoginForm() {
         }
     }, [errorCode]);
 
-    // Load persisted accounts on mount
     useEffect(() => {
         const stored = getRecentAccounts();
         setRecentAccounts(stored);
         if (stored.length === 0) setView("credentials");
     }, []);
 
-    // Focus the right field when entering the credentials view
     useEffect(() => {
         if (view !== "credentials") return;
         requestAnimationFrame(() => {
@@ -136,7 +134,6 @@ export default function LoginForm() {
         });
     }, [view, selectedAccount]);
 
-    // ── navigation between views ──────────────────────────────────────────────
     const openAccount = (account: RecentAccount) => {
         setSelectedAccount(account);
         setEmail(account.email);
@@ -160,7 +157,6 @@ export default function LoginForm() {
         setError("");
     };
 
-    // ── forget account ───────────────────────────────────────────────────────
     const handleForgetAccount = (e: React.MouseEvent, targetEmail: string) => {
         e.stopPropagation();
         removeRecentAccount(targetEmail);
@@ -169,7 +165,6 @@ export default function LoginForm() {
         if (updated.length === 0) openFreshForm();
     };
 
-    // ── submit (single, clean path) ────────────────────────────────────────────
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         if (isLoading) return;
@@ -198,8 +193,6 @@ export default function LoginForm() {
             });
 
             if (result?.ok && !result?.error) {
-                // Resolve the real display name / avatar from the session so the
-                // saved account card shows a proper name (not the raw email).
                 let name = selectedAccount?.name || prettyNameFromEmail(trimmedEmail);
                 let avatarUrl = selectedAccount?.avatarUrl;
                 try {
@@ -210,16 +203,15 @@ export default function LoginForm() {
                         if (session?.user?.image) avatarUrl = session.user.image;
                     }
                 } catch {
-                    /* non-fatal: fall back to derived name */
+                    /* non-fatal */
                 }
 
                 saveRecentAccount({ email: trimmedEmail, name, avatarUrl });
                 trackLogin(true);
                 router.push(callbackUrl);
-                return; // keep spinner until navigation completes
+                return;
             }
 
-            // Failure — stay on the page and show a real message.
             setError(mapError(result?.error) || "Adresse e-mail ou mot de passe incorrect.");
             trackLogin(false);
         } catch {
@@ -230,28 +222,27 @@ export default function LoginForm() {
         }
     };
 
-    // ── avatar cell ──────────────────────────────────────────────────────────
-    // When `size` is omitted, sizing comes from CSS (so responsive rules apply).
-    const AvatarCell = ({ account, size }: { account: RecentAccount; size?: number }) => {
+    const AvatarCell = ({ account, size = 40 }: { account: RecentAccount; size?: number }) => {
         const hue = getAvatarHue(account.email);
-        const dims = size ? { width: size, height: size } : undefined;
         if (account.avatarUrl) {
             return (
                 <img
                     src={account.avatarUrl}
                     alt=""
-                    className="elan-account-avatar-img"
-                    style={dims}
+                    className="rounded-xl object-cover"
+                    style={{ width: size, height: size }}
                 />
             );
         }
         return (
             <div
-                className="elan-account-avatar-initials"
+                className="rounded-xl flex items-center justify-center font-bold tracking-wider shadow-xs"
                 style={{
-                    ...(size ? { ...dims, fontSize: size * 0.36 } : {}),
-                    background: `hsl(${hue} 42% 88%)`,
-                    color: `hsl(${hue} 60% 32%)`,
+                    width: size,
+                    height: size,
+                    fontSize: size * 0.38,
+                    background: `hsl(${hue} 45% 90%)`,
+                    color: `hsl(${hue} 70% 30%)`,
                 }}
             >
                 {getInitials(account.name)}
@@ -259,260 +250,305 @@ export default function LoginForm() {
         );
     };
 
-    const errorBanner = error ? (
-        <div className="elan-login-error" role="alert">
-            <AlertCircle size={17} aria-hidden="true" />
-            <span>{error}</span>
-        </div>
-    ) : null;
-
-    // ──────────────────────────────────────────────────────────────────────────
-    // Render
-    // ──────────────────────────────────────────────────────────────────────────
     return (
-        <main className={`elan-login${mounted ? " is-ready" : ""}`}>
-            {/* ── Brand panel (left) ── */}
-            <aside className="elan-login-brand" aria-label="Présentation Prospecto">
-                <div className="elan-login-brand-top">
-                    <ElanLogo className="text-[52px]" />
+        <main className="min-h-[100dvh] w-full grid grid-cols-1 lg:grid-cols-[1fr_1.15fr] bg-[#FCFAFF] text-slate-900 font-sans selection:bg-[#2890F8] selection:text-white">
+            
+            {/* ── Left Side: Executive Obsidian Platform Showcase ── */}
+            <aside className="relative hidden lg:flex flex-col justify-between p-12 xl:p-16 bg-gradient-to-br from-[#060911] via-[#09101F] to-[#04060B] text-white overflow-hidden border-r border-slate-800/60">
+                {/* Ambient glow effects */}
+                <div className="absolute top-0 right-0 w-96 h-96 bg-[#2890F8]/15 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute bottom-12 left-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-[90px] pointer-events-none" />
+                <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
+
+                {/* Top Brand */}
+                <div className="relative z-10 flex items-center justify-between">
+                    <ElanLogo className="text-[44px]" />
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-semibold text-slate-300">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        Console v2.6
+                    </div>
                 </div>
 
-                <div className="elan-login-message">
-                    <p className="elan-login-kicker">Votre cockpit commercial</p>
-                    <h1>La prospection, enfin pilotée.</h1>
-                    <p>
-                        Pilotez l&apos;activité, gardez le cap et transformez chaque action en résultat mesurable.
+                {/* Center Core Message (Concise & Mature) */}
+                <div className="relative z-10 my-auto py-12 max-w-lg space-y-6">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#2890F8]/10 border border-[#2890F8]/20 text-[#2890F8] text-[11px] font-black uppercase tracking-wider">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        Plateforme d'Intelligence Commerciale
+                    </div>
+
+                    <h1 className="text-4xl xl:text-5xl font-black tracking-tight leading-[1.08] text-white">
+                        L'excellence commerciale, orchestrée.
+                    </h1>
+
+                    <p className="text-base text-slate-300/90 leading-relaxed font-normal">
+                        Console centralisée pour le pilotage des campagnes sortantes, la synchronisation IA et la performance de vos équipes.
                     </p>
 
-                    <ul className="elan-login-highlights">
-                        <li><span aria-hidden="true" /> Priorisez chaque appel automatiquement</li>
-                        <li><span aria-hidden="true" /> Suivez la cadence de votre plateau</li>
-                        <li><span aria-hidden="true" /> Mesurez ce qui transforme vraiment</li>
-                    </ul>
+                    {/* Executive Metric / Feature Strips */}
+                    <div className="grid grid-cols-1 gap-3 pt-4">
+                        <div className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white/[0.04] border border-white/[0.08] backdrop-blur-xs">
+                            <div className="w-9 h-9 rounded-xl bg-[#2890F8]/20 border border-[#2890F8]/30 flex items-center justify-center text-[#2890F8] flex-shrink-0">
+                                <Zap className="w-4 h-4" />
+                            </div>
+                            <div>
+                                <h4 className="text-xs font-bold text-white">Intelligence Vocale &amp; IA</h4>
+                                <p className="text-[11px] text-slate-400">Mistral AI Scripting &amp; Synchronisation Leexi</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white/[0.04] border border-white/[0.08] backdrop-blur-xs">
+                            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                                <Activity className="w-4 h-4" />
+                            </div>
+                            <div>
+                                <h4 className="text-xs font-bold text-white">Cadence &amp; Prospection en Direct</h4>
+                                <p className="text-[11px] text-slate-400">Attribution automatisée des flux d'appels et RDVs</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="elan-login-signature">
-                    <CadenceBars count={46} highlightFrom={0.74} dark />
-                    <span>Priorités, cadence, résultats</span>
+                {/* Bottom Signature */}
+                <div className="relative z-10 pt-6 border-t border-slate-800/80 flex items-center justify-between">
+                    <CadenceBars count={32} highlightFrom={0.75} dark className="opacity-70" />
+                    <span className="text-[11px] font-mono text-slate-400 tracking-wider uppercase">
+                        Suzalink Systems
+                    </span>
                 </div>
             </aside>
 
-            {/* ── Form panel (right) ── */}
-            <section className="elan-login-form-shell">
-                <div className="elan-login-form-wrap">
-                    <ElanLogo tone="petrol" className="elan-login-mobile-logo text-[38px]" />
+            {/* ── Right Side: Clean Modern Login Console ── */}
+            <section className="relative flex flex-col justify-between items-center p-6 sm:p-12 lg:p-16 min-h-[100dvh] bg-[#FCFAFF]">
+                
+                {/* Top Mobile Brand (visible only on small screens) */}
+                <div className="w-full flex lg:hidden items-center justify-between mb-8 max-w-md">
+                    <ElanLogo tone="petrol" className="text-[34px]" />
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-50 text-[#2890F8] border border-blue-100">
+                        Espace Sécurisé
+                    </span>
+                </div>
 
-                    {view === "accounts" && recentAccounts.length > 0 ? (
-                        /* ── Recent accounts view ── */
-                        <>
-                            <header className="elan-login-heading">
-                                <p>Votre espace de travail</p>
-                                <h2>Bon retour.</h2>
-                                <span>Sélectionnez votre compte pour continuer.</span>
-                            </header>
+                {/* Main Card Container */}
+                <div className="my-auto w-full max-w-md">
+                    <div className="bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-10 shadow-xl shadow-slate-900/5 transition-all">
 
-                            {errorBanner}
-
-                            <ul className="elan-recent-accounts" aria-label="Comptes récents">
-                                <p className="elan-recent-accounts-label">Comptes récents</p>
-
-                                {recentAccounts.map((account) => (
-                                    <li key={account.email} className="elan-account-card">
-                                        <button
-                                            type="button"
-                                            className="elan-account-hit"
-                                            onClick={() => openAccount(account)}
-                                            aria-label={`Continuer en tant que ${account.name}`}
-                                        >
-                                            <span className="elan-account-avatar">
-                                                <AvatarCell account={account} />
-                                            </span>
-
-                                            <span className="elan-account-info">
-                                                <span className="elan-account-name">{account.name}</span>
-                                                <span className="elan-account-email">{account.email}</span>
-                                                {account.lastLoginAt ? (
-                                                    <span className="elan-account-meta">
-                                                        {formatRelativeTime(account.lastLoginAt)}
-                                                    </span>
-                                                ) : null}
-                                            </span>
-
-                                            <ChevronRight size={18} className="elan-account-chevron" aria-hidden="true" />
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            className="elan-account-remove"
-                                            onClick={(e) => handleForgetAccount(e, account.email)}
-                                            aria-label={`Oublier le compte ${account.email}`}
-                                            title="Oublier ce compte"
-                                        >
-                                            <Trash2 size={15} aria-hidden="true" />
-                                        </button>
-                                    </li>
-                                ))}
-
-                                <button type="button" className="elan-account-other" onClick={openFreshForm}>
-                                    <UserCircle2 size={18} aria-hidden="true" />
-                                    Utiliser un autre compte
-                                </button>
-                            </ul>
-
-                            <div className="elan-login-security">
-                                <ShieldCheck size={18} aria-hidden="true" />
+                        {/* View A: Accounts Switcher */}
+                        {view === "accounts" && recentAccounts.length > 0 ? (
+                            <div className="space-y-6">
                                 <div>
-                                    <strong>Accès sécurisé</strong>
-                                    <span>Aucun mot de passe n&apos;est stocké sur cet appareil.</span>
+                                    <span className="text-[10px] font-black uppercase tracking-wider text-[#2890F8] bg-blue-50 px-2.5 py-1 rounded-md">
+                                        Espace de Travail
+                                    </span>
+                                    <h2 className="text-2xl font-black text-slate-900 tracking-tight mt-3">
+                                        Bon retour
+                                    </h2>
+                                    <p className="text-xs text-slate-500 mt-1">
+                                        Sélectionnez votre compte pour continuer.
+                                    </p>
                                 </div>
-                            </div>
-                        </>
-                    ) : (
-                        /* ── Credentials view (welcome-back OR fresh) ── */
-                        <>
-                            {selectedAccount ? (
-                                <>
-                                    <button
-                                        type="button"
-                                        className="elan-login-back-accounts"
-                                        onClick={backToAccounts}
-                                    >
-                                        <ChevronLeft size={15} aria-hidden="true" />
-                                        Changer de compte
-                                    </button>
 
-                                    <div className="elan-login-identity">
-                                        <AvatarCell account={selectedAccount} size={58} />
-                                        <div>
-                                            <p>Content de vous revoir</p>
-                                            <h2>{selectedAccount.name}</h2>
-                                            <span>{selectedAccount.email}</span>
-                                        </div>
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <header className="elan-login-heading">
-                                        <p>Votre espace de travail</p>
-                                        <h2>Reprenez la main.</h2>
-                                        <span>Connectez-vous pour retrouver votre plateau.</span>
-                                    </header>
-
-                                    {recentAccounts.length > 0 && (
-                                        <button
-                                            type="button"
-                                            className="elan-login-back-accounts"
-                                            onClick={backToAccounts}
-                                        >
-                                            <ChevronLeft size={15} aria-hidden="true" />
-                                            Comptes récents
-                                        </button>
-                                    )}
-                                </>
-                            )}
-
-                            <form onSubmit={handleSubmit} className="elan-login-form" noValidate>
-                                {selectedAccount ? (
-                                    // Present for password managers (username association), hidden visually.
-                                    <input
-                                        type="email"
-                                        value={email}
-                                        readOnly
-                                        tabIndex={-1}
-                                        aria-hidden="true"
-                                        autoComplete="username"
-                                        className="elan-login-hidden-username"
-                                    />
-                                ) : (
-                                    <div className="elan-login-field">
-                                        <label htmlFor="login-email">Adresse e-mail</label>
-                                        <div className="elan-login-input-wrap">
-                                            <Mail size={17} aria-hidden="true" />
-                                            <input
-                                                ref={emailInputRef}
-                                                id="login-email"
-                                                type="email"
-                                                placeholder="vous@entreprise.fr"
-                                                value={email}
-                                                onChange={(event) => setEmail(event.target.value)}
-                                                required
-                                                autoComplete="username"
-                                                aria-invalid={!!error && !EMAIL_RE.test(email.trim())}
-                                            />
-                                        </div>
+                                {error && (
+                                    <div className="p-3 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2 text-xs font-semibold text-red-700">
+                                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                                        <span>{error}</span>
                                     </div>
                                 )}
 
-                                <div className="elan-login-field">
-                                    <div className="elan-login-label-row">
-                                        <label htmlFor="login-password">Mot de passe</label>
-                                        <button type="button" onClick={() => router.push("/forgot-password")}>
-                                            Mot de passe oublié ?
-                                        </button>
-                                    </div>
-                                    <div className="elan-login-input-wrap">
-                                        <Lock size={17} aria-hidden="true" />
-                                        <input
-                                            ref={passwordInputRef}
-                                            id="login-password"
-                                            type={showPassword ? "text" : "password"}
-                                            placeholder="Votre mot de passe"
-                                            value={password}
-                                            onChange={(event) => setPassword(event.target.value)}
-                                            onKeyUp={(e) => setCapsOn(e.getModifierState("CapsLock"))}
-                                            onKeyDown={(e) => setCapsOn(e.getModifierState("CapsLock"))}
-                                            onBlur={() => setCapsOn(false)}
-                                            required
-                                            autoComplete="current-password"
-                                        />
-                                        <button
-                                            type="button"
-                                            className="elan-login-eye"
-                                            onClick={() => setShowPassword((visible) => !visible)}
-                                            aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                                <div className="space-y-2.5">
+                                    {recentAccounts.map((account) => (
+                                        <div
+                                            key={account.email}
+                                            className="group relative flex items-center justify-between p-3 rounded-2xl border border-slate-200 bg-white hover:border-[#2890F8] hover:bg-blue-50/40 transition-all cursor-pointer shadow-2xs"
+                                            onClick={() => openAccount(account)}
                                         >
-                                            {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-                                        </button>
-                                    </div>
-                                    {capsOn && (
-                                        <p className="elan-login-caps" role="status">
-                                            <AlertCircle size={13} aria-hidden="true" />
-                                            Verrouillage majuscules activé
-                                        </p>
-                                    )}
-                                </div>
+                                            <div className="flex items-center gap-3 min-w-0">
+                                                <AvatarCell account={account} size={42} />
+                                                <div className="min-w-0">
+                                                    <p className="text-xs font-bold text-slate-900 truncate group-hover:text-[#2890F8] transition-colors">
+                                                        {account.name}
+                                                    </p>
+                                                    <p className="text-[11px] text-slate-500 truncate">
+                                                        {account.email}
+                                                    </p>
+                                                </div>
+                                            </div>
 
-                                {errorBanner}
+                                            <div className="flex items-center gap-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => handleForgetAccount(e, account.email)}
+                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
+                                                    title="Supprimer"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                </button>
+                                                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#2890F8] group-hover:translate-x-0.5 transition-all" />
+                                            </div>
+                                        </div>
+                                    ))}
 
-                                <button type="submit" className="elan-login-submit" disabled={isLoading}>
-                                    {isLoading ? (
-                                        <>
-                                            <Loader2 size={18} className="animate-spin" aria-hidden="true" />
-                                            Connexion en cours
-                                        </>
-                                    ) : (
-                                        <>
-                                            {selectedAccount ? "Continuer" : "Entrer sur le terrain"}
-                                            <ArrowRight size={18} aria-hidden="true" />
-                                        </>
-                                    )}
-                                </button>
-                            </form>
-
-                            <div className="elan-login-security">
-                                <ShieldCheck size={18} aria-hidden="true" />
-                                <div>
-                                    <strong>Accès sécurisé</strong>
-                                    <span>Connexion chiffrée · aucun mot de passe stocké sur l&apos;appareil.</span>
+                                    <button
+                                        type="button"
+                                        onClick={openFreshForm}
+                                        className="w-full flex items-center justify-center gap-2 p-3 rounded-2xl border border-dashed border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:border-slate-400 transition-all mt-3"
+                                    >
+                                        <UserCircle2 className="w-4 h-4 text-slate-500" />
+                                        Utiliser un autre compte
+                                    </button>
                                 </div>
                             </div>
-                        </>
-                    )}
+                        ) : (
+                            /* View B: Credentials Form */
+                            <div className="space-y-6">
+                                <div>
+                                    {selectedAccount ? (
+                                        <div>
+                                            <button
+                                                type="button"
+                                                onClick={backToAccounts}
+                                                className="inline-flex items-center gap-1 text-xs font-bold text-[#2890F8] hover:underline mb-4"
+                                            >
+                                                <ChevronLeft className="w-3.5 h-3.5" />
+                                                Changer de compte
+                                            </button>
+                                            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                                                <AvatarCell account={selectedAccount} size={40} />
+                                                <div className="min-w-0">
+                                                    <p className="text-xs font-bold text-slate-900 truncate">{selectedAccount.name}</p>
+                                                    <p className="text-[11px] text-slate-500 truncate">{selectedAccount.email}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <span className="text-[10px] font-black uppercase tracking-wider text-[#2890F8] bg-blue-50 px-2.5 py-1 rounded-md">
+                                                Espace Sécurisé
+                                            </span>
+                                            <h2 className="text-2xl font-black text-slate-900 tracking-tight mt-3">
+                                                Connexion
+                                            </h2>
+                                            <p className="text-xs text-slate-500 mt-1">
+                                                Entrez vos identifiants pour accéder à votre console.
+                                            </p>
+                                            {recentAccounts.length > 0 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={backToAccounts}
+                                                    className="inline-flex items-center gap-1 text-xs font-bold text-[#2890F8] hover:underline mt-2"
+                                                >
+                                                    <ChevronLeft className="w-3.5 h-3.5" />
+                                                    Comptes récents
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
 
-                    <p className="elan-login-copyright">
-                        Prospecto © {new Date().getFullYear()} · Produit par Suzali
-                    </p>
+                                {error && (
+                                    <div className="p-3 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2 text-xs font-semibold text-red-700">
+                                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                                        <span>{error}</span>
+                                    </div>
+                                )}
+
+                                <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+                                    {!selectedAccount && (
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                                                Adresse e-mail
+                                            </label>
+                                            <div className="relative flex items-center">
+                                                <Mail className="absolute left-3.5 w-4 h-4 text-slate-400" />
+                                                <input
+                                                    ref={emailInputRef}
+                                                    type="email"
+                                                    placeholder="nom@entreprise.com"
+                                                    value={email}
+                                                    onChange={(e) => setEmail(e.target.value)}
+                                                    required
+                                                    autoComplete="username"
+                                                    className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <label className="text-xs font-bold text-slate-700">
+                                                Mot de passe
+                                            </label>
+                                            <button
+                                                type="button"
+                                                onClick={() => router.push("/forgot-password")}
+                                                className="text-[11px] font-semibold text-slate-500 hover:text-[#2890F8] transition-colors"
+                                            >
+                                                Mot de passe oublié ?
+                                            </button>
+                                        </div>
+                                        <div className="relative flex items-center">
+                                            <Lock className="absolute left-3.5 w-4 h-4 text-slate-400" />
+                                            <input
+                                                ref={passwordInputRef}
+                                                type={showPassword ? "text" : "password"}
+                                                placeholder="••••••••••••"
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                onKeyUp={(e) => setCapsOn(e.getModifierState("CapsLock"))}
+                                                onKeyDown={(e) => setCapsOn(e.getModifierState("CapsLock"))}
+                                                onBlur={() => setCapsOn(false)}
+                                                required
+                                                autoComplete="current-password"
+                                                className="w-full h-11 pl-10 pr-10 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3 p-1 text-slate-400 hover:text-slate-600 transition-colors"
+                                            >
+                                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            </button>
+                                        </div>
+                                        {capsOn && (
+                                            <p className="text-[11px] text-amber-600 font-semibold mt-1 flex items-center gap-1">
+                                                <AlertCircle className="w-3 h-3" /> Verrouillage majuscules activé
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="w-full h-11 rounded-xl bg-[#0B0F19] hover:bg-slate-800 text-white text-xs font-bold shadow-md shadow-black/10 transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-60"
+                                    >
+                                        {isLoading ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                Connexion en cours...
+                                            </>
+                                        ) : (
+                                            <>
+                                                Accéder à la console
+                                                <ArrowRight className="w-4 h-4" />
+                                            </>
+                                        )}
+                                    </button>
+                                </form>
+                            </div>
+                        )}
+
+                        {/* Security Badge */}
+                        <div className="mt-8 pt-5 border-t border-slate-100 flex items-center justify-center gap-2 text-center text-[11px] text-slate-400 font-medium">
+                            <LockKeyhole className="w-3.5 h-3.5 text-slate-400" />
+                            <span>Connexion sécurisée chiffrée SSL / TLS 256-bit</span>
+                        </div>
+                    </div>
                 </div>
+
+                {/* Footer Copyright */}
+                <footer className="w-full text-center text-xs text-slate-400 font-medium py-4">
+                    Suzalink © {new Date().getFullYear()} · Console de Prospection Commerciale
+                </footer>
             </section>
         </main>
     );
