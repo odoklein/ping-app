@@ -1,0 +1,101 @@
+import { NextRequest } from "next/server";
+import { z } from "zod";
+import { prisma } from "@/lib/prisma";
+import {
+    errorResponse,
+    requireRole,
+    successResponse,
+    withErrorHandler,
+} from "@/lib/api-utils";
+
+const createFeedbackSchema = z.object({
+    score: z.number().int().min(1).max(5),
+    review: z.string().trim().min(20).max(4000),
+    objections: z.string().trim().min(10).max(4000),
+    missionComment: z.string().trim().min(10).max(4000),
+    missionIds: z.array(z.string().trim().min(1)).min(1).max(20),
+    pagePath: z.string().trim().max(255).optional().nullable(),
+});
+
+export const POST = withErrorHandler(async (request: NextRequest) => {
+    const session = await requireRole(["SDR"], request);
+    const body = await request.json();
+    const parsed = createFeedbackSchema.safeParse(body);
+
+    if (!parsed.success) {
+        return errorResponse("Données invalides", 400);
+    }
+
+    const data = parsed.data;
+    const missionIds = Array.from(new Set(data.missionIds));
+
+    const assignments = await prisma.sDRAssignment.findMany({
+        where: {
+            missionId: { in: missionIds },
+            sdrId: session.user.id,
+        },
+        select: { missionId: true },
+    });
+    const assignedMissionIds = new Set(assignments.map((row) => row.missionId));
+
+    // Also allow missions the SDR has effectively worked on,
+    // even if the assignment record is missing/stale.
+    const scheduledBlocks = await prisma.scheduleBlock.findMany({
+        where: {
+            missionId: { in: missionIds },
+            sdrId: session.user.id,
+            status: { not: "CANCELLED" },
+        },
+        select: { missionId: true },
+    });
+    const scheduledMissionIds = new Set(scheduledBlocks.map((row) => row.missionId));
+
+    const actionMissions = await prisma.action.findMany({
+        where: {
+            sdrId: session.user.id,
+            campaign: {
+                missionId: { in: missionIds },
+            },
+        },
+        select: {
+            campaign: {
+                select: {
+                    missionId: true,
+                },
+            },
+        },
+    });
+    const actionMissionIds = new Set(actionMissions.map((row) => row.campaign.missionId));
+
+    const accessibleMissionIds = new Set<string>([
+        ...assignedMissionIds,
+        ...scheduledMissionIds,
+        ...actionMissionIds,
+    ]);
+
+    const unauthorizedMission = missionIds.find((id) => !accessibleMissionIds.has(id));
+    if (unauthorizedMission) {
+        return errorResponse("Mission non accessible", 403);
+    }
+
+    const created = await prisma.sdrDailyFeedback.create({
+        data: {
+            sdrId: session.user.id,
+            missionId: missionIds[0] ?? null,
+            score: data.score,
+            review: data.review,
+            objections: data.objections.trim(),
+            missionComment: data.missionComment.trim(),
+            pagePath: data.pagePath?.trim() || null,
+            missions: {
+                create: missionIds.map((missionId) => ({ missionId })),
+            },
+        },
+        select: {
+            id: true,
+            submittedAt: true,
+        },
+    });
+
+    return successResponse(created, 201);
+});

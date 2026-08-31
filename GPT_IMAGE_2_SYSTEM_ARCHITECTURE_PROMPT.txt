@@ -1,0 +1,100 @@
+001. Create a premium system architecture poster for the French B2B sales-operations platform named “Élan”.
+002. Treat this as an information-design artifact for engineers, operators, and executive stakeholders.
+003. Use a wide 16:9 landscape canvas composed for 4096 × 2304 pixel output.
+004. Make the result feel like a world-class editorial systems map, not a generic cloud diagram.
+005. Combine Swiss information design, modern infrastructure cartography, and restrained French editorial taste.
+006. Use a warm light background in parchment ivory, hex #ECE5D8.
+007. Use deep petrol green as the dominant ink, hex #0C3B38.
+008. Use near-black green for primary copy, hex #15201E.
+009. Use warm amber as the only strong accent, hex #FF9E1B.
+010. Use muted eucalyptus for secondary areas, hex #DBE4DF.
+011. Use cream white for raised surfaces, hex #FFFCF6.
+012. Use subtle grey-green rules, hex #B8C2BD at low opacity.
+013. Do not use purple, neon blue, cyan glow, or rainbow gradients.
+014. Do not use glassmorphism, glossy 3D clouds, or futuristic holograms.
+015. Keep every surface matte, tactile, quiet, and technically precise.
+016. Use a strict twelve-column grid with generous outer margins.
+017. Keep the main architecture map centered and visually dominant.
+018. Reserve a narrow header band across the top twelve percent of the canvas.
+019. Place the Élan wordmark at the upper left in deep petrol green.
+020. Add one short amber accent stroke above the first letter of the wordmark.
+021. Set the header title exactly as “SYSTÈME · CARTE OPÉRATIONNELLE”.
+022. Set the header date exactly as “REVUE 18.07.2026”.
+023. Place the title left aligned and the date right aligned on the same baseline.
+024. Use a confident geometric display sans for titles, similar to Bricolage Grotesque.
+025. Use a highly legible humanist sans for descriptions, similar to DM Sans.
+026. Use a compact monospaced face for technical metadata, similar to DM Mono.
+027. Keep all labels horizontal and readable at presentation distance.
+028. Use correct French accents and reproduce every quoted label exactly.
+029. Never invent filler text, fake metrics, random code, or illegible microcopy.
+030. Build the central composition as four horizontal operational bands.
+031. Label the first band exactly “01 · EXPÉRIENCE ET ACCÈS”.
+032. Label the second band exactly “02 · APPLICATION ET DOMAINES”.
+033. Label the third band exactly “03 · TRAVAUX ASYNCHRONES”.
+034. Label the fourth band exactly “04 · DONNÉES ET OBSERVABILITÉ”.
+035. Separate the four bands with thin petrol rules and generous breathing space.
+036. Give each band a small amber index marker at its far left.
+037. In band one, show six compact role entry points arranged in one row.
+038. Label them exactly “MANAGER”, “SDR”, “CLIENT”, “COMMERCIAL”, “DÉVELOPPEUR”, and “API”.
+039. Give each role a simple line icon inside a small cream tile.
+040. Connect all six role tiles into a single controlled access gateway.
+041. Label the gateway exactly “EDGE · TLS · WAF · RATE LIMIT”.
+042. Place a shield icon inside the gateway and color only its key detail amber.
+043. Connect the gateway to an authentication control block.
+044. Label that block exactly “NEXTAUTH · JWT 8 H · RBAC”.
+045. Add a small secondary line exactly “Permissions fines · Clés API”.
+046. Use solid arrows for synchronous request paths.
+047. Make synchronous arrows deep petrol, thin, crisp, and directional.
+048. In band two, place one large central deep-petrol application block.
+049. Label it exactly “APPLICATION NEXT.JS 16”.
+050. Add the secondary label exactly “React 19 · Routes API · Services de domaine”.
+051. Divide the application block internally into six clearly named modules.
+052. Name module one exactly “Identité et accès”.
+053. Name module two exactly “Revenue operations”.
+054. Name module three exactly “Planning des équipes”.
+055. Name module four exactly “Email et communications”.
+056. Name module five exactly “Facturation et reporting”.
+057. Name module six exactly “Plateforme et support”.
+058. Show the modules as an asymmetric but perfectly aligned internal grid.
+059. Use cream text and eucalyptus dividers inside the petrol application block.
+060. Add a small amber caption exactly “MONOLITHE MODULAIRE”.
+061. Do not draw separate microservices or isolated Kubernetes clusters.
+062. In band three, branch downward from the application with dashed amber arrows.
+063. Use dashed amber arrows only for asynchronous event and job paths.
+064. Place a Redis and BullMQ coordination block at the center of band three.
+065. Label it exactly “REDIS · BULLMQ”.
+066. Add the secondary label exactly “Files durables · Verrous · Reprises”.
+067. Place four worker blocks to the right of the queue block.
+068. Label them exactly “EMAIL”, “PROSPECTS”, “ENRICHISSEMENT”, and “ANALYTIQUE”.
+069. Connect the queue to every worker with individual dashed amber arrows.
+070. Add one small dead-letter branch beneath the workers.
+071. Label the branch exactly “DLQ · RELECTURE CONTRÔLÉE”.
+072. Show retry as a small loop arrow with the label “BACKOFF · IDEMPOTENCE”.
+073. Place a scheduling tile to the left of the queue block.
+074. Label the scheduling tile exactly “QSTASH · CRON SIGNÉ”.
+075. Connect scheduling to the queue, never directly to the database.
+076. In band four, place PostgreSQL as the largest data element.
+077. Label it exactly “POSTGRESQL · PRISMA”.
+078. Add the exact secondary label “107 modèles · Source de vérité”.
+079. Place an object-storage element beside PostgreSQL.
+080. Label it exactly “S3 / MINIO · OBJETS PRIVÉS”.
+081. Add the exact secondary label “URLs signées · Rétention”.
+082. Place an observability element on the far right of band four.
+083. Label it exactly “TRACES · LOGS · MÉTRIQUES”.
+084. Add the exact secondary label “Sentry · SLO · Corrélation”.
+085. Connect the application and every worker to PostgreSQL with solid petrol arrows.
+086. Connect file-producing flows to object storage with solid petrol arrows.
+087. Connect every major block to observability with ultra-thin dotted eucalyptus lines.
+088. Keep observability lines visually subordinate to business and data flows.
+089. Add an external-provider perimeter as a narrow column on the far right edge.
+090. Title that column exactly “FOURNISSEURS EXTERNES”.
+091. List exactly “Gmail · Outlook · Allo · Apollo · Apify · Explorium · Leexi · Gemini”.
+092. Connect workers to this perimeter with restrained outgoing arrows and signed webhook returns.
+093. Add a small legend in the lower left explaining “Synchrone”, “Asynchrone”, and “Télémétrie”.
+094. Add a compact decision note in the lower center reading “Durcir avant de distribuer”.
+095. Add a compact target note reading “Sécurité · Durabilité · Observabilité”.
+096. Use corner radii of roughly twelve pixels consistently across every system block.
+097. Use subtle one-pixel borders and almost no drop shadows.
+098. Maintain generous negative space, perfect alignment, and unambiguous arrow routing.
+099. Verify that no connectors cross labels and no label is clipped, duplicated, or misspelled.
+100. Deliver one polished final poster with no mockup frame, no watermark, and no explanatory text outside the artwork.

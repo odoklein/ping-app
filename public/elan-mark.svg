@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="élan">
+  <rect width="128" height="128" rx="24" fill="#0C3B38"/>
+  <text x="30" y="92" fill="#F4F0E8" font-family="Arial, Helvetica, sans-serif" font-size="88" font-weight="800">e</text>
+  <path d="M31 28h35l-8 12H27z" fill="#FF9E1B"/>
+</svg>

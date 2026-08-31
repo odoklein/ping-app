@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.gitignore
+*.tsbuildinfo
+*.log
+*.txt
+.env*
+.vercel
+.claude
+.cursor
+.windsurf
+.gemini
+uploads
+private/queue

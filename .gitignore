@@ -1,0 +1,70 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+.env
+.env.local
+.env*.local
+
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+
+# vercel
+.vercel
+
+# chromium pack (generated at build by postinstall)
+/public/chromium-pack.tar
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+/lib/generated/prisma
+
+
+
+# Sentry Config File
+.env.sentry-build-plugin
+
+# deployment payload cleanup
+uploads/
+private/queue/failed/
+docs/
+designsystemfinal/
+.claude/
+.cursor/
+.fallow/
+.gemini/
+.windsurf/
+*.log
+ts_errors*.txt
+email-code-dump.txt
+DATE_AUDIT_RAW.json
