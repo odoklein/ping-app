@@ -1639,7 +1639,7 @@ textarea::placeholder {
 .cp-layout {
     height: 100dvh;
     overflow: hidden;
-    background: #f8f9fb;
+    background: #FCFAFF;
 }
 
 .cp-main {
@@ -1648,6 +1648,7 @@ textarea::placeholder {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    background: #FCFAFF;
     transition: margin-left 280ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1677,7 +1678,7 @@ textarea::placeholder {
     padding: 0 1.5rem;
     min-height: 56px;
     height: 56px;
-    background: #fff;
+    background: #FCFAFF;
     border-bottom: 1px solid #E8EBF0;
 }
 
@@ -1706,6 +1707,7 @@ textarea::placeholder {
     flex: 1;
     min-width: 0;
     padding: 1.25rem 1.5rem;
+    background: #FCFAFF;
 }
 
 .cp-spinner {

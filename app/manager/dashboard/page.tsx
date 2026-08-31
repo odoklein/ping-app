@@ -5,7 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import {
     Phone, RefreshCw, TrendingUp, ArrowUpRight, Flame, Trophy,
     Clock, ArrowRight, AlertTriangle, Calendar, ChevronDown, Target,
-    Activity, Users, Star, CheckCircle2,
+    Activity, Users, Star, CheckCircle2, Zap, BarChart3, Radio,
+    Sparkles, ShieldCheck, Check,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -13,8 +14,7 @@ import {
     type DateRangeValue, type DateRangePreset,
 } from "@/components/dashboard/DateRangeFilter";
 import {
-    AreaChart, Area, PieChart, Pie, Cell,
-    LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+    AreaChart, Area, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { cn } from "@/lib/utils";
 
@@ -54,17 +54,7 @@ const PRESET_LABELS: Record<DateRangePreset, string> = {
     allTime: "Tout",
 };
 const RDV_WEEKLY_GOAL = 30;
-const PIE_LABELS: Record<string, string> = {
-    MEETING_BOOKED: "RDV obtenu", CALLBACK_REQUESTED: "Rappel prévu",
-    INTERESTED: "Intéressé", NO_RESPONSE: "Pas répondu",
-    BAD_CONTACT: "Mauvais N.", DISQUALIFIED: "Hors cible",
-};
-const PIE_COLORS: Record<string, string> = {
-    MEETING_BOOKED: "#2890F8", INTERESTED: "#5baefc",
-    CALLBACK_REQUESTED: "#1a75ce", NO_RESPONSE: "#e4e4e4",
-    BAD_CONTACT: "#d4d4d4", DISQUALIFIED: "#8d9b96",
-};
-const DAYS = ["L", "M", "Me", "J", "V", "S", "D"];
+const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
 const EMPTY_MISSIONS: MissionSummaryItem[] = [];
 const EMPTY_RECENT_ACTIVITY: RecentActivityItem[] = [];
 
@@ -74,25 +64,31 @@ function getInitials(name: string) {
 }
 function buildWeeklyGoalData(n: number) {
     return DAYS.map((jour, i) => ({
-        jour,
+        jour: jour.slice(0, 2),
+        jourComplet: jour,
         objectif: Math.round((RDV_WEEKLY_GOAL / 7) * (i + 1) * 10) / 10,
         cumul: Math.round(n * ((i + 1) / 7)),
     }));
 }
 
 /* ─── Custom Tooltip ─── */
-function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number; color: string }[]; label?: string }) {
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number; color: string; payload?: { jourComplet?: string } }[]; label?: string }) {
     if (!active || !payload?.length) return null;
+    const fullDay = payload[0]?.payload?.jourComplet || label;
     return (
-        <div className="bg-white border border-slate-100 rounded-xl p-3 shadow-xl text-[12px] min-w-[120px]">
-            <p className="text-slate-500 mb-2 font-medium">{label}</p>
-            {payload.map((p, i) => (
-                <div key={i} className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full" style={{ background: p.color }} />
-                    <span className="text-slate-600">{p.name}:</span>
-                    <span className="font-bold text-slate-800">{p.value}</span>
-                </div>
-            ))}
+        <div className="bg-[#0B0F19] text-white border border-slate-700/80 rounded-xl p-3.5 shadow-2xl text-xs min-w-[150px] backdrop-blur-md">
+            <p className="text-slate-400 mb-2 font-semibold border-b border-slate-800 pb-1.5">{fullDay}</p>
+            <div className="space-y-1.5">
+                {payload.map((p, i) => (
+                    <div key={i} className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                            <div className="w-2.5 h-2.5 rounded-full" style={{ background: p.color }} />
+                            <span className="text-slate-300 font-medium">{p.name} :</span>
+                        </div>
+                        <span className="font-bold tabular-nums text-white">{p.value}</span>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
@@ -160,20 +156,31 @@ export default function ManagerDashboard() {
     const rdvGoalPct = stats ? Math.min((stats.meetingsBooked / RDV_WEEKLY_GOAL) * 100, 100) : 0;
     const hotLeads = stats ? (stats.resultBreakdown.INTERESTED + stats.resultBreakdown.CALLBACK_REQUESTED) : 0;
     const callbackCount = stats?.resultBreakdown?.CALLBACK_REQUESTED ?? 0;
+    const interestedCount = stats?.resultBreakdown?.INTERESTED ?? 0;
 
     const missionsNearGoal = useMemo(() => missions.filter((m) => m.isActive && m.meetingsThisPeriod > 0).sort((a, b) => b.meetingsThisPeriod - a.meetingsThisPeriod).slice(0, 5), [missions]);
     const weeklyGoalData = useMemo(() => buildWeeklyGoalData(stats?.meetingsBooked ?? 0), [stats?.meetingsBooked]);
 
+    const setQuickPreset = (preset: DateRangePreset) => {
+        const range = getPresetRange(preset);
+        setDateRange({ preset, startDate: toISO(range.start), endDate: toISO(range.end) });
+    };
+
     if (isLoading && !stats) {
         return (
-            <div className="elan-page min-h-[60dvh]" aria-busy="true" aria-label="Chargement du tableau de bord">
-                <div className="space-y-4">
-                    <div className="h-10 w-72 max-w-full skeleton-shimmer rounded-xl" />
-                    <div className="grid grid-cols-1 lg:grid-cols-[2fr_1.2fr] gap-4">
-                        <div className="h-64 skeleton-shimmer rounded-xl" />
-                        <div className="grid gap-3"><div className="h-20 skeleton-shimmer rounded-xl" /><div className="h-20 skeleton-shimmer rounded-xl" /><div className="h-20 skeleton-shimmer rounded-xl" /></div>
-                    </div>
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4"><div className="h-72 skeleton-shimmer rounded-xl" /><div className="h-72 skeleton-shimmer rounded-xl" /></div>
+            <div className="space-y-6 max-w-[1600px] mx-auto w-full min-h-[70vh]">
+                <div className="flex justify-between items-center">
+                    <div className="h-10 w-72 bg-slate-200/70 animate-pulse rounded-2xl" />
+                    <div className="h-10 w-48 bg-slate-200/70 animate-pulse rounded-2xl" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="h-44 bg-slate-200/60 animate-pulse rounded-3xl" />
+                    ))}
+                </div>
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                    <div className="xl:col-span-7 h-96 bg-slate-200/60 animate-pulse rounded-3xl" />
+                    <div className="xl:col-span-5 h-96 bg-slate-200/60 animate-pulse rounded-3xl" />
                 </div>
             </div>
         );
@@ -181,12 +188,17 @@ export default function ManagerDashboard() {
 
     if (isError && !data) {
         return (
-            <div className="elan-page min-h-[60dvh] items-center justify-center">
-                <div className="w-full max-w-md rounded-xl border border-red-200 bg-white p-6 text-center shadow-sm" role="alert">
-                    <AlertTriangle className="mx-auto mb-3 h-8 w-8 text-red-500" />
-                    <h1 className="text-lg font-bold text-slate-900">Tableau de bord indisponible</h1>
-                    <p className="mt-2 text-sm text-slate-600">{error instanceof Error ? error.message : "Une erreur inattendue est survenue."}</p>
-                    <button onClick={() => refetch()} className="mt-5 inline-flex h-10 items-center gap-2 rounded-lg border border-[#2890F8] bg-[#2890F8] px-4 text-sm font-bold text-white hover:bg-[#1a75ce] active:translate-y-px">
+            <div className="min-h-[70vh] flex items-center justify-center p-6">
+                <div className="w-full max-w-md rounded-3xl border border-red-200 bg-white p-8 text-center shadow-xl shadow-red-500/5">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-50 flex items-center justify-center border border-red-100">
+                        <AlertTriangle className="h-8 w-8 text-red-500" />
+                    </div>
+                    <h1 className="text-xl font-bold text-slate-900">Tableau de bord indisponible</h1>
+                    <p className="mt-2 text-xs text-slate-500 leading-relaxed">{error instanceof Error ? error.message : "Une erreur inattendue est survenue."}</p>
+                    <button
+                        onClick={() => refetch()}
+                        className="mt-6 inline-flex h-11 items-center gap-2 rounded-xl bg-[#2890F8] px-6 text-sm font-bold text-white hover:bg-[#1a75ce] shadow-md shadow-blue-500/20 active:translate-y-px transition-all"
+                    >
                         <RefreshCw className="h-4 w-4" /> Réessayer
                     </button>
                 </div>
@@ -195,34 +207,62 @@ export default function ManagerDashboard() {
     }
 
     return (
-        <div className="elan-page manager-command-center">
-
-            {/* ── Page Header ── */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <div>
-                    <div className="flex items-center gap-2 mb-1">
-                        <div className="w-8 h-8 rounded-xl bg-[#080808] flex items-center justify-center shadow-lg shadow-black/20">
-                            <Activity className="w-4 h-4 text-[#2890F8]" />
+        <div className="space-y-6 max-w-[1600px] mx-auto w-full pb-8">
+            {/* ── Top Command Bar & Live Status ── */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-slate-200/70">
+                <div className="space-y-1.5">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-[#0B0F19] text-[#2890F8] flex items-center justify-center shadow-md shadow-black/20 border border-slate-800">
+                            <Activity className="w-5 h-5" />
                         </div>
-                        <h1 className="text-[22px] font-black text-slate-900 tracking-tight">Tableau de bord</h1>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                                    Command Center Manager
+                                </h1>
+                                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                    En direct
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <p className="text-[12px] text-slate-400 ml-10">
-                        <span className="font-medium text-slate-500">
-                            {dateRange.preset ? PRESET_LABELS[dateRange.preset] : dateRange.startDate && dateRange.endDate
-                                ? `Du ${new Date(dateRange.startDate).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} au ${new Date(dateRange.endDate).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}`
-                                : "Période"}
-                        </span>
-                        {" / "}{missionFilter ? "Mission sélectionnée" : "Toutes les missions"}
+                    <p className="text-xs text-slate-500 flex items-center gap-2 pl-1">
+                        <span>Période : <strong className="text-slate-700">{dateRange.preset ? PRESET_LABELS[dateRange.preset] : "Personnalisée"}</strong></span>
+                        <span>•</span>
+                        <span>Missions : <strong className="text-slate-700">{missionFilter ? "Filtrée" : "Toutes les missions"}</strong></span>
                     </p>
                 </div>
 
                 <div className="flex items-center gap-2.5 flex-wrap">
-                    {/* Date filter */}
+                    {/* Quick Preset Buttons */}
+                    <div className="hidden sm:flex items-center bg-white p-1 rounded-xl border border-slate-200 shadow-2xs">
+                        {(["last7", "lastMonth", "monthToDate"] as DateRangePreset[]).map((preset) => {
+                            const isSelected = dateRange.preset === preset;
+                            return (
+                                <button
+                                    key={preset}
+                                    onClick={() => setQuickPreset(preset)}
+                                    className={cn(
+                                        "px-2.5 py-1 text-xs font-semibold rounded-lg transition-all",
+                                        isSelected
+                                            ? "bg-[#0B0F19] text-white shadow-xs"
+                                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                                    )}
+                                >
+                                    {preset === "last7" ? "7j" : preset === "lastMonth" ? "30j" : "Mois"}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Date filter dropdown */}
                     <div className="relative" ref={dateFilterRef}>
-                        <button onClick={() => setDateFilterOpen((o) => !o)}
+                        <button
+                            onClick={() => setDateFilterOpen((o) => !o)}
                             aria-expanded={dateFilterOpen}
-                            aria-label="Choisir la période"
-                            className="flex items-center gap-2 px-3.5 py-2 text-[12px] font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:border-[#2890F8]/40 hover:shadow-sm transition-all duration-150 shadow-sm">
+                            className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:border-[#2890F8] hover:shadow-xs transition-all shadow-2xs"
+                        >
                             <Calendar className="w-3.5 h-3.5 text-[#2890F8]" />
                             <span>{dateRange.preset ? PRESET_LABELS[dateRange.preset] : "Plage"}</span>
                             <ChevronDown className={cn("w-3.5 h-3.5 text-slate-400 transition-transform", dateFilterOpen && "rotate-180")} />
@@ -238,149 +278,452 @@ export default function ManagerDashboard() {
                     </div>
 
                     {/* Mission filter */}
-                    <select value={missionFilter} onChange={(e) => setMissionFilter(e.target.value)} aria-label="Filtrer par mission"
-                        className="px-3.5 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 rounded-xl min-w-[160px] focus:outline-none focus:ring-2 focus:ring-[#2890F8]/25 focus:border-[#2890F8] shadow-sm">
+                    <select
+                        value={missionFilter}
+                        onChange={(e) => setMissionFilter(e.target.value)}
+                        className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl min-w-[160px] focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 focus:border-[#2890F8] shadow-2xs"
+                    >
                         <option value="">Toutes les missions</option>
-                        {missions.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+                        {missions.map((m) => (
+                            <option key={m.id} value={m.id}>{m.name}</option>
+                        ))}
                     </select>
 
                     {/* Refresh */}
-                    <button onClick={() => refetch()} disabled={isFetching}
-                        aria-label="Actualiser le tableau de bord"
-                        className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-[#2890F8] hover:border-[#2890F8]/40 hover:shadow-sm transition-all duration-150 shadow-sm disabled:opacity-50">
-                        <RefreshCw className={cn("w-3.5 h-3.5", isFetching && "animate-spin")} />
+                    <button
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                        title="Actualiser les données"
+                        className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-[#2890F8] hover:border-blue-300 transition-all shadow-2xs disabled:opacity-50"
+                    >
+                        <RefreshCw className={cn("w-4 h-4", isFetching && "animate-spin text-[#2890F8]")} />
                     </button>
 
                     {/* New mission CTA */}
-                    <Link href="/manager/missions/new"
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-white bg-[#2890F8] border border-[#1a75ce] shadow-md hover:bg-[#1a75ce] hover:scale-[1.02] transition-all duration-150">
-                        <span className="text-lg leading-none">+</span>
+                    <Link
+                        href="/manager/missions/new"
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#2890F8] to-[#156cd4] hover:from-[#1e7fd8] hover:to-[#0f5ab5] shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all"
+                    >
+                        <span className="text-base leading-none">+</span>
                         <span>Nouvelle mission</span>
                     </Link>
                 </div>
             </div>
 
-            {/* ── KPI Cards ── */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {[
-                    { href: "/manager/prospection", label: "Appels réalisés", value: stats?.totalActions ?? 0, note: "Actions sur la période", icon: Phone, tone: "blue" },
-                    { href: "/manager/rdv", label: "RDV obtenus", value: stats?.meetingsBooked ?? 0, note: `${Math.round(rdvGoalPct)}% de l'objectif`, icon: Trophy, tone: "dark" },
-                    { href: "/manager/prospection", label: "Leads chauds", value: hotLeads, note: `${callbackCount} rappels à traiter`, icon: Flame, tone: "amber" },
-                    { href: "/manager/analytics", label: "Taux de conversion", value: `${Math.round((stats?.conversionRate ?? 0) * 10) / 10}%`, note: "Performance commerciale", icon: TrendingUp, tone: "success" },
-                ].map((item) => {
-                    const Icon = item.icon;
-                    const dark = item.tone === "dark";
-                    return (
-                        <Link
-                            key={item.label}
-                            href={item.href}
-                            className={cn(
-                                "group relative min-h-[176px] overflow-hidden rounded-2xl border p-5 shadow-sm transition-all duration-150 hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2890F8]/35",
-                                dark ? "border-[#1c1c1c] bg-[#080808] text-white shadow-md shadow-black/10" : "border-slate-200/80 bg-white text-[#080808]"
-                            )}
-                        >
-                            <div className="flex items-start justify-between">
-                                <span className={cn(
-                                    "flex h-10 w-10 items-center justify-center rounded-xl",
-                                    item.tone === "amber" && "bg-amber-50 text-amber-600",
-                                    item.tone === "success" && "bg-emerald-50 text-emerald-600",
-                                    item.tone === "blue" && "bg-[#e6f0fa] text-[#2890F8]",
-                                    dark && "bg-[#2890F8]/20 text-[#2890F8]"
-                                )}><Icon className="h-4.5 w-4.5" /></span>
-                                <ArrowUpRight className={cn("h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5", dark ? "text-white/45" : "text-slate-300")} />
-                            </div>
-                            <p className={cn("mt-5 text-[11px] font-semibold uppercase tracking-[0.08em]", dark ? "text-slate-400" : "text-slate-500")}>{item.label}</p>
-                            <p className="mt-1 text-[38px] font-bold leading-none tracking-[-0.04em] tabular-nums">{item.value}</p>
-                            <p className={cn("mt-3 text-xs", dark ? "text-slate-400" : "text-slate-500")}>{item.note}</p>
-                        </Link>
-                    );
-                })}
-            </div>
+            {/* ── High-Contrast Luxury KPI Cards ── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                {/* 1. Appels Réalisés — Midnight Sapphire Dark Luxury Card */}
+                <Link
+                    href="/manager/prospection"
+                    className="group relative p-5 rounded-3xl bg-gradient-to-br from-[#0A1224] via-[#0B152A] to-[#050B16] border border-blue-900/70 text-white shadow-xl shadow-black/20 hover:border-blue-400/60 hover:shadow-2xl hover:shadow-blue-500/15 transition-all duration-300 text-left flex flex-col justify-between overflow-hidden"
+                >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#2890F8]/15 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
 
-            {/* ── Main Dashboard Grid ── */}
-            <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
-                <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm xl:col-span-7">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                            <h2 className="text-[15px] font-semibold text-[#080808]">Performance de l&apos;équipe</h2>
-                            <p className="mt-1 text-xs text-slate-500">Progression cumulée des rendez-vous</p>
+                    <div className="flex items-center justify-between z-10">
+                        <div className="w-11 h-11 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-[#2890F8] group-hover:scale-105 transition-transform backdrop-blur-xs">
+                            <Phone className="w-5 h-5" />
                         </div>
-                        <div className="flex items-center gap-4 text-[11px] font-medium text-slate-500">
-                            <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#080808]" />Réalisé</span>
-                            <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#2890F8]" />Objectif</span>
+                        <span className="px-2.5 py-0.5 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[10px] font-bold tracking-wide backdrop-blur-xs">
+                            Volume Global
+                        </span>
+                    </div>
+
+                    <div className="my-4 z-10">
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Appels & Actions</p>
+                        <div className="flex items-baseline gap-2 mt-1">
+                            <p className="text-3xl sm:text-4xl font-black text-white tracking-tight tabular-nums">
+                                {stats?.totalActions ?? 0}
+                            </p>
+                            <span className="text-xs text-slate-400 font-medium">actions</span>
                         </div>
                     </div>
-                    <div className="mt-5 h-[245px]">
+
+                    {/* Telemetry meter */}
+                    <div className="space-y-1.5 z-10 pt-2 border-t border-white/10">
+                        <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-gradient-to-r from-[#2890F8] via-[#38BDF8] to-emerald-400 rounded-full transition-all duration-500"
+                                style={{ width: stats?.totalActions ? "100%" : "20%" }}
+                            />
+                        </div>
+                        <div className="flex justify-between items-center text-[11px] text-slate-400">
+                            <span className="flex items-center gap-1.5 text-emerald-300 font-medium">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                Activité active
+                            </span>
+                            <span className="text-blue-300 font-bold">{stats?.totalActions ?? 0} menées</span>
+                        </div>
+                    </div>
+                </Link>
+
+                {/* 2. RDV Obtenus — Obsidian Dark Luxury Card */}
+                <Link
+                    href="/manager/rdv"
+                    className="group relative p-5 rounded-3xl bg-gradient-to-br from-[#0B0F19] via-[#0D121F] to-[#04060A] border border-slate-800 text-white shadow-xl shadow-black/20 hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 text-left flex flex-col justify-between overflow-hidden"
+                >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
+
+                    <div className="flex items-center justify-between z-10">
+                        <div className="w-11 h-11 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-[#2890F8] group-hover:scale-105 transition-transform">
+                            <Trophy className="w-5 h-5 text-amber-400" />
+                        </div>
+                        <span className="px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-300 text-[10px] font-bold">
+                            {Math.round(rdvGoalPct)}% Objectif
+                        </span>
+                    </div>
+
+                    <div className="my-4 z-10">
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">RDV Confirmés</p>
+                        <div className="flex items-baseline gap-2 mt-1">
+                            <p className="text-3xl sm:text-4xl font-black text-white tracking-tight tabular-nums">
+                                {stats?.meetingsBooked ?? 0}
+                            </p>
+                            <span className="text-xs text-slate-400 font-medium">/ {RDV_WEEKLY_GOAL} visés</span>
+                        </div>
+                    </div>
+
+                    {/* Progress bar towards goal */}
+                    <div className="space-y-1.5 z-10 pt-2 border-t border-white/10">
+                        <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-gradient-to-r from-[#2890F8] to-amber-400 rounded-full transition-all duration-500"
+                                style={{ width: `${rdvGoalPct}%` }}
+                            />
+                        </div>
+                        <div className="flex justify-between items-center text-[11px] text-slate-400">
+                            <span>Objectif hebdo</span>
+                            <span className="text-amber-300 font-bold">{stats?.meetingsBooked ?? 0} signés</span>
+                        </div>
+                    </div>
+                </Link>
+
+                {/* 3. Leads Chauds & Rappels — Solar Amber Soft Luxury Theme */}
+                <Link
+                    href="/manager/prospection"
+                    className="group relative p-5 rounded-3xl bg-gradient-to-br from-white via-amber-50/40 to-amber-100/30 border border-amber-200/80 hover:border-amber-300 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 text-left flex flex-col justify-between overflow-hidden"
+                >
+                    <div className="absolute top-0 right-0 w-28 h-28 bg-amber-400/10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none" />
+
+                    <div className="flex items-center justify-between z-10">
+                        <div className="w-11 h-11 rounded-2xl bg-amber-100/80 border border-amber-200 flex items-center justify-center text-amber-600 group-hover:scale-105 transition-transform shadow-2xs">
+                            <Flame className="w-5 h-5" />
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-amber-100/80 border border-amber-200/80 text-amber-800 text-[10px] font-bold tracking-wide">
+                            Haute Intention
+                        </span>
+                    </div>
+
+                    <div className="my-4 z-10">
+                        <p className="text-xs font-bold text-amber-900/60 uppercase tracking-wider">Leads Chauds & Rappels</p>
+                        <div className="flex items-baseline gap-2 mt-1">
+                            <p className="text-3xl sm:text-4xl font-black text-amber-950 tracking-tight tabular-nums">
+                                {hotLeads}
+                            </p>
+                            <span className="text-xs text-amber-700/70 font-medium">contacts qualifiés</span>
+                        </div>
+                    </div>
+
+                    {/* Progress / Signal bar */}
+                    <div className="space-y-1.5 z-10 pt-2 border-t border-amber-200/60">
+                        <div className="h-1.5 w-full bg-amber-100 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full transition-all duration-500"
+                                style={{ width: hotLeads > 0 ? "75%" : "15%" }}
+                            />
+                        </div>
+                        <div className="flex justify-between items-center text-[11px] text-amber-800">
+                            <span className="font-semibold">
+                                {callbackCount} rappels à exécuter
+                            </span>
+                            <ArrowUpRight className="w-4 h-4 text-amber-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                        </div>
+                    </div>
+                </Link>
+
+                {/* 4. Taux de Transformation — Mint Emerald Soft Luxury Theme */}
+                <Link
+                    href="/manager/analytics"
+                    className="group relative p-5 rounded-3xl bg-gradient-to-br from-white via-emerald-50/40 to-emerald-100/30 border border-emerald-200/80 hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 text-left flex flex-col justify-between overflow-hidden"
+                >
+                    <div className="absolute top-0 right-0 w-28 h-28 bg-emerald-400/10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none" />
+
+                    <div className="flex items-center justify-between z-10">
+                        <div className="w-11 h-11 rounded-2xl bg-emerald-100/80 border border-emerald-200 flex items-center justify-center text-emerald-600 group-hover:scale-105 transition-transform shadow-2xs">
+                            <TrendingUp className="w-5 h-5" />
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-100/80 border border-emerald-200/80 text-emerald-800 text-[10px] font-bold tracking-wide">
+                            Conversion
+                        </span>
+                    </div>
+
+                    <div className="my-4 z-10">
+                        <p className="text-xs font-bold text-emerald-900/60 uppercase tracking-wider">Taux de Conversion</p>
+                        <div className="flex items-baseline gap-2 mt-1">
+                            <p className="text-3xl sm:text-4xl font-black text-emerald-950 tracking-tight tabular-nums">
+                                {Math.round((stats?.conversionRate ?? 0) * 10) / 10}%
+                            </p>
+                            <span className="text-xs text-emerald-700/70 font-medium">global</span>
+                        </div>
+                    </div>
+
+                    {/* Progress bar */}
+                    <div className="space-y-1.5 z-10 pt-2 border-t border-emerald-200/60">
+                        <div className="h-1.5 w-full bg-emerald-100 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full transition-all duration-500"
+                                style={{ width: `${Math.min(Math.round((stats?.conversionRate ?? 0) * 5), 100)}%` }}
+                            />
+                        </div>
+                        <div className="flex justify-between items-center text-[11px] text-emerald-800">
+                            <span className="font-semibold flex items-center gap-1">
+                                <Sparkles className="w-3.5 h-3.5 text-emerald-500" /> Performance équipe
+                            </span>
+                            <ArrowUpRight className="w-4 h-4 text-emerald-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                        </div>
+                    </div>
+                </Link>
+            </div>
+
+            {/* ── Main Interactive Dashboard Grid ── */}
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                {/* ── ZONE 1: Performance Graph (7 Cols) ── */}
+                <section className="xl:col-span-7 bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm flex flex-col justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#2890F8]">
+                                <BarChart3 className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h2 className="text-base font-bold text-slate-900">Performance & Trajectoire RDV</h2>
+                                <p className="text-xs text-slate-500">Progression cumulée vs objectif hebdomadaire</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 text-xs font-semibold">
+                            <span className="inline-flex items-center gap-1.5 text-slate-700 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
+                                <span className="h-2.5 w-2.5 rounded-full bg-[#0B0F19]" />
+                                Réalisé
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
+                                <span className="h-2.5 w-2.5 rounded-full bg-[#2890F8]" />
+                                Objectif
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="my-6 h-[260px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={weeklyGoalData}>
+                            <AreaChart data={weeklyGoalData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
-                                    <linearGradient id="manager-performance-fill" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor="#2890F8" stopOpacity={0.25} />
-                                        <stop offset="100%" stopColor="#2890F8" stopOpacity={0} />
+                                    <linearGradient id="manager-perf-gradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#2890F8" stopOpacity={0.35} />
+                                        <stop offset="95%" stopColor="#2890F8" stopOpacity={0.0} />
                                     </linearGradient>
                                 </defs>
-                                <XAxis dataKey="jour" tick={{ fontSize: 11, fill: "#71817c" }} axisLine={false} tickLine={false} />
-                                <YAxis hide />
+                                <XAxis
+                                    dataKey="jour"
+                                    tick={{ fontSize: 12, fill: "#64748b", fontWeight: 600 }}
+                                    axisLine={{ stroke: "#e2e8f0" }}
+                                    tickLine={false}
+                                />
+                                <YAxis
+                                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                                    axisLine={false}
+                                    tickLine={false}
+                                />
                                 <Tooltip content={<CustomTooltip />} />
-                                <Line type="monotone" dataKey="objectif" stroke="#2890F8" strokeWidth={1.5} strokeDasharray="4 4" dot={false} name="Objectif" />
-                                <Area type="monotone" dataKey="cumul" stroke="#080808" strokeWidth={2.5} fill="url(#manager-performance-fill)" name="Réalisé" />
+                                <Line
+                                    type="monotone"
+                                    dataKey="objectif"
+                                    stroke="#2890F8"
+                                    strokeWidth={2}
+                                    strokeDasharray="5 5"
+                                    dot={false}
+                                    name="Objectif visé"
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="cumul"
+                                    stroke="#0B0F19"
+                                    strokeWidth={3}
+                                    fill="url(#manager-perf-gradient)"
+                                    name="RDV Réalisés"
+                                />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
-                    <div className="grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 pt-4">
-                        <div><p className="text-[10px] uppercase tracking-wide text-slate-400">Actions</p><p className="mt-1 text-lg font-semibold tabular-nums text-[#080808]">{stats?.totalActions ?? 0}</p></div>
-                        <div className="pl-4"><p className="text-[10px] uppercase tracking-wide text-slate-400">RDV</p><p className="mt-1 text-lg font-semibold tabular-nums text-[#080808]">{stats?.meetingsBooked ?? 0}</p></div>
-                        <div className="pl-4"><p className="text-[10px] uppercase tracking-wide text-slate-400">Conversion</p><p className="mt-1 text-lg font-semibold tabular-nums text-[#080808]">{Math.round((stats?.conversionRate ?? 0) * 10) / 10}%</p></div>
+
+                    {/* Summary Row */}
+                    <div className="grid grid-cols-3 gap-2 pt-4 border-t border-slate-100 bg-slate-50/60 -mx-6 -mb-6 p-4 rounded-b-3xl">
+                        <div className="text-center">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Actions</p>
+                            <p className="text-base font-black text-slate-900 tabular-nums">{stats?.totalActions ?? 0}</p>
+                        </div>
+                        <div className="text-center border-x border-slate-200">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">RDV Confirmés</p>
+                            <p className="text-base font-black text-[#2890F8] tabular-nums">{stats?.meetingsBooked ?? 0}</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Taux de Succès</p>
+                            <p className="text-base font-black text-emerald-600 tabular-nums">{Math.round((stats?.conversionRate ?? 0) * 10) / 10}%</p>
+                        </div>
                     </div>
                 </section>
 
-                <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm xl:col-span-5">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h2 className="text-[15px] font-semibold text-[#080808]">À traiter maintenant</h2>
-                            <p className="mt-1 text-xs text-slate-500">Les priorités commerciales de l&apos;équipe</p>
+                {/* ── ZONE 2: Priorities & Actions Center (5 Cols) ── */}
+                <section className="xl:col-span-5 bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm flex flex-col justify-between">
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-500">
+                                <Zap className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h2 className="text-base font-bold text-slate-900">Priorités Commerciales</h2>
+                                <p className="text-xs text-slate-500">Actions à fort impact pour l&apos;équipe</p>
+                            </div>
                         </div>
-                        <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">{callbackCount + (stats?.resultBreakdown?.INTERESTED ?? 0)} signaux</span>
+                        <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">
+                            {callbackCount + interestedCount} signaux
+                        </span>
                     </div>
-                    <div className="mt-5 divide-y divide-slate-100">
+
+                    <div className="space-y-3 my-4">
                         {[
-                            { href: "/manager/prospection", icon: Clock, label: "Rappels planifiés", help: "À recontacter en priorité", value: callbackCount, cls: "bg-amber-50 text-amber-700" },
-                            { href: "/manager/prospection", icon: Star, label: "Contacts intéressés", help: "Signal de conversion élevé", value: stats?.resultBreakdown?.INTERESTED ?? 0, cls: "bg-emerald-50 text-emerald-700" },
-                            { href: "/manager/rdv", icon: CheckCircle2, label: "Rendez-vous obtenus", help: "À préparer avec les SDR", value: stats?.meetingsBooked ?? 0, cls: "bg-[#e6f0fa] text-[#2890F8]" },
+                            {
+                                href: "/manager/prospection",
+                                icon: Clock,
+                                label: "Rappels planifiés",
+                                help: "Prospects en attente d'un second contact",
+                                value: callbackCount,
+                                badge: "Urgent",
+                                badgeCls: "bg-amber-100 text-amber-800",
+                                iconBg: "bg-amber-50 text-amber-600 border border-amber-200",
+                            },
+                            {
+                                href: "/manager/prospection",
+                                icon: Star,
+                                label: "Prospects Intéressés",
+                                help: "Intérêt manifesté à transformer en RDV",
+                                value: interestedCount,
+                                badge: "Chaud",
+                                badgeCls: "bg-emerald-100 text-emerald-800",
+                                iconBg: "bg-emerald-50 text-emerald-600 border border-emerald-200",
+                            },
+                            {
+                                href: "/manager/rdv",
+                                icon: CheckCircle2,
+                                label: "RDV à Préparer & Briefer",
+                                help: "Rendez-vous récents pris par vos SDRs",
+                                value: stats?.meetingsBooked ?? 0,
+                                badge: "Gagné",
+                                badgeCls: "bg-blue-100 text-[#1a75ce]",
+                                iconBg: "bg-blue-50 text-[#2890F8] border border-blue-200",
+                            },
                         ].map((row) => {
                             const Icon = row.icon;
                             return (
-                                <Link key={row.label} href={row.href} className="group flex items-center gap-3 rounded-xl px-1 py-3.5 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2890F8]/25">
-                                    <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl", row.cls)}><Icon className="h-4 w-4" /></span>
-                                    <span className="min-w-0 flex-1"><span className="block text-[13px] font-semibold text-slate-800">{row.label}</span><span className="block text-[11px] text-slate-500">{row.help}</span></span>
-                                    <span className="text-xl font-semibold tabular-nums text-[#080808]">{row.value}</span>
-                                    <ArrowRight className="h-4 w-4 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-[#2890F8]" />
+                                <Link
+                                    key={row.label}
+                                    href={row.href}
+                                    className="group flex items-center gap-3.5 p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 hover:border-[#2890F8] hover:bg-white hover:shadow-md transition-all"
+                                >
+                                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform", row.iconBg)}>
+                                        <Icon className="w-5 h-5" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-bold text-slate-900 truncate">{row.label}</span>
+                                            <span className={cn("text-[10px] font-bold px-1.5 py-0.2 rounded", row.badgeCls)}>
+                                                {row.badge}
+                                            </span>
+                                        </div>
+                                        <p className="text-[11px] text-slate-500 truncate mt-0.5">{row.help}</p>
+                                    </div>
+                                    <span className="text-xl font-black tabular-nums text-slate-900 px-2">{row.value}</span>
+                                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#2890F8] group-hover:translate-x-0.5 transition-all flex-shrink-0" />
                                 </Link>
                             );
                         })}
                     </div>
+
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                        <span>Traitez vos relances dès 9h00 pour maximiser le taux de réponse.</span>
+                    </div>
                 </section>
 
-                <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm xl:col-span-7">
-                    <div className="flex items-center justify-between gap-3">
-                        <div><h2 className="text-[15px] font-semibold text-[#080808]">Progression des missions</h2><p className="mt-1 text-xs text-slate-500">Classement par rendez-vous obtenus</p></div>
-                        <Link href="/manager/missions" className="text-xs font-semibold text-[#2890F8] hover:text-[#1a75ce]">Voir toutes</Link>
+                {/* ── ZONE 3: Missions Progress (7 Cols) ── */}
+                <section className="xl:col-span-7 bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600">
+                                <Target className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h2 className="text-base font-bold text-slate-900">Progression des Missions Actives</h2>
+                                <p className="text-xs text-slate-500">Classement par volume de rendez-vous générés</p>
+                            </div>
+                        </div>
+                        <Link href="/manager/missions" className="text-xs font-bold text-[#2890F8] hover:text-[#1a75ce] flex items-center gap-1">
+                            <span>Voir toutes</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
                     </div>
+
                     {missionsNearGoal.length === 0 ? (
-                        <div className="py-10 text-center"><Target className="mx-auto h-7 w-7 text-slate-300" /><p className="mt-2 text-sm text-slate-500">Aucune mission active sur cette période.</p><Link href="/manager/missions/new" className="mt-3 inline-flex text-xs font-semibold text-[#2890F8]">Créer une mission</Link></div>
+                        <div className="py-12 text-center">
+                            <Target className="mx-auto h-8 w-8 text-slate-300" />
+                            <p className="mt-2 text-sm text-slate-600 font-medium">Aucune mission active sur cette période.</p>
+                            <Link href="/manager/missions/new" className="mt-3 inline-flex text-xs font-bold text-[#2890F8]">
+                                + Créer une première mission
+                            </Link>
+                        </div>
                     ) : (
-                        <div className="mt-5 divide-y divide-slate-100">
+                        <div className="divide-y divide-slate-100 mt-2">
                             {missionsNearGoal.map((m) => {
                                 const goal = 20;
                                 const pct = Math.min(100, Math.round((m.meetingsThisPeriod / goal) * 100));
-                                const fill = pct >= 100 ? "#10B981" : pct >= 80 ? "#2890F8" : pct >= 40 ? "#5BAEFC" : "#cbd5e1";
                                 return (
-                                    <Link key={m.id} href={`/manager/missions/${m.id}`} className="group block py-4 first:pt-0 last:pb-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2890F8]/25">
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div className="min-w-0"><p className="truncate text-[13px] font-semibold text-slate-800 group-hover:text-[#2890F8]">{m.name} <span className="font-normal text-slate-400">· {m.client.name}</span></p><p className="mt-1 text-[11px] text-slate-500">{m.sdrCount} SDR · {m.actionsThisPeriod} actions</p></div>
-                                            <div className="flex items-center gap-2"><span className="text-xs font-semibold tabular-nums text-slate-700">{m.meetingsThisPeriod}/{goal}</span><ArrowRight className="h-3.5 w-3.5 text-slate-300 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100 group-hover:text-[#2890F8]" /></div>
+                                    <Link
+                                        key={m.id}
+                                        href={`/manager/missions/${m.id}`}
+                                        className="group block py-4 first:pt-3 last:pb-0 transition-colors"
+                                    >
+                                        <div className="flex items-start justify-between gap-4 mb-2">
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <p className="text-sm font-bold text-slate-900 group-hover:text-[#2890F8] transition-colors truncate">
+                                                        {m.name}
+                                                    </p>
+                                                    <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-semibold">
+                                                        {m.client.name}
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs text-slate-400 mt-0.5">
+                                                    {m.sdrCount} SDR assigné{m.sdrCount > 1 ? "s" : ""} · {m.actionsThisPeriod} actions menées
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs font-black tabular-nums text-slate-800">
+                                                    {m.meetingsThisPeriod} <span className="text-slate-400 font-normal">/ {goal} RDV</span>
+                                                </span>
+                                                <span className={cn(
+                                                    "text-[11px] font-bold px-2 py-0.5 rounded-full",
+                                                    pct >= 80 ? "bg-emerald-100 text-emerald-800" : pct >= 40 ? "bg-blue-100 text-blue-800" : "bg-slate-100 text-slate-700"
+                                                )}>
+                                                    {pct}%
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${pct}%`, background: fill }} /></div>
+
+                                        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                            <div
+                                                className={cn(
+                                                    "h-full rounded-full transition-all duration-500",
+                                                    pct >= 80 ? "bg-gradient-to-r from-emerald-400 to-teal-500" : "bg-gradient-to-r from-[#2890F8] to-[#156cd4]"
+                                                )}
+                                                style={{ width: `${pct}%` }}
+                                            />
+                                        </div>
                                     </Link>
                                 );
                             })}
@@ -388,47 +731,139 @@ export default function ManagerDashboard() {
                     )}
                 </section>
 
-                <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm xl:col-span-5">
-                    <div className="flex items-center justify-between gap-3">
-                        <div><h2 className="text-[15px] font-semibold text-[#080808]">Performance SDR</h2><p className="mt-1 text-xs text-slate-500">Rendez-vous et activité commerciale</p></div>
-                        <span className={cn("rounded-full px-2.5 py-1 text-[11px] font-semibold", rdvGoalPct >= 80 ? "bg-emerald-50 text-emerald-700" : "bg-[#e6f0fa] text-[#2890F8]")}>{Math.round(rdvGoalPct)}% objectif</span>
+                {/* ── ZONE 4: SDR Leaderboard (5 Cols) ── */}
+                <section className="xl:col-span-5 bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-500">
+                                <Trophy className="w-5 h-5 text-amber-500" />
+                            </div>
+                            <div>
+                                <h2 className="text-base font-bold text-slate-900">Podium & Performance SDR</h2>
+                                <p className="text-xs text-slate-500">Classement des conversions individuelles</p>
+                            </div>
+                        </div>
                     </div>
+
                     {stats?.rdvLeaderboard?.length ? (
-                        <div className="mt-4 space-y-1">
-                            {stats.rdvLeaderboard.slice(0, 6).map((person, i) => {
+                        <div className="mt-4 space-y-2">
+                            {stats.rdvLeaderboard.slice(0, 5).map((person, i) => {
                                 const callStats = stats.leaderboard.find((entry) => entry.id === person.id);
                                 const maxRdv = stats.rdvLeaderboard[0]?.rdv || 1;
+                                const rankBadge = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`;
+
                                 return (
-                                    <div key={person.id} className={cn("flex items-center gap-3 rounded-xl p-2.5 transition-colors hover:bg-slate-50", i === 0 && "border border-[#2890F8]/20 bg-gradient-to-r from-[#e6f0fa] to-white")}>
-                                        <span className={cn("w-5 text-center text-xs font-bold", i === 0 ? "text-[#2890F8]" : "text-slate-400")}>{i + 1}</span>
-                                        <span className={cn("flex h-8 w-8 items-center justify-center rounded-xl text-[11px] font-bold", i === 0 ? "bg-[#080808] text-white" : "bg-slate-100 text-slate-600")}>{getInitials(person.name)}</span>
-                                        <div className="min-w-0 flex-1"><div className="flex items-center justify-between"><span className="truncate text-xs font-semibold text-slate-800">{person.name}</span><span className="text-xs font-bold tabular-nums text-[#080808]">{person.rdv} RDV</span></div><div className="mt-1.5 h-1 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-[#2890F8]" style={{ width: `${Math.round((person.rdv / maxRdv) * 100)}%` }} /></div><p className="mt-1 text-[10px] text-slate-400">{callStats?.calls ?? 0} appels · {person.actions} actions</p></div>
+                                    <div
+                                        key={person.id}
+                                        className={cn(
+                                            "flex items-center gap-3.5 p-3 rounded-2xl border transition-all",
+                                            i === 0
+                                                ? "bg-gradient-to-r from-amber-50/60 to-white border-amber-200/80 shadow-xs"
+                                                : "bg-slate-50/50 border-slate-200/60 hover:bg-white hover:border-slate-300"
+                                        )}
+                                    >
+                                        <span className="w-6 text-center text-sm font-black">{rankBadge}</span>
+
+                                        <div className={cn(
+                                            "w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-2xs",
+                                            i === 0 ? "bg-[#0B0F19] text-white ring-2 ring-amber-400" : "bg-white text-slate-700 border border-slate-200"
+                                        )}>
+                                            {getInitials(person.name)}
+                                        </div>
+
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-xs font-bold text-slate-900 truncate">{person.name}</span>
+                                                <span className="text-xs font-black text-slate-900 tabular-nums">{person.rdv} RDV</span>
+                                            </div>
+
+                                            <div className="h-1.5 w-full bg-slate-200/80 rounded-full overflow-hidden mt-1.5">
+                                                <div
+                                                    className="h-full bg-gradient-to-r from-[#2890F8] to-[#156cd4] rounded-full"
+                                                    style={{ width: `${Math.round((person.rdv / maxRdv) * 100)}%` }}
+                                                />
+                                            </div>
+
+                                            <p className="text-[10px] text-slate-400 mt-1">
+                                                {callStats?.calls ?? 0} appels passés · {person.actions} actions
+                                            </p>
+                                        </div>
                                     </div>
                                 );
                             })}
                         </div>
                     ) : (
-                        <div className="py-10 text-center"><Users className="mx-auto h-7 w-7 text-slate-300" /><p className="mt-2 text-sm text-slate-500">Pas encore de performance sur cette période.</p></div>
+                        <div className="py-12 text-center">
+                            <Users className="mx-auto h-8 w-8 text-slate-300" />
+                            <p className="mt-2 text-sm text-slate-500">Aucun appel enregistré sur cette période.</p>
+                        </div>
                     )}
                 </section>
 
-                <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm xl:col-span-12">
-                    <div><h2 className="text-[15px] font-semibold text-[#080808]">Activité récente</h2><p className="mt-1 text-xs text-slate-500">Dernières interactions de l&apos;équipe</p></div>
+                {/* ── ZONE 5: Live Activity Stream (12 Cols) ── */}
+                <section className="xl:col-span-12 bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#2890F8]">
+                                <Activity className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h2 className="text-base font-bold text-slate-900">Activité & Flux d&apos;Événements en Direct</h2>
+                                <p className="text-xs text-slate-500">Dernières interactions commerciales enregistrées</p>
+                            </div>
+                        </div>
+                        <span className="text-xs font-bold text-slate-400">{recentActivity.length} événements</span>
+                    </div>
+
                     {recentActivity.length === 0 ? (
-                        <div className="py-10 text-center"><Activity className="mx-auto h-7 w-7 text-slate-300" /><p className="mt-2 text-sm text-slate-500">Aucune activité récente.</p></div>
+                        <div className="py-12 text-center">
+                            <Activity className="mx-auto h-8 w-8 text-slate-300" />
+                            <p className="mt-2 text-sm text-slate-500">Aucune activité récente.</p>
+                        </div>
                     ) : (
-                        <ol className="mt-5 grid grid-cols-1 gap-x-8 md:grid-cols-2">
-                            {recentActivity.slice(0, 10).map((item) => (
-                                <li key={item.id} className="relative flex gap-3 border-b border-slate-100 py-3 first:pt-0">
-                                    <span className={cn("mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl", item.type === "meeting" ? "bg-[#e6f0fa] text-[#2890F8]" : item.type === "call" ? "bg-slate-100 text-slate-700" : "bg-slate-100 text-slate-600")}>{item.type === "meeting" ? <CheckCircle2 className="h-4 w-4" /> : item.type === "call" ? <Phone className="h-4 w-4" /> : <Activity className="h-4 w-4" />}</span>
-                                    <div className="min-w-0 flex-1"><p className="text-[12px] leading-relaxed text-slate-600"><span className="font-semibold text-slate-900">{item.user}</span> {item.action}{item.contactOrCompanyName ? <> avec <span className="font-semibold text-[#2890F8]">{item.contactOrCompanyName}</span></> : null}</p><p className="mt-1 text-[10px] text-slate-400">{item.campaignName ?? "Activité commerciale"} · {item.time}</p></div>
-                                </li>
-                            ))}
-                        </ol>
+                        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {recentActivity.slice(0, 10).map((item) => {
+                                const isMeeting = item.type === "meeting";
+                                const isCall = item.type === "call";
+
+                                return (
+                                    <div
+                                        key={item.id}
+                                        className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-50/60 border border-slate-200/70 hover:bg-white hover:shadow-xs transition-all"
+                                    >
+                                        <div
+                                            className={cn(
+                                                "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5",
+                                                isMeeting
+                                                    ? "bg-blue-100 text-[#2890F8]"
+                                                    : isCall
+                                                        ? "bg-slate-200 text-slate-700"
+                                                        : "bg-amber-100 text-amber-700"
+                                            )}
+                                        >
+                                            {isMeeting ? <CheckCircle2 className="w-4 h-4" /> : isCall ? <Phone className="w-4 h-4" /> : <Activity className="w-4 h-4" />}
+                                        </div>
+
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs text-slate-700 leading-relaxed">
+                                                <strong className="text-slate-900 font-bold">{item.user}</strong> {item.action}
+                                                {item.contactOrCompanyName ? (
+                                                    <> avec <span className="font-bold text-[#2890F8]">{item.contactOrCompanyName}</span></>
+                                                ) : null}
+                                            </p>
+                                            <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-2">
+                                                <span>{item.campaignName ?? "Prospection générale"}</span>
+                                                <span>•</span>
+                                                <span>{item.time}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     )}
                 </section>
             </div>
-
         </div>
     );
 }
