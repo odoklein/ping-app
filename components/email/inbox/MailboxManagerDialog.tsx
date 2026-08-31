@@ -244,7 +244,7 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
                                     )}
                                 >
                                     {ok ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                                    {label} {ok ? 'connect\u00e9' : '\u00e9chou\u00e9'}
+                                    {label} {ok ? 'connecté' : 'échoué'}
                                 </div>
                             ))}
                         </div>
@@ -267,7 +267,7 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
 
                         <div className="sm:col-span-2">
                             <label className="block text-sm font-medium text-slate-700 mb-1">
-                                Nom d&apos;affichage
+                                Nom d'affichage
                             </label>
                             <input
                                 type="text"
@@ -355,7 +355,7 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
 
                     <div className="flex items-start gap-2 rounded-lg border border-[#D7E1DE] bg-[#EEF3F1] px-3 py-2.5 text-xs leading-relaxed text-[#3F625D]">
                         <Server className="mt-0.5 h-4 w-4 shrink-0" />
-                        <p>Ports habituels: IMAP 993, SMTP 587 (STARTTLS) ou 465 (TLS). Gmail, Outlook et iCloud exigent généralement un mot de passe d&apos;application.</p>
+                        <p>Ports habituels: IMAP 993, SMTP 587 (STARTTLS) ou 465 (TLS). Gmail, Outlook et iCloud exigent généralement un mot de passe d'application.</p>
                     </div>
 
                     <div className="flex gap-3 pt-2">
@@ -386,17 +386,6 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
             )}
         </div>
     );
-}
-
-// ============================================
-// MAILBOX MANAGER DIALOG
-// ============================================
-
-interface MailboxManagerDialogProps {
-    isOpen?: boolean;
-    onClose?: () => void;
-    onMailboxAdded?: () => void;
-    variant?: 'dialog' | 'page';
 }
 
 // ============================================
@@ -487,7 +476,6 @@ function SignatureEditorDialog({
         if (mode === "visual" && editorRef.current) {
             editorRef.current.innerHTML = sanitizeSignatureForClient(signatureHtml);
         }
-        // Hydrate only when entering the visual tab to avoid resetting the caret.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mode]);
 
@@ -691,7 +679,7 @@ function SignatureEditorDialog({
 
                     <div className="mt-3 flex items-start gap-2 rounded-lg border border-[#D7E1DE] bg-[#EEF3F1] px-3 py-2.5 text-xs leading-relaxed text-[#3F625D]">
                         <CheckCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                        <p>Le HTML est nettoyé à l&apos;enregistrement. Les styles inline, tableaux, liens et logos HTTPS sont conservés. Les scripts et événements sont supprimés.</p>
+                        <p>Le HTML est nettoyé à l'enregistrement. Les styles inline, tableaux, liens et logos HTTPS sont conservés. Les scripts et événements sont supprimés.</p>
                     </div>
                     {error && (
                         <div className="mt-3 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700" role="alert">
@@ -719,6 +707,17 @@ function SignatureEditorDialog({
     );
 }
 
+// ============================================
+// MAILBOX MANAGER DIALOG
+// ============================================
+
+interface MailboxManagerDialogProps {
+    isOpen?: boolean;
+    onClose?: () => void;
+    onMailboxAdded?: () => void;
+    variant?: 'dialog' | 'page';
+}
+
 export function MailboxManagerDialog({ isOpen = false, onClose = () => undefined, onMailboxAdded, variant = 'dialog' }: MailboxManagerDialogProps) {
     const isPage = variant === 'page';
     const isVisible = isPage || isOpen;
@@ -738,7 +737,7 @@ export function MailboxManagerDialog({ isOpen = false, onClose = () => undefined
             if (json.success) {
                 setMailboxes(json.data);
             } else {
-                setActionMessage({ type: 'error', text: json.error || 'Impossible de charger les bo\u00eetes mail' });
+                setActionMessage({ type: 'error', text: json.error || 'Impossible de charger les boîtes mail' });
             }
         } catch (error) {
             console.error("Failed to fetch mailboxes:", error);
@@ -770,7 +769,7 @@ export function MailboxManagerDialog({ isOpen = false, onClose = () => undefined
             await fetchMailboxes();
             setActionMessage({
                 type: 'success',
-                text: `${json.data?.messagesProcessed ?? 0} message(s) synchronis\u00e9(s)`,
+                text: `${json.data?.messagesProcessed ?? 0} message(s) synchronisé(s)`,
             });
         } catch (error) {
             console.error("Sync failed:", error);
@@ -795,7 +794,7 @@ export function MailboxManagerDialog({ isOpen = false, onClose = () => undefined
             const result = await response.json();
             if (!response.ok || !result.success) throw new Error(result.error || 'Suppression impossible');
             setMailboxes(prev => prev.filter(m => m.id !== mailboxId));
-            setActionMessage({ type: 'success', text: 'Bo\u00eete mail supprim\u00e9e' });
+            setActionMessage({ type: 'success', text: 'Boîte mail supprimée' });
         } catch (error) {
             console.error("Delete failed:", error);
             setActionMessage({ type: 'error', text: error instanceof Error ? error.message : 'Suppression impossible' });
@@ -930,11 +929,6 @@ export function MailboxManagerDialog({ isOpen = false, onClose = () => undefined
                                 </div>
                             ) : mailboxes.length === 0 ? (
                                 <div className="text-center py-12 bg-white rounded-xl border border-[#E1E7E5]">
-                                    <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center mx-auto mb-4 shadow-sm">
-                                        <Mail className="w-8 h-8 text-slate-400" />
-                                    </div>
-                                    <h3 className="text-lg font-medium text-slate-900 mb-1">
-                                        Aucune boîte mail
                                     <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center mx-auto mb-4 shadow-sm">
                                         <Mail className="w-8 h-8 text-slate-400" />
                                     </div>

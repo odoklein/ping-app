@@ -200,7 +200,7 @@ export default function ClientPortal() {
                             {currentMonth} {currentYear}
                         </p>
                         {missionName && (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-[2px] rounded-full">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2890F8] bg-[#e6f0fa] border border-[#2890F8]/20 px-2 py-[2px] rounded-full">
                                 <TrendingUp className="w-3 h-3" />{missionName}
                             </span>
                         )}
@@ -209,7 +209,7 @@ export default function ClientPortal() {
                 <button
                     onClick={() => fetchData(true)}
                     disabled={isRefreshing}
-                    className="w-10 h-10 rounded-xl border border-[var(--elan-line)] flex items-center justify-center text-[var(--elan-slate)] hover:text-[var(--elan-petrol)] hover:border-[rgba(255,158,27,0.3)] transition-all duration-200 disabled:opacity-50 bg-[var(--elan-surface)]/80 backdrop-blur-sm hover:shadow-md hover:shadow-[rgba(255,158,27,0.18)]"
+                    className="w-10 h-10 rounded-xl border border-[var(--elan-line)] flex items-center justify-center text-[var(--elan-slate)] hover:text-[#2890F8] hover:border-[#2890F8]/30 transition-all duration-200 disabled:opacity-50 bg-[var(--elan-surface)]/80 backdrop-blur-sm hover:shadow-md hover:shadow-[rgba(40,144,248,0.18)]"
                     title="Rafraîchir"
                     aria-label="Actualiser les données"
                 >
@@ -220,11 +220,11 @@ export default function ClientPortal() {
             {/* ── Hero Card ── */}
             <div
                 className="relative overflow-hidden rounded-2xl shadow-xl"
-                style={{ animation: "dashFadeUp 0.4s ease both", animationDelay: "60ms", background: "#0C3B38" }}
+                style={{ animation: "dashFadeUp 0.4s ease both", animationDelay: "60ms", background: "#080808" }}
             >
                 {/* Decorative orbs */}
-                <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-[var(--elan-surface)]/[0.04] -translate-y-1/2 translate-x-1/3" />
-                <div className="absolute bottom-0 left-0 w-52 h-52 rounded-full bg-[var(--elan-surface)]/[0.04] translate-y-1/2 -translate-x-1/4" />
+                <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-[#2890F8]/10 -translate-y-1/2 translate-x-1/3" />
+                <div className="absolute bottom-0 left-0 w-52 h-52 rounded-full bg-[#2890F8]/5 translate-y-1/2 -translate-x-1/4" />
                 <div className="absolute top-8 right-10 opacity-20">
                     <Sparkles className="w-5 h-5 text-white animate-float" />
                 </div>
@@ -232,7 +232,7 @@ export default function ClientPortal() {
                 <div className="relative p-6 md:p-8">
                     {/* Large RDV count */}
                     <div className="flex flex-col items-center md:items-start mb-8">
-                        <p className="text-[11px] font-semibold text-[rgba(244,240,232,0.6)] uppercase tracking-[0.2em]">
+                        <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.2em]">
                             Rendez-vous cumulés
                         </p>
                         <div className="mt-3 flex items-baseline gap-1">
@@ -240,19 +240,19 @@ export default function ClientPortal() {
                                 value={meetingsBooked}
                                 className="text-[72px] md:text-[80px] font-black text-white leading-none drop-shadow-lg"
                             />
-                            <span className="text-2xl font-bold text-[rgba(244,240,232,0.45)] mb-2">RDV</span>
+                            <span className="text-2xl font-bold text-slate-400 mb-2">RDV</span>
                         </div>
                     </div>
 
                     {/* Appels passés (month selector + single KPI) */}
                     <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                         <div className="flex items-center gap-2">
-                            <span className="text-[11px] font-semibold text-[rgba(244,240,232,0.6)] uppercase tracking-wider">Appels passés</span>
-                            <div className="flex items-center rounded-lg bg-[var(--elan-surface)]/[0.08] border border-white/[0.06] p-0.5">
+                            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Appels passés</span>
+                            <div className="flex items-center rounded-lg bg-white/[0.08] border border-white/[0.06] p-0.5">
                                 <button
                                     type="button"
                                     onClick={() => setCallsMonthOffset((o) => o - 1)}
-                                    className="w-8 h-8 rounded-md flex items-center justify-center text-[rgba(244,240,232,0.6)] hover:bg-[var(--elan-surface)]/[0.12] hover:text-white transition-all"
+                                    className="w-8 h-8 rounded-md flex items-center justify-center text-slate-300 hover:bg-white/[0.12] hover:text-white transition-all"
                                     aria-label="Mois précédent"
                                 >
                                     <ChevronLeft className="w-4 h-4" />
@@ -264,23 +264,23 @@ export default function ClientPortal() {
                                     type="button"
                                     onClick={() => setCallsMonthOffset((o) => Math.min(o + 1, 0))}
                                     disabled={callsMonthOffset >= 0}
-                                    className="w-8 h-8 rounded-md flex items-center justify-center text-[rgba(244,240,232,0.6)] hover:bg-[var(--elan-surface)]/[0.12] hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                                    className="w-8 h-8 rounded-md flex items-center justify-center text-slate-300 hover:bg-white/[0.12] hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                                     aria-label="Mois suivant"
                                 >
                                     <ChevronRight className="w-4 h-4" />
                                 </button>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 rounded-xl bg-[var(--elan-surface)]/[0.08] backdrop-blur-sm border border-white/[0.06] px-4 py-3.5 hover:bg-[var(--elan-surface)]/[0.12] transition-all duration-200 group">
-                            <div className="w-10 h-10 rounded-lg bg-[rgba(255,158,27,0.18)] flex items-center justify-center shrink-0 group-hover:bg-[rgba(255,158,27,0.26)] transition-all duration-200">
-                                <PhoneCall className="w-[18px] h-[18px] text-[rgba(244,240,232,0.7)]" />
+                        <div className="flex items-center gap-3 rounded-xl bg-white/[0.08] backdrop-blur-sm border border-white/[0.06] px-4 py-3.5 hover:bg-white/[0.12] transition-all duration-200 group">
+                            <div className="w-10 h-10 rounded-lg bg-[#2890F8]/20 flex items-center justify-center shrink-0 group-hover:bg-[#2890F8]/30 transition-all duration-200">
+                                <PhoneCall className="w-[18px] h-[18px] text-[#2890F8]" />
                             </div>
                             <div>
                                 <AnimatedNumber
                                     value={callsCountForMonth}
                                     className="text-xl font-extrabold text-white leading-none"
                                 />
-                                <p className="text-[11px] text-[rgba(244,240,232,0.5)] mt-0.5 font-medium">ce mois</p>
+                                <p className="text-[11px] text-slate-400 mt-0.5 font-medium">ce mois</p>
                             </div>
                         </div>
                     </div>
@@ -330,8 +330,8 @@ export default function ClientPortal() {
             <div className="premium-card overflow-hidden" style={{ animation: "dashFadeUp 0.4s ease both", animationDelay: "140ms" }}>
                 <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[var(--elan-line)]">
                     <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-[#FF9E1B] flex items-center justify-center shadow-sm">
-                            <CalendarCheck className="w-4 h-4 text-[#15201E]" />
+                        <div className="w-8 h-8 rounded-lg bg-[#2890F8] flex items-center justify-center shadow-sm">
+                            <CalendarCheck className="w-4 h-4 text-white" />
                         </div>
                         <h2 className="text-sm font-semibold text-[var(--elan-ink)] uppercase tracking-wider">
                             Prochains rendez-vous
@@ -339,7 +339,7 @@ export default function ClientPortal() {
                     </div>
                     <Link
                         href="/client/portal/meetings"
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--elan-petrol)] hover:text-[var(--elan-amber-deep)] transition-colors duration-200 group"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2890F8] hover:text-[#1a75ce] transition-colors duration-200 group"
                     >
                         Voir tout <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
                     </Link>
@@ -347,8 +347,8 @@ export default function ClientPortal() {
 
                 {upcomingMeetings.length === 0 ? (
                     <div className="text-center py-12 px-6">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--elan-paper)] to-[var(--elan-paper-2)] flex items-center justify-center mx-auto mb-4">
-                            <Calendar className="w-6 h-6 text-[#899892]" />
+                        <div className="w-14 h-14 rounded-2xl bg-[#e6f0fa] flex items-center justify-center mx-auto mb-4">
+                            <Calendar className="w-6 h-6 text-[#2890F8]" />
                         </div>
                         <p className="text-sm font-medium text-[var(--elan-slate)]">Aucun RDV à venir</p>
                         <p className="text-xs text-[#899892] mt-1 max-w-xs mx-auto">
@@ -368,14 +368,14 @@ export default function ClientPortal() {
                                 <Link
                                     key={m.id}
                                     href="/client/portal/meetings"
-                                    className="flex items-center gap-4 px-6 py-3.5 hover:bg-gradient-to-r hover:from-[#F8F7FF] hover:to-transparent transition-all duration-200 group relative"
+                                    className="flex items-center gap-4 px-6 py-3.5 hover:bg-gradient-to-r hover:from-[#e6f0fa]/40 hover:to-transparent transition-all duration-200 group relative"
                                     style={{ animation: "dashFadeUp 0.35s ease both", animationDelay: `${180 + idx * 50}ms` }}
                                 >
                                     {/* Hover accent bar */}
-                                    <div className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-[var(--elan-amber)] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                                    <div className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-[#2890F8] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
                                     {/* Date pill */}
-                                    <div className="w-[52px] shrink-0 flex flex-col items-center py-1.5 px-1 rounded-lg bg-[var(--elan-paper)] border border-[var(--elan-line)] group-hover:border-[rgba(12,59,56,0.2)] group-hover:bg-indigo-50/50 transition-all duration-200">
+                                    <div className="w-[52px] shrink-0 flex flex-col items-center py-1.5 px-1 rounded-lg bg-[var(--elan-paper)] border border-[var(--elan-line)] group-hover:border-[#2890F8]/30 group-hover:bg-[#e6f0fa]/50 transition-all duration-200">
                                         {d ? (
                                             <>
                                                 <span className="text-[17px] font-extrabold text-[var(--elan-ink)] leading-none">{d.getDate()}</span>
@@ -396,7 +396,7 @@ export default function ClientPortal() {
                                         <div className="flex items-center gap-2 mt-0.5">
                                             {m.callbackDate ? (
                                                 <>
-                                                    <span className="text-[11.5px] text-[var(--elan-petrol)] font-semibold capitalize">{formatMeetingDate(m.callbackDate)}</span>
+                                                    <span className="text-[11.5px] text-[#2890F8] font-semibold capitalize">{formatMeetingDate(m.callbackDate)}</span>
                                                     <span className="text-[10.5px] text-[#899892] font-medium">{formatMeetingTime(m.callbackDate)}</span>
                                                 </>
                                             ) : (
@@ -407,7 +407,7 @@ export default function ClientPortal() {
 
                                     {/* Mission badge */}
                                     <div className="hidden sm:flex items-center gap-1.5 shrink-0">
-                                        <span className="inline-flex text-[10.5px] font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-[2px] rounded-full group-hover:bg-indigo-100/80 transition-colors duration-200">
+                                        <span className="inline-flex text-[10.5px] font-semibold text-[#2890F8] bg-[#e6f0fa] border border-[#2890F8]/20 px-2 py-[2px] rounded-full group-hover:bg-[#d4e8fc] transition-colors duration-200">
                                             {m.campaign?.mission?.name ?? "—"}
                                         </span>
                                         {m.interlocuteur && (
@@ -418,7 +418,7 @@ export default function ClientPortal() {
                                     </div>
 
                                     {/* Arrow */}
-                                    <div className="w-7 h-7 rounded-lg bg-[var(--elan-paper)] flex items-center justify-center shrink-0 group-hover:bg-gradient-to-br group-hover:from-[#ff9e1b] group-hover:to-[#e07c00] transition-all duration-200">
+                                    <div className="w-7 h-7 rounded-lg bg-[var(--elan-paper)] flex items-center justify-center shrink-0 group-hover:bg-[#2890F8] transition-all duration-200">
                                         <ArrowRight className="w-3.5 h-3.5 text-[#899892] group-hover:text-white group-hover:translate-x-0.5 transition-all duration-200" />
                                     </div>
                                 </Link>
@@ -429,7 +429,7 @@ export default function ClientPortal() {
                         <div className="px-6 py-3">
                             <Link
                                 href="/client/portal/meetings"
-                                className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--elan-petrol)] hover:text-[var(--elan-amber-deep)] transition-colors duration-200 group"
+                                className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[#2890F8] hover:text-[#1a75ce] transition-colors duration-200 group"
                             >
                                 Voir tous mes rendez-vous <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
                             </Link>

@@ -498,7 +498,7 @@ export function EmailComposer({
                 {/* Content */}
                 {!isMinimized && !sendSuccess && (
                     <>
-                        {/* Keep the composer controls in view; long messages and signatures scroll here. */}
+                        {/* Scrollable area — From, To, Cc, Bcc, Subject, Toolbar, Editor, Signature, Error, Attachments */}
                         <div className="min-h-0 flex-1 overflow-y-auto email-scrollbar">
                         {/* From */}
                         <div className="px-4 py-2.5 border-b border-slate-100 flex items-center gap-2">
@@ -835,23 +835,10 @@ export function EmailComposer({
                                 </div>
                             </div>
                         )}
+                        </div>{/* end scroll wrapper */}
 
-                        </div>
-
-                        {/* Footer */}
+                        {/* Footer — pinned outside scroll area */}
                         <div className="flex-none px-4 py-2.5 border-t border-slate-100 flex items-center justify-between bg-white rounded-b-xl">
-                            <div className="flex items-center gap-0.5">
-                                <input
-                                    ref={fileInputRef}
-                                    id={fileInputId}
-                                    type="file"
-                                    multiple
-                                    className="sr-only"
-                                    onChange={handleFileSelect}
-                                    accept="*/*"
-                                />
-                                <label
-                                    htmlFor={fileInputId}
                             <div className="flex items-center gap-0.5">
                                 <input
                                     ref={fileInputRef}

@@ -16,11 +16,11 @@ import { DataTable } from "@/components/ui/DataTable";
 import { Modal } from "@/components/ui";
 
 const SDR_COLORS: Record<string, string> = {
-    'Mathieu Deville': '#0c3b38',
+    'Mathieu Deville': '#2890F8',
     'Rayan': '#059669',
-    'Anaïs': '#ff9e1b',
+    'Anaïs': '#5BAEFC',
 };
-const getSdrColor = (name: string) => SDR_COLORS[name] || '#94A3B8';
+const getSdrColor = (name: string) => SDR_COLORS[name] || '#2890F8';
 const analyticsPdfEnabled = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS_PDF === "1";
 
 type AiAnalysis = {
@@ -1044,8 +1044,8 @@ export default function AnalyticsPage() {
                     <div className="h-10 mt-5 -mx-1">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={dailyData}>
-                                <defs><linearGradient id="gPetrol" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#0c3b38" stopOpacity={0.2} /><stop offset="100%" stopColor="#0c3b38" stopOpacity={0} /></linearGradient></defs>
-                                <Area type="monotone" dataKey="calls" stroke="#0c3b38" strokeWidth={2.5} fillOpacity={1} fill="url(#gPetrol)" />
+                                <defs><linearGradient id="gPetrol" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#2890F8" stopOpacity={0.2} /><stop offset="100%" stopColor="#2890F8" stopOpacity={0} /></linearGradient></defs>
+                                <Area type="monotone" dataKey="calls" stroke="#2890F8" strokeWidth={2.5} fillOpacity={1} fill="url(#gPetrol)" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
@@ -1179,14 +1179,14 @@ export default function AnalyticsPage() {
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={dailyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
-                                    <linearGradient id="gV" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#0c3b38" stopOpacity={0.15} /><stop offset="100%" stopColor="#0c3b38" stopOpacity={0} /></linearGradient>
+                                    <linearGradient id="gV" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#2890F8" stopOpacity={0.15} /><stop offset="100%" stopColor="#2890F8" stopOpacity={0} /></linearGradient>
                                 </defs>
                                 <CartesianGrid stroke="#f1f5f9" vertical={false} />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }} dy={10} />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }} />
                                 <RechartsTooltip contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', fontSize: '12px', fontWeight: 600, padding: '10px 14px' }} />
-                                <Area type="monotone" dataKey="calls" stroke="#0c3b38" strokeWidth={2.5} fillOpacity={1} fill="url(#gV)" />
-                                <Area type="monotone" dataKey="meetings" stroke="#F59E0B" strokeWidth={2.5} fillOpacity={0} />
+                                <Area type="monotone" dataKey="calls" stroke="#2890F8" strokeWidth={2.5} fillOpacity={1} fill="url(#gV)" />
+                                <Area type="monotone" dataKey="meetings" stroke="#5BAEFC" strokeWidth={2.5} fillOpacity={0} />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
@@ -1314,10 +1314,10 @@ export default function AnalyticsPage() {
                 </div>
                 <div className="flex items-end gap-1 justify-center">
                     {[
-                        { label: 'Appels', value: funnel?.totalCalls || 0, color: '#0c3b38', bg: 'bg-[#dbe4df]' },
-                        { label: 'Contacts', value: funnel?.contacts || 0, color: '#25745f', bg: 'bg-[#e6ede9]' },
-                        { label: 'Opportunités', value: funnel?.opportunities || 0, color: '#f59e0b', bg: 'bg-amber-50' },
-                        { label: 'RDV', value: funnel?.meetings || 0, color: '#10b981', bg: 'bg-emerald-50' },
+                        { label: 'Appels', value: funnel?.totalCalls || 0, color: '#080808', bg: 'bg-slate-100' },
+                        { label: 'Contacts', value: funnel?.contacts || 0, color: '#1a75ce', bg: 'bg-[#e6f0fa]' },
+                        { label: 'Opportunités', value: funnel?.opportunities || 0, color: '#5baefc', bg: 'bg-[#e6f0fa]' },
+                        { label: 'RDV', value: funnel?.meetings || 0, color: '#2890F8', bg: 'bg-[#e6f0fa]' },
                     ].map((step, i, arr) => {
                         const maxVal = arr[0].value || 1;
                         const widthPct = Math.max(15, (step.value / maxVal) * 100);

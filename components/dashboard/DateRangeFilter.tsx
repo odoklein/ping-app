@@ -226,7 +226,7 @@ export function DateRangeFilter({
                             className={cn(
                                 "w-full text-left px-4 py-2 text-[13px] font-medium transition-colors",
                                 preset === p.key
-                                    ? "bg-[#EEF2FF] text-[#7C5CFC]"
+                                    ? "bg-[#e6f0fa] text-[#2890F8] font-bold"
                                     : "text-[#12122A] hover:bg-[#F4F6F9]"
                             )}
                         >
@@ -247,7 +247,7 @@ export function DateRangeFilter({
                                 placeholder="JJ / MM / AAAA"
                                 value={startInput}
                                 onChange={(e) => setStartInput(e.target.value)}
-                                className="w-full px-3 py-2 text-[13px] text-[#12122A] bg-white border border-[#E8EBF0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/30 focus:border-[#7C5CFC]"
+                                className="w-full px-3 py-2 text-[13px] text-[#12122A] bg-white border border-[#E8EBF0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2890F8]/30 focus:border-[#2890F8]"
                             />
                         </div>
                         <div>
@@ -259,7 +259,7 @@ export function DateRangeFilter({
                                 placeholder="JJ / MM / AAAA"
                                 value={endInput}
                                 onChange={(e) => setEndInput(e.target.value)}
-                                className="w-full px-3 py-2 text-[13px] text-[#12122A] bg-white border border-[#E8EBF0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/30 focus:border-[#7C5CFC]"
+                                className="w-full px-3 py-2 text-[13px] text-[#12122A] bg-white border border-[#E8EBF0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2890F8]/30 focus:border-[#2890F8]"
                             />
                         </div>
                     </div>
@@ -297,7 +297,7 @@ export function DateRangeFilter({
                         <button
                             type="button"
                             onClick={handleApply}
-                            className="px-4 py-2 text-[13px] font-semibold text-white bg-[#7C5CFC] rounded-lg hover:bg-[#6C4CE0] transition-colors shadow-sm"
+                            className="px-4 py-2 text-[13px] font-semibold text-white bg-[#2890F8] rounded-lg hover:bg-[#1a75ce] transition-colors shadow-sm"
                         >
                             Appliquer
                         </button>
@@ -413,10 +413,10 @@ function MonthCalendar({
                                 "min-w-[32px] min-h-[32px] w-8 h-8 flex items-center justify-center text-[13px] font-medium rounded-md transition-colors",
                                 !cell.isCurrent && "text-[#C5C8D4]",
                                 cell.isCurrent && "text-[#12122A] hover:bg-[#F4F6F9]",
-                                isStart && "bg-[#7C5CFC] text-white hover:bg-[#6C4CE0]",
-                                isEnd && "bg-[#7C5CFC] text-white hover:bg-[#6C4CE0]",
-                                inRange && "bg-[#EEF2FF] text-[#7C5CFC]",
-                                isToday && !isStart && !isEnd && !inRange && "ring-1 ring-[#7C5CFC]"
+                                isStart && "bg-[#2890F8] text-white hover:bg-[#1a75ce]",
+                                isEnd && "bg-[#2890F8] text-white hover:bg-[#1a75ce]",
+                                inRange && "bg-[#e6f0fa] text-[#2890F8]",
+                                isToday && !isStart && !isEnd && !inRange && "ring-1 ring-[#2890F8]"
                             )}
                         >
                             {cell.day}

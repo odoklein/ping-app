@@ -353,20 +353,32 @@ export function InboxLayout({
         return (
             <div className={cn(containerHeight, "bg-[#F5F7F6] overflow-hidden flex flex-col", className)}>
                 {standalone && (
-                    <header className="h-14 flex-shrink-0 flex items-center gap-4 px-5 border-b border-slate-100 bg-white/80 backdrop-blur-xl">
-                        <Link href={showTeamInbox ? "/manager/dashboard" : "/sdr"} className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors">
-                            <ArrowLeft className="w-4 h-4" />
-                            <span className="text-sm font-medium">Retour</span>
-                        </Link>
-                        <div className="flex-1 flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-lg bg-[#080808] flex items-center justify-center">
-                                <Image src="/brand/ping-logo-white.png" alt="" width={18} height={18} className="rounded object-contain" />
+                    <header className="h-14 flex-shrink-0 flex items-center justify-between px-6 border-b border-slate-200/80 bg-white/90 backdrop-blur-md z-10">
+                        <div className="flex items-center gap-3">
+                            <Link
+                                href={showTeamInbox ? "/manager/dashboard" : "/sdr"}
+                                className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-slate-100"
+                            >
+                                <ArrowLeft className="w-4 h-4" />
+                                <span>{showTeamInbox ? "Tableau de bord Manager" : "Espace SDR"}</span>
+                            </Link>
+                            <div className="h-4 w-px bg-slate-200" />
+                            <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-md bg-[#080808] flex items-center justify-center shadow-xs">
+                                    <Image src="/brand/ping-logo-white.png" alt="" width={14} height={14} className="rounded object-contain" />
+                                </div>
+                                <span className="font-bold text-slate-800 text-sm">Prospecto Email Hub</span>
                             </div>
-                            <span className="font-semibold text-slate-800 text-[15px]">Email Hub</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/70 px-3 py-1 rounded-full shadow-2xs">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                Assistant Prêt
+                            </span>
                         </div>
                     </header>
                 )}
-                <div className="flex-1 overflow-auto">
+                <div className="flex-1 overflow-auto email-scrollbar">
                     <EmailOnboarding onMailboxConnected={handleMailboxConnected} />
                 </div>
             </div>

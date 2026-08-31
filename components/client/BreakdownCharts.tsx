@@ -126,11 +126,11 @@ export function BreakdownCharts() {
             {/* ── Header ── */}
             <div className="flex flex-wrap items-center justify-between gap-3 px-6 pt-5 pb-4 border-b border-[#E8EBF0]">
                 <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#0c3b38] to-[#114b46] flex items-center justify-center shadow-sm shadow-[rgba(12,59,56,0.2)]">
-                        <BarChart3 className="w-4 h-4 text-[#f4f0e8]" />
+                    <div className="w-8 h-8 rounded-lg bg-[#080808] flex items-center justify-center shadow-sm shadow-black/20">
+                        <BarChart3 className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                        <h2 className="text-sm font-semibold text-[#12122A] uppercase tracking-wider">
+                        <h2 className="text-sm font-semibold text-[#080808] uppercase tracking-wider">
                             Analyse de la prospection
                         </h2>
                         <p className="text-[11px] text-[#8B8DAF] mt-0.5">
@@ -148,7 +148,7 @@ export function BreakdownCharts() {
                             className={cn(
                                 "text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-all duration-150 whitespace-nowrap",
                                 period === key
-                                    ? "bg-white text-[#7C5CFC] shadow-sm"
+                                    ? "bg-white text-[#2890F8] shadow-sm font-bold"
                                     : "text-[#8B8DAF] hover:text-[#4B4D7A]"
                             )}
                         >
@@ -166,11 +166,11 @@ export function BreakdownCharts() {
                             icon: <Phone className="w-3.5 h-3.5" />,
                             value: data?.totalCalls,
                             label: "Appels passés",
-                            from: "from-[#0c3b38]",
-                            to: "to-[#114b46]",
-                            bg: "from-[#dbe4df] to-[#f4f0e8]",
-                            border: "border-[rgba(12,59,56,0.14)]",
-                            text: "text-[#0c3b38]",
+                            from: "from-[#2890F8]",
+                            to: "to-[#1a75ce]",
+                            bg: "from-[#e6f0fa] to-[#d8eafc]",
+                            border: "border-[#2890F8]/20",
+                            text: "text-[#2890F8]",
                         },
                         {
                             icon: <CalendarCheck className="w-3.5 h-3.5" />,
@@ -178,9 +178,9 @@ export function BreakdownCharts() {
                             label: "RDV décrochés",
                             from: "from-[#1a75ce]",
                             to: "to-[#2890F8]",
-                            bg: "from-[#e6f0fa] to-[#d8e8f8]",
-                            border: "border-[rgba(40,144,248,0.2)]",
-                            text: "text-[#1a75ce]",
+                            bg: "from-[#e6f0fa] to-[#d8eafc]",
+                            border: "border-[#2890F8]/25",
+                            text: "text-[#2890F8]",
                         },
                         {
                             icon: <TrendingUp className="w-3.5 h-3.5" />,
@@ -366,8 +366,8 @@ export function BreakdownCharts() {
 
                 {/* ── Footer legend ── */}
                 <p className="text-[10.5px] text-[#B0B3C8] text-center">
-                    La barre <span className="font-semibold text-violet-400">violette</span> représente les RDV décrochés,{" "}
-                    <span className="font-semibold text-indigo-400">indigo</span> les appels sans conversion.
+                    La barre <span className="font-semibold text-[#2890F8]">bleue</span> représente les RDV décrochés,{" "}
+                    <span className="font-semibold text-slate-400">grise</span> les appels sans conversion.
                 </p>
             </div>
         </div>
