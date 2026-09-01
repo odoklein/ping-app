@@ -11,10 +11,13 @@ import {
     validateRequest,
 } from '@/lib/api-utils';
 import { z } from 'zod';
+import { mistralFetch } from '@/lib/ai/mistral';
 
 const projectReportSchema = z.object({
     projectName: z.string().max(200),
     projectDescription: z.string().max(2000).optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
     taskStats: z.object({
         total: z.number(),
         completed: z.number(),
@@ -27,13 +30,8 @@ const projectReportSchema = z.object({
         tasksCount: z.number(),
         completedCount: z.number(),
     })).optional(),
-    recentActivity: z.array(z.string()).max(20).optional(),
-    startDate: z.string().optional(),
-    endDate: z.string().optional(),
+    recentActivity: z.array(z.string()).optional(),
 });
-
-const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-const MISTRAL_MODEL = 'mistral-large-latest';
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
     await requireAuth(request);
@@ -48,7 +46,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     const systemPrompt = `Tu es un chef de projet expert. Génère un rapport de statut professionnel en markdown pour un projet.
 
 Le rapport doit inclure :
-1. **Résumé exécutif** (2-3 phrases)
+1. **Résumé exécutif** (2-3 sentences)
 2. **Progrès** (avancement global, tâches complétées)
 3. **Points d'attention** (retards, tâches en retard, risques)
 4. **Performance de l'équipe** (si données disponibles)
@@ -78,21 +76,13 @@ ${data.teamMembers?.length ? `Équipe :\n${data.teamMembers.map(m => `- ${m.name
 ${data.recentActivity?.length ? `Activité récente :\n${data.recentActivity.map(a => `- ${a}`).join('\n')}` : ''}`;
 
     try {
-        const response = await fetch(MISTRAL_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: MISTRAL_MODEL,
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: userContent },
-                ],
-                temperature: 0.4,
-                max_tokens: 2000,
-            }),
+        const response = await mistralFetch(apiKey, {
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userContent },
+            ],
+            temperature: 0.4,
+            max_tokens: 2000,
         });
 
         if (!response.ok) {

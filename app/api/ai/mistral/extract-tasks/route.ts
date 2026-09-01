@@ -12,15 +12,13 @@ import {
     validateRequest,
 } from '@/lib/api-utils';
 import { z } from 'zod';
+import { mistralFetch } from '@/lib/ai/mistral';
 
 const extractTasksSchema = z.object({
     content: z.string().min(10).max(50000),
     clientName: z.string().max(200).optional(),
     sessionType: z.string().max(100).optional(),
 });
-
-const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-const MISTRAL_MODEL = 'mistral-large-latest';
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
     await requireAuth(request);
@@ -58,7 +56,7 @@ Réponds UNIQUEMENT en JSON valide :
       "label": "Description de la tâche",
       "assigneeRole": "SDR" | "MANAGER" | "DEV" | "ALWAYS",
       "assignee": "Nom de la personne" | null,
-      "priority": "LOW" | "MEDIUM" | "HIGH" | "URGENT"
+      "priority": "URGENT" | "HIGH" | "MEDIUM" | "LOW"
     }
   ],
   "summary": "Brève synthèse des tâches identifiées (1-2 phrases)"
@@ -72,29 +70,20 @@ Contraintes :
 - Maximum 20 tâches`;
 
     try {
-        const response = await fetch(MISTRAL_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: MISTRAL_MODEL,
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    {
-                        role: 'user',
-                        content: `Voici le contenu à analyser :\n\n${content}`,
-                    },
-                ],
-                temperature: 0.3,
-                max_tokens: 4000,
-                response_format: { type: 'json_object' },
-            }),
+        const response = await mistralFetch(apiKey, {
+            messages: [
+                { role: 'system', content: systemPrompt },
+                {
+                    role: 'user',
+                    content: `Voici le contenu à analyser :\n\n${content}`,
+                },
+            ],
+            temperature: 0.3,
+            max_tokens: 4000,
+            response_format: { type: 'json_object' },
         });
 
         if (!response.ok) {
-            const err = await response.json().catch(() => ({}));
             console.error('Mistral extract-tasks error:', err);
             return errorResponse(
                 err.error?.message || 'Erreur Mistral AI',

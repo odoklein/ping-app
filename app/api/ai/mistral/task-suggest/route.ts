@@ -12,6 +12,8 @@ import {
 } from '@/lib/api-utils';
 import { z } from 'zod';
 
+import { mistralFetch } from '@/lib/ai/mistral';
+
 const taskSuggestSchema = z.object({
     projectName: z.string().max(200),
     projectDescription: z.string().max(2000).optional(),
@@ -22,9 +24,6 @@ const taskSuggestSchema = z.object({
     })).max(50).optional(),
     focusArea: z.string().max(500).optional(),
 });
-
-const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-const MISTRAL_MODEL = 'mistral-large-latest';
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
     await requireAuth(request);
@@ -68,25 +67,17 @@ Contraintes :
 - Répondre en français`;
 
     try {
-        const response = await fetch(MISTRAL_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: MISTRAL_MODEL,
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    {
-                        role: 'user',
-                        content: `Projet : ${projectName}\n${projectDescription ? `Description : ${projectDescription}` : ''}${existingContext}`,
-                    },
-                ],
-                temperature: 0.5,
-                max_tokens: 2000,
-                response_format: { type: 'json_object' },
-            }),
+        const response = await mistralFetch(apiKey, {
+            messages: [
+                { role: 'system', content: systemPrompt },
+                {
+                    role: 'user',
+                    content: `Projet : ${projectName}\n${projectDescription ? `Description : ${projectDescription}` : ''}${existingContext}`,
+                },
+            ],
+            temperature: 0.3,
+            max_tokens: 2000,
+            response_format: { type: 'json_object' },
         });
 
         if (!response.ok) {

@@ -202,26 +202,33 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
             });
             const json = await res.json();
             if (json.success) {
-                const script = json.data?.script || json.data?.suggestions || {};
-                const fieldMap: Record<string, keyof CreateMissionInput> = {
-                    intro: "scriptIntro",
-                    discovery: "scriptDiscovery",
-                    objection: "scriptObjection",
-                    closing: "scriptClosing",
-                    all: "scriptIntro",
-                };
+                const script = json.data?.script || {};
+                const suggestions = json.data?.suggestions || {};
+
+                // Helper: get best string value from script (string) or suggestions (string[])
+                const getText = (key: string): string =>
+                    (typeof script[key] === 'string' && script[key]) ||
+                    (Array.isArray(suggestions[key]) && suggestions[key][0]) ||
+                    '';
+
                 if (section === "all") {
                     setForm(prev => ({
                         ...prev,
-                        scriptIntro: (script.intro?.[0] ?? script.intro) || prev.scriptIntro,
-                        scriptDiscovery: (script.discovery?.[0] ?? script.discovery) || prev.scriptDiscovery,
-                        scriptObjection: (script.objection?.[0] ?? script.objection) || prev.scriptObjection,
-                        scriptClosing: (script.closing?.[0] ?? script.closing) || prev.scriptClosing,
+                        scriptIntro: getText('intro') || prev.scriptIntro,
+                        scriptDiscovery: getText('discovery') || prev.scriptDiscovery,
+                        scriptObjection: getText('objection') || prev.scriptObjection,
+                        scriptClosing: getText('closing') || prev.scriptClosing,
                     }));
                     success("IA Suzalink", "Script complet généré avec succès !");
                 } else {
-                    const val = (script[section]?.[0] ?? script[section]) || "";
+                    const val = getText(section);
                     if (val) {
+                        const fieldMap: Record<string, keyof CreateMissionInput> = {
+                            intro: "scriptIntro",
+                            discovery: "scriptDiscovery",
+                            objection: "scriptObjection",
+                            closing: "scriptClosing",
+                        };
                         setForm(prev => ({ ...prev, [fieldMap[section]]: val }));
                         success("IA Suzalink", "Section argumentaire mise à jour !");
                     }

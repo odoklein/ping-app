@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { errorResponse, requireAuth, successResponse, validateRequest, withErrorHandler } from "@/lib/api-utils";
+import { mistralFetch } from "@/lib/ai/mistral";
 
 const requestSchema = z.object({
     kind: z.enum(["TASK", "PROJECT", "SUBTASK"]),
@@ -50,19 +51,14 @@ Si le texte fourni contient une liste de tâches, tu DOIS la répartir dans task
 Réponds en français. Les children doivent éviter les doublons avec les éléments existants.`;
 
     try {
-        const response = await fetch(MISTRAL_API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-            body: JSON.stringify({
-                model: "mistral-large-latest",
-                messages: [
-                    { role: "system", content: systemPrompt },
-                    { role: "user", content: `À organiser (${input.kind}) : ${input.title}\n${input.description ? `Description : ${input.description}` : ""}` },
-                ],
-                temperature: 0.3,
-                max_tokens: isProject ? 6000 : 2000,
-                response_format: { type: "json_object" },
-            }),
+        const response = await mistralFetch(apiKey, {
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: `À organiser (${input.kind}) : ${input.title}\n${input.description ? `Description : ${input.description}` : ""}` },
+            ],
+            temperature: 0.3,
+            max_tokens: isProject ? 6000 : 2000,
+            response_format: { type: "json_object" },
         });
         if (!response.ok) {
             const details = await response.json().catch(() => ({}));

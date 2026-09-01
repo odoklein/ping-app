@@ -13,6 +13,7 @@ import { actionService } from '@/lib/services/ActionService';
 import { statusConfigService } from '@/lib/services/StatusConfigService';
 import { enrichActionFromCallProvider } from '@/lib/call-enrichment/enrich-action';
 import { z } from 'zod';
+import { mistralFetch } from '@/lib/ai/mistral';
 
 // ============================================
 // SCHEMAS
@@ -83,15 +84,8 @@ Contraintes :
 - Maximum 500 caractères.
 - Style : note interne de compte-rendu d'échange, pas un message adressé au prospect.`;
 
- try {
- const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
- method: 'POST',
- headers: {
- 'Content-Type': 'application/json',
- 'Authorization': `Bearer ${apiKey}`,
- },
- body: JSON.stringify({
- model: 'mistral-large-latest',
+  try {
+ const response = await mistralFetch(apiKey, {
  messages: [
  { role: 'system', content: systemPrompt },
  {
@@ -103,7 +97,6 @@ Contraintes :
  ],
  temperature: 0.3,
  max_tokens: 400,
- }),
  });
 
  if (!response.ok) {

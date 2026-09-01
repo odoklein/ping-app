@@ -13,12 +13,11 @@ import {
 } from "@/lib/api-utils";
 import { z } from "zod";
 
+import { mistralFetch } from "@/lib/ai/mistral";
+
 const schema = z.object({
   transcription: z.string().min(20, "Transcription requise").max(120_000, "Transcription trop longue"),
 });
-
-const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
-const MISTRAL_MODEL = "mistral-large-latest";
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
   await requireRole(["MANAGER"], request);
@@ -50,22 +49,14 @@ ${transcription.trim()}
 
 Extrais les sections demandées. Si une section est absente, mets une chaîne vide.`;
 
-  const response = await fetch(MISTRAL_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: MISTRAL_MODEL,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      temperature: 0.2,
-      max_tokens: 1200,
-      response_format: { type: "json_object" },
-    }),
+  const response = await mistralFetch(apiKey, {
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ],
+    temperature: 0.2,
+    max_tokens: 2000,
+    response_format: { type: "json_object" },
   });
 
   if (!response.ok) {

@@ -7,6 +7,7 @@ import {
     validateRequest,
 } from '@/lib/api-utils';
 import { z } from 'zod';
+import { mistralFetch } from '@/lib/ai/mistral';
 
 // ============================================
 // SCHEMAS
@@ -36,7 +37,6 @@ const analyzeClientSchema = z.object({
 // ============================================
 
 const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-const MISTRAL_MODEL = 'mistral-large-latest';
 
 // ============================================
 // System prompts for different analysis types
@@ -190,22 +190,14 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     const userPrompt = buildUserPrompt(data);
 
     try {
-        const response = await fetch(MISTRAL_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: MISTRAL_MODEL,
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: userPrompt },
-                ],
-                temperature: 0.7,
-                max_tokens: 3000,
-                response_format: { type: 'json_object' },
-            }),
+        const response = await mistralFetch(apiKey, {
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userPrompt },
+            ],
+            temperature: 0.7,
+            max_tokens: 3000,
+            response_format: { type: 'json_object' },
         });
 
         if (!response.ok) {

@@ -12,12 +12,11 @@ import {
 } from '@/lib/api-utils';
 import { z } from 'zod';
 
+import { mistralFetch } from '@/lib/ai/mistral';
+
 const emailRecapSchema = z.object({
     emailBodyText: z.string().min(1, 'Corps de l\'email requis'),
 });
-
-const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-const MISTRAL_MODEL = 'mistral-large-latest';
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
     await requireAuth(request);
@@ -32,21 +31,13 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     const systemPrompt = `Tu es un assistant qui résume des emails. Pour le texte d'email fourni, rédige un résumé très court en français : 2 à 3 phrases maximum. Indique le sujet principal, la demande ou l'intention. Réponds UNIQUEMENT en texte brut, sans JSON ni formatage.`;
 
     try {
-        const response = await fetch(MISTRAL_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: MISTRAL_MODEL,
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: emailBodyText.slice(0, 15000) },
-                ],
-                temperature: 0.3,
-                max_tokens: 300,
-            }),
+        const response = await mistralFetch(apiKey, {
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: emailBodyText.slice(0, 15000) },
+            ],
+            temperature: 0.3,
+            max_tokens: 300,
         });
 
         if (!response.ok) {

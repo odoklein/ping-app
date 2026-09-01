@@ -8,6 +8,7 @@ import {
 } from '@/lib/api-utils';
 import { z } from 'zod';
 import { geminiGenerate } from '@/lib/ai/gemini';
+import { mistralFetch } from '@/lib/ai/mistral';
 
 // ============================================
 // SCHEMAS
@@ -166,26 +167,17 @@ async function callGeminiScript(data: z.infer<typeof generateScriptSchema>) {
 // ============================================
 
 const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-const MISTRAL_MODEL = 'mistral-large-latest';
 
 async function callMistralScript(data: z.infer<typeof generateScriptSchema>) {
     const apiKey = process.env.MISTRAL_API_KEY!;
-    const response = await fetch(MISTRAL_API_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-            model: MISTRAL_MODEL,
-            messages: [
-                { role: 'system', content: buildSystemPrompt(data.channel) },
-                { role: 'user', content: buildUserPrompt(data.channel, data.clientName, data.icp, data.pitch, data.section, data.context, data.missionName, data.campaignName, data.campaignDescription, data.suggestionsCount) },
-            ],
-            temperature: 0.7,
-            max_tokens: 2000,
-            response_format: { type: 'json_object' },
-        }),
+    const response = await mistralFetch(apiKey, {
+        messages: [
+            { role: 'system', content: buildSystemPrompt(data.channel) },
+            { role: 'user', content: buildUserPrompt(data.channel, data.clientName, data.icp, data.pitch, data.section, data.context, data.missionName, data.campaignName, data.campaignDescription, data.suggestionsCount) },
+        ],
+        temperature: 0.7,
+        max_tokens: 2000,
+        response_format: { type: 'json_object' },
     });
 
     if (!response.ok) {

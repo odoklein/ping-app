@@ -7,6 +7,7 @@ import {
     validateRequest,
 } from '@/lib/api-utils';
 import { z } from 'zod';
+import { mistralFetch } from '@/lib/ai/mistral';
 
 // ============================================
 // SCHEMAS
@@ -24,13 +25,6 @@ const generateScriptSchema = z.object({
     section: z.enum(['intro', 'discovery', 'objection', 'closing', 'all']).optional().default('all'),
     suggestionsCount: z.number().int().min(1).max(5).optional().default(3),
 });
-
-// ============================================
-// Mistral API Configuration
-// ============================================
-
-const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-const MISTRAL_MODEL = 'mistral-large-latest';
 
 // ============================================
 // Helper: Build prompt based on section
@@ -164,22 +158,14 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     );
     
     try {
-        const response = await fetch(MISTRAL_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: MISTRAL_MODEL,
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: userPrompt },
-                ],
-                temperature: 0.7,
-                max_tokens: 2000,
-                response_format: { type: 'json_object' },
-            }),
+        const response = await mistralFetch(apiKey, {
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userPrompt },
+            ],
+            temperature: 0.7,
+            max_tokens: 2000,
+            response_format: { type: 'json_object' },
         });
         
         if (!response.ok) {

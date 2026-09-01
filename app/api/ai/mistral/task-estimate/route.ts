@@ -12,6 +12,8 @@ import {
 } from '@/lib/api-utils';
 import { z } from 'zod';
 
+import { mistralFetch } from '@/lib/ai/mistral';
+
 const taskEstimateSchema = z.object({
     title: z.string().max(200),
     description: z.string().max(2000).optional(),
@@ -22,9 +24,6 @@ const taskEstimateSchema = z.object({
         actualHours: z.number().optional(),
     })).max(10).optional(),
 });
-
-const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-const MISTRAL_MODEL = 'mistral-large-latest';
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
     await requireAuth(request);
@@ -66,25 +65,17 @@ Contraintes :
 - Répondre en français`;
 
     try {
-        const response = await fetch(MISTRAL_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: MISTRAL_MODEL,
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    {
-                        role: 'user',
-                        content: `Tâche à estimer :\nTitre : ${title.trim()}\n${description ? `Description : ${description.trim()}` : ''}`,
-                    },
-                ],
-                temperature: 0.3,
-                max_tokens: 800,
-                response_format: { type: 'json_object' },
-            }),
+        const response = await mistralFetch(apiKey, {
+            messages: [
+                { role: 'system', content: systemPrompt },
+                {
+                    role: 'user',
+                    content: `Titre : ${title.trim()}\n${description ? `Description : ${description.trim()}` : ''}`,
+                },
+            ],
+            temperature: 0.3,
+            max_tokens: 1500,
+            response_format: { type: 'json_object' },
         });
 
         if (!response.ok) {

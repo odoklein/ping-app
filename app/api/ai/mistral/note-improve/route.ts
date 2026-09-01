@@ -11,6 +11,7 @@ import {
     validateRequest,
 } from '@/lib/api-utils';
 import { z } from 'zod';
+import { mistralFetch } from '@/lib/ai/mistral';
 
 const noteImproveSchema = z.object({
     text: z.string().max(500, 'Note trop longue'),
@@ -18,9 +19,6 @@ const noteImproveSchema = z.object({
     resultCode: z.string().optional(),
     resultLabel: z.string().optional(),
 });
-
-const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-const MISTRAL_MODEL = 'mistral-large-latest';
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
     await requireAuth(request);
@@ -57,26 +55,18 @@ Contraintes :
 - Style : note interne de compte-rendu d'échange, pas un message adressé au prospect.`;
 
     try {
-        const response = await fetch(MISTRAL_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: MISTRAL_MODEL,
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    {
-                        role: 'user',
-                        content:
-                            `Voici la note brute à améliorer (ne change pas le fond, seulement la forme) :\n\n` +
-                            text.trim(),
-                    },
-                ],
-                temperature: 0.3,
-                max_tokens: 400,
-            }),
+        const response = await mistralFetch(apiKey, {
+            messages: [
+                { role: 'system', content: systemPrompt },
+                {
+                    role: 'user',
+                    content:
+                        `Voici la note brute à améliorer (ne change pas le fond, seulement la forme) :\n\n` +
+                        text.trim(),
+                },
+            ],
+            temperature: 0.3,
+            max_tokens: 500,
         });
 
         if (!response.ok) {

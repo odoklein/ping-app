@@ -4,6 +4,7 @@
 // ============================================
 
 import { prisma } from "@/lib/prisma";
+import { mistralFetch } from "@/lib/ai/mistral";
 
 // ============================================
 // TYPES
@@ -233,7 +234,6 @@ function generateExtractriveSummary(
 // ============================================
 
 const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
-const MISTRAL_MODEL = "mistral-large-latest";
 
 /**
  * Generate reply suggestions based on thread context.
@@ -307,24 +307,16 @@ ${conversation.slice(0, 6000)}
 Réponds UNIQUEMENT avec un JSON valide, tableau d'objets avec "content" (texte de la suggestion) et "type" ("quick_reply", "follow_up" ou "clarification"):
 [{"content": "...", "type": "quick_reply"}, ...]`;
 
-    const response = await fetch(MISTRAL_API_URL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-            model: MISTRAL_MODEL,
-            messages: [
-                {
-                    role: "system",
-                    content: "Tu es un assistant qui propose des réponses courtes et professionnelles pour des messages internes. Réponds uniquement en JSON valide (tableau d'objets).",
-                },
-                { role: "user", content: prompt },
-            ],
-            temperature: 0.6,
-            max_tokens: 400,
-        }),
+    const response = await mistralFetch(apiKey, {
+        messages: [
+            {
+                role: "system",
+                content: "Tu es un assistant qui propose des réponses courtes et professionnelles pour des messages internes. Réponds uniquement en JSON valide (tableau d'objets).",
+            },
+            { role: "user", content: prompt },
+        ],
+        temperature: 0.6,
+        max_tokens: 400,
     });
 
     if (!response.ok) {

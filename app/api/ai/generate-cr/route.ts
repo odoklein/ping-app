@@ -16,12 +16,11 @@ import { z } from 'zod';
 // Returns: { success: true, data: { text: string } }
 // ============================================
 
+import { mistralFetch } from '@/lib/ai/mistral';
+
 const schema = z.object({
   prompt: z.string().min(10, 'Prompt requis'),
 });
-
-const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-const MISTRAL_MODEL = 'mistral-large-latest';
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
   await requireRole(['MANAGER', 'BUSINESS_DEVELOPER'], request);
@@ -33,18 +32,10 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
 
   const { prompt } = await validateRequest(request, schema);
 
-  const response = await fetch(MISTRAL_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: MISTRAL_MODEL,
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.4,
-      max_tokens: 4096,
-    }),
+  const response = await mistralFetch(apiKey, {
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.4,
+    max_tokens: 4096,
   });
 
   if (!response.ok) {

@@ -4,9 +4,9 @@
 // ============================================
 
 import { type Playbook, normalizePlaybook } from './leexi-types';
+import { mistralFetch } from '@/lib/ai/mistral';
 
 const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-const MODEL = 'mistral-large-latest';
 const MAX_INPUT_CHARS = 80_000;
 
 const SYSTEM_PROMPT = `You are a B2B sales strategist specialized in French outbound prospecting agencies.
@@ -92,22 +92,14 @@ export async function generateSalesPlaybookFromRecap(
     throw new Error('Le récapitulatif est trop court pour être analysé');
   }
 
-  const response = await fetch(MISTRAL_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: buildUserPrompt(recapText) },
-      ],
-      temperature: 0.3,
-      max_tokens: 6000,
-      response_format: { type: 'json_object' },
-    }),
+  const response = await mistralFetch(apiKey, {
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: buildUserPrompt(recapText) },
+    ],
+    temperature: 0.3,
+    max_tokens: 6000,
+    response_format: { type: 'json_object' },
   });
 
   if (!response.ok) {

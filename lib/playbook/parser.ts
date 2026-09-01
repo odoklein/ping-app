@@ -5,9 +5,9 @@
 // ============================================
 
 import type { ParsedPlaybook } from './types';
+import { mistralFetch } from '@/lib/ai/mistral';
 
 const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-const MISTRAL_MODEL = 'mistral-large-latest';
 const MAX_INPUT_CHARS = 120000; // ~30k tokens safety
 
 function getMistralKey(): string | undefined {
@@ -83,22 +83,14 @@ export async function parsePlaybook(content: string): Promise<ParsedPlaybook> {
   const truncated = truncateContent(content);
   const userPrompt = `Extrais les données du playbook suivant:\n\n${truncated}`;
 
-  const response = await fetch(MISTRAL_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: MISTRAL_MODEL,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: userPrompt },
-      ],
-      temperature: 0.2,
-      max_tokens: 4000,
-      response_format: { type: 'json_object' },
-    }),
+  const response = await mistralFetch(apiKey, {
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: userPrompt },
+    ],
+    temperature: 0.2,
+    max_tokens: 4000,
+    response_format: { type: 'json_object' },
   });
 
   if (!response.ok) {

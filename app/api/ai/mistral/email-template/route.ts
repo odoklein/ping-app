@@ -13,6 +13,8 @@ import {
 } from '@/lib/api-utils';
 import { z } from 'zod';
 
+import { mistralFetch } from '@/lib/ai/mistral';
+
 const schema = z.object({
     instruction: z.string().min(1, 'Instruction requise'),
     subject: z.string().optional(),
@@ -23,9 +25,6 @@ const schema = z.object({
     pitch: z.string().optional(),
     currentBody: z.string().optional(),
 });
-
-const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-const MISTRAL_MODEL = 'mistral-large-latest';
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
     await requireAuth(request);
@@ -58,8 +57,7 @@ Réponds UNIQUEMENT avec le HTML du corps de l'email (sans <html>, <head>, <body
     if (data.icp) contextParts.push(`ICP : ${data.icp}`);
     if (data.pitch) contextParts.push(`Proposition de valeur : ${data.pitch}`);
     if (data.category) contextParts.push(`Catégorie : ${data.category}`);
-    if (data.subject) contextParts.push(`Objet : ${data.subject}`);
-    if (data.currentBody) contextParts.push(`\nEmail actuel à améliorer :\n${data.currentBody}`);
+    if (data.currentBody) contextParts.push(`HTML actuel à modifier :\n${data.currentBody}`);
 
     const userContent = [
         contextParts.join('\n'),
@@ -67,21 +65,13 @@ Réponds UNIQUEMENT avec le HTML du corps de l'email (sans <html>, <head>, <body
     ].join('\n');
 
     try {
-        const response = await fetch(MISTRAL_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: MISTRAL_MODEL,
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: userContent },
-                ],
-                temperature: 0.6,
-                max_tokens: 2500,
-            }),
+        const response = await mistralFetch(apiKey, {
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userContent },
+            ],
+            temperature: 0.6,
+            max_tokens: 2500,
         });
 
         if (!response.ok) {

@@ -3,6 +3,7 @@ import { callProvider } from "./provider";
 import { acquireAlloSlot } from "./allo-semaphore";
 import { parsePhoneNumber, isValidPhoneNumber } from "libphonenumber-js";
 import { DateTime } from "luxon";
+import { mistralFetch } from "@/lib/ai/mistral";
 
 const DEFAULT_COUNTRY = (process.env.PHONE_DEFAULT_COUNTRY ?? "FR") as Parameters<typeof isValidPhoneNumber>[1];
 const ENRICHMENT_DAY_TZ = process.env.CALL_ENRICHMENT_DAY_TZ ?? "Europe/Paris";
@@ -71,26 +72,20 @@ async function generateFicheFromTranscription(transcription: string): Promise<Re
   const apiKey = process.env.MISTRAL_API_KEY;
   if (!apiKey || !transcription.trim()) return null;
   try {
-    const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model: "mistral-large-latest",
-        messages: [
-          {
-            role: "system",
-            content: `Tu es un assistant de compte-rendu commercial (CRM CaptainProspect).\n\nTa tâche: à partir d'une transcription d'échange (appel / RDV), extraire et structurer les informations dans une "fiche RDV".\n\nRetourne UNIQUEMENT un JSON valide avec EXACTEMENT ces clés (toutes présentes, même si vides):\n- "contexte"\n- "besoinsProblemes"\n- "solutionsEnPlace"\n- "objectionsFreins"\n- "notesImportantes"\n\nContraintes:\n- Écris en français.\n- Pas de blabla, pas de Markdown, pas de texte hors JSON.\n- Chaque champ doit être une chaîne de caractères (string).`,
-          },
-          {
-            role: "user",
-            content: `Transcription (source brute) :\n\n${transcription.trim()}\n\nExtrais les sections demandées. Si une section est absente, mets une chaîne vide.`,
-          },
-        ],
-        temperature: 0.2,
-        max_tokens: 1200,
-        response_format: { type: "json_object" },
-      }),
-      signal: AbortSignal.timeout(30_000),
+    const res = await mistralFetch(apiKey, {
+      messages: [
+        {
+          role: "system",
+          content: `Tu es un assistant de compte-rendu commercial (CRM CaptainProspect).\n\nTa tâche: à partir d'une transcription d'échange (appel / RDV), extraire et structurer les informations dans une "fiche RDV".\n\nRetourne UNIQUEMENT un JSON valide avec EXACTEMENT ces clés (toutes présentes, même si vides):\n- "contexte"\n- "besoinsProblemes"\n- "solutionsEnPlace"\n- "objectionsFreins"\n- "notesImportantes"\n\nContraintes:\n- Écris en français.\n- Pas de blabla, pas de Markdown, pas de texte hors JSON.\n- Chaque champ doit être une chaîne de caractères (string).`,
+        },
+        {
+          role: "user",
+          content: `Transcription (source brute) :\n\n${transcription.trim()}\n\nExtrais les sections demandées. Si une section est absente, mets une chaîne vide.`,
+        },
+      ],
+      temperature: 0.2,
+      max_tokens: 1200,
+      response_format: { type: "json_object" },
     });
     if (!res.ok) return null;
     const data = await res.json();

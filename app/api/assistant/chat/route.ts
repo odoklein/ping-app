@@ -17,6 +17,7 @@ import {
 } from "@/lib/assistant/context";
 import { openaiChatComplete } from "@/lib/ai/openai";
 import { geminiGenerate } from "@/lib/ai/gemini";
+import { mistralFetch, getMistralModel } from "@/lib/ai/mistral";
 import { prisma } from "@/lib/prisma";
 import {
     buildMemoryContextSnippet,
@@ -93,18 +94,10 @@ async function callMistralFallback(
         throw new Error("Mistral fallback unavailable (missing MISTRAL_API_KEY)");
     }
 
-    const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-            model: "mistral-large-latest",
-            messages: [{ role: "system", content: systemPrompt }, ...messages],
-            temperature,
-            max_tokens: 1200,
-        }),
+    const response = await mistralFetch(apiKey, {
+        messages: [{ role: "system", content: systemPrompt }, ...messages],
+        temperature,
+        max_tokens: 1200,
     });
 
     if (!response.ok) {
@@ -258,7 +251,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
             answer = mistral.answer;
             provider = mistral.provider;
             usage = mistral.usage;
-            model = "mistral-large-latest";
+            model = getMistralModel();
 
             console.info("[assistant.chat]", {
                 provider,

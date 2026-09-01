@@ -8,6 +8,7 @@ import {
 } from '@/lib/api-utils';
 import { z } from 'zod';
 import { geminiGenerate } from '@/lib/ai/gemini';
+import { mistralFetch } from '@/lib/ai/mistral';
 
 // ============================================
 // SCHEMAS
@@ -184,27 +185,16 @@ async function callGemini(data: z.infer<typeof analyzeClientSchema>) {
 // MISTRAL (fallback)
 // ============================================
 
-const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-const MISTRAL_MODEL = 'mistral-large-latest';
-
 async function callMistral(data: z.infer<typeof analyzeClientSchema>) {
     const apiKey = process.env.MISTRAL_API_KEY!;
-    const response = await fetch(MISTRAL_API_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-            model: MISTRAL_MODEL,
-            messages: [
-                { role: 'system', content: buildSystemPrompt() },
-                { role: 'user', content: buildUserPrompt(data) },
-            ],
-            temperature: 0.7,
-            max_tokens: 3000,
-            response_format: { type: 'json_object' },
-        }),
+    const response = await mistralFetch(apiKey, {
+        messages: [
+            { role: 'system', content: buildSystemPrompt() },
+            { role: 'user', content: buildUserPrompt(data) },
+        ],
+        temperature: 0.7,
+        max_tokens: 3000,
+        response_format: { type: 'json_object' },
     });
 
     if (!response.ok) {
