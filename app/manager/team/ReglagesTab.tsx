@@ -29,7 +29,11 @@ interface User {
     email: string;
     role: string;
     isActive: boolean;
+    voipProvider?: string | null;
     alloPhoneNumber?: string | null;
+    onoffNumber?: string | null;
+    onoffUserId?: string | null;
+    ringoverNumber?: string | null;
     createdAt: string;
     lastSignInAt?: string | null;
     lastSignInIp?: string | null;
@@ -112,7 +116,11 @@ export function ReglagesTab() {
         password: "",
         role: "SDR",
         clientId: "",
+        voipProvider: "ALLO",
         alloPhoneNumber: "",
+        onoffNumber: "",
+        onoffUserId: "",
+        ringoverNumber: "",
         sdrFeedbackPromptTime: "15:45",
         sdrFeedbackRequiredDaily: true,
     });
@@ -222,7 +230,11 @@ export function ReglagesTab() {
                 email: formData.email,
                 password: formData.password || undefined,
                 role: formData.role,
+                voipProvider: formData.voipProvider,
                 alloPhoneNumber: formData.alloPhoneNumber.trim() || undefined,
+                onoffNumber: formData.onoffNumber.trim() || undefined,
+                onoffUserId: formData.onoffUserId.trim() || undefined,
+                ringoverNumber: formData.ringoverNumber.trim() || undefined,
             };
             if (formData.role === "CLIENT" && formData.clientId) {
                 payload.clientId = formData.clientId;
@@ -268,7 +280,11 @@ export function ReglagesTab() {
                 name: formData.name,
                 email: formData.email,
                 role: formData.role,
+                voipProvider: formData.voipProvider,
                 alloPhoneNumber: formData.alloPhoneNumber.trim() || null,
+                onoffNumber: formData.onoffNumber.trim() || null,
+                onoffUserId: formData.onoffUserId.trim() || null,
+                ringoverNumber: formData.ringoverNumber.trim() || null,
             };
             if (formData.role === "SDR") {
                 updateData.preferences = {
@@ -401,7 +417,11 @@ export function ReglagesTab() {
             password: "",
             role: "SDR",
             clientId: "",
+            voipProvider: "ALLO",
             alloPhoneNumber: "",
+            onoffNumber: "",
+            onoffUserId: "",
+            ringoverNumber: "",
             sdrFeedbackPromptTime: "15:45",
             sdrFeedbackRequiredDaily: true,
         });
@@ -417,7 +437,11 @@ export function ReglagesTab() {
             password: "",
             role: user.role,
             clientId: user.client?.id ?? "",
+            voipProvider: user.voipProvider ?? "ALLO",
             alloPhoneNumber: user.alloPhoneNumber ?? "",
+            onoffNumber: user.onoffNumber ?? "",
+            onoffUserId: user.onoffUserId ?? "",
+            ringoverNumber: user.ringoverNumber ?? "",
             sdrFeedbackPromptTime: user.preferences?.sdrFeedback?.promptTime ?? "15:45",
             sdrFeedbackRequiredDaily: user.preferences?.sdrFeedback?.requiredDaily ?? true,
         });
@@ -785,17 +809,73 @@ export function ReglagesTab() {
                         />
                         {formErrors.email && <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>}
                     </div>
-                    <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-slate-700">
-                            Numéro Allo <span className="text-slate-400 font-normal">(optionnel)</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.alloPhoneNumber}
-                            onChange={(e) => setFormData({ ...formData, alloPhoneNumber: e.target.value })}
-                            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm transition-all duration-200 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-                            placeholder="+33612345678"
-                        />
+                    {/* VoIP / Telephony System Selector */}
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-3">
+                        <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Système Téléphonie / VoIP</p>
+                        <div>
+                            <label className="block text-xs font-medium text-slate-600 mb-1">Fournisseur VoIP</label>
+                            <select
+                                value={formData.voipProvider}
+                                onChange={(e) => setFormData({ ...formData, voipProvider: e.target.value })}
+                                className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                            >
+                                <option value="ALLO">WithAllo (Allo)</option>
+                                <option value="ONOFF">Onoff Business</option>
+                                <option value="RINGOVER">Ringover</option>
+                                <option value="NONE">Aucun / Manuel</option>
+                            </select>
+                        </div>
+
+                        {formData.voipProvider === "ALLO" && (
+                            <div>
+                                <label className="block text-xs font-medium text-slate-600 mb-1">Numéro Allo (optionnel)</label>
+                                <input
+                                    type="text"
+                                    value={formData.alloPhoneNumber}
+                                    onChange={(e) => setFormData({ ...formData, alloPhoneNumber: e.target.value })}
+                                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                                    placeholder="+33612345678"
+                                />
+                            </div>
+                        )}
+
+                        {formData.voipProvider === "ONOFF" && (
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Numéro Onoff</label>
+                                    <input
+                                        type="text"
+                                        value={formData.onoffNumber}
+                                        onChange={(e) => setFormData({ ...formData, onoffNumber: e.target.value })}
+                                        className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                                        placeholder="+33612345678"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">ID Membre Onoff</label>
+                                    <input
+                                        type="text"
+                                        value={formData.onoffUserId}
+                                        onChange={(e) => setFormData({ ...formData, onoffUserId: e.target.value })}
+                                        className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                                        placeholder="user_12345"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {formData.voipProvider === "RINGOVER" && (
+                            <div>
+                                <label className="block text-xs font-medium text-slate-600 mb-1">Numéro Ringover</label>
+                                <input
+                                    type="text"
+                                    value={formData.ringoverNumber}
+                                    onChange={(e) => setFormData({ ...formData, ringoverNumber: e.target.value })}
+                                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                                    placeholder="+33123456789"
+                                />
+                            </div>
+                        )}
                     </div>
                     <div className="space-y-1.5">
                         <label className="block text-sm font-medium text-slate-700">
@@ -992,17 +1072,73 @@ export function ReglagesTab() {
                             className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm transition-all duration-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                         />
                     </div>
-                    <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-slate-700">
-                            Numéro Allo <span className="text-slate-400 font-normal">(optionnel)</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.alloPhoneNumber}
-                            onChange={(e) => setFormData({ ...formData, alloPhoneNumber: e.target.value })}
-                            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm transition-all duration-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-                            placeholder="+33612345678"
-                        />
+                    {/* VoIP / Telephony System Selector */}
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-3">
+                        <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Système Téléphonie / VoIP</p>
+                        <div>
+                            <label className="block text-xs font-medium text-slate-600 mb-1">Fournisseur VoIP</label>
+                            <select
+                                value={formData.voipProvider}
+                                onChange={(e) => setFormData({ ...formData, voipProvider: e.target.value })}
+                                className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                            >
+                                <option value="ALLO">WithAllo (Allo)</option>
+                                <option value="ONOFF">Onoff Business</option>
+                                <option value="RINGOVER">Ringover</option>
+                                <option value="NONE">Aucun / Manuel</option>
+                            </select>
+                        </div>
+
+                        {formData.voipProvider === "ALLO" && (
+                            <div>
+                                <label className="block text-xs font-medium text-slate-600 mb-1">Numéro Allo (optionnel)</label>
+                                <input
+                                    type="text"
+                                    value={formData.alloPhoneNumber}
+                                    onChange={(e) => setFormData({ ...formData, alloPhoneNumber: e.target.value })}
+                                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                                    placeholder="+33612345678"
+                                />
+                            </div>
+                        )}
+
+                        {formData.voipProvider === "ONOFF" && (
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Numéro Onoff</label>
+                                    <input
+                                        type="text"
+                                        value={formData.onoffNumber}
+                                        onChange={(e) => setFormData({ ...formData, onoffNumber: e.target.value })}
+                                        className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                                        placeholder="+33612345678"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">ID Membre Onoff</label>
+                                    <input
+                                        type="text"
+                                        value={formData.onoffUserId}
+                                        onChange={(e) => setFormData({ ...formData, onoffUserId: e.target.value })}
+                                        className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                                        placeholder="user_12345"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {formData.voipProvider === "RINGOVER" && (
+                            <div>
+                                <label className="block text-xs font-medium text-slate-600 mb-1">Numéro Ringover</label>
+                                <input
+                                    type="text"
+                                    value={formData.ringoverNumber}
+                                    onChange={(e) => setFormData({ ...formData, ringoverNumber: e.target.value })}
+                                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                                    placeholder="+33123456789"
+                                />
+                            </div>
+                        )}
                     </div>
                     <div className="space-y-1.5">
                         <label className="block text-sm font-medium text-slate-700">

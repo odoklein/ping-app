@@ -21,7 +21,11 @@ interface User {
     email: string;
     role: string;
     isActive: boolean;
+    voipProvider?: string | null;
     alloPhoneNumber?: string | null;
+    onoffNumber?: string | null;
+    onoffUserId?: string | null;
+    ringoverNumber?: string | null;
     createdAt: string;
     lastSignInAt?: string | null;
     lastSignInIp?: string | null;
@@ -62,31 +66,26 @@ const ROLE_AVATAR_GRADIENTS: Record<string, string> = {
 };
 
 // ============================================
-// UTILITIES
+// HELPERS
 // ============================================
 
 function getInitials(name: string) {
     return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
-function timeAgo(iso: string | null | undefined): string {
-    if (!iso) return "Non renseigné";
-    const d = new Date(iso);
-    const diffMs = Date.now() - d.getTime();
-    const mins = Math.floor(diffMs / 60000);
-    const hours = Math.floor(diffMs / 3600000);
-    const days = Math.floor(diffMs / 86400000);
-    if (mins < 1) return "À l'instant";
-    if (mins < 60) return `Il y a ${mins} min`;
-    if (hours < 24) return `Il y a ${hours}h`;
-    if (days < 7) return `Il y a ${days}j`;
-    return d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+function timeAgo(dateStr?: string | null) {
+    if (!dateStr) return "Jamais";
+    const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
+    if (diff < 60) return "À l'instant";
+    if (diff < 3600) return `Il y a ${Math.floor(diff / 60)} min`;
+    if (diff < 86400) return `Il y a ${Math.floor(diff / 3600)} h`;
+    if (diff < 86400 * 30) return `Il y a ${Math.floor(diff / 86400)} j`;
+    return new Date(dateStr).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
 }
 
 function isOnline(user: User): boolean {
-    const ts = user.lastConnectedAt;
-    if (!ts) return false;
-    return Date.now() - new Date(ts).getTime() < 5 * 60 * 1000;
+    if (!user.lastConnectedAt) return false;
+    return Date.now() - new Date(user.lastConnectedAt).getTime() < 3 * 60 * 1000;
 }
 
 // ============================================
@@ -94,34 +93,42 @@ function isOnline(user: User): boolean {
 // ============================================
 
 function RoleDistributionBar({ users }: { users: User[] }) {
+    const counts = useMemo(() => {
+        const c: Record<string, number> = {};
+        for (const u of users) c[u.role] = (c[u.role] ?? 0) + 1;
+        return c;
+    }, [users]);
+
     const total = users.length;
     if (total === 0) return null;
 
-    const counts = users.reduce<Record<string, number>>((acc, u) => {
-        acc[u.role] = (acc[u.role] ?? 0) + 1;
-        return acc;
-    }, {});
-
-    const roles = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const segments = Object.entries(counts).map(([role, count]) => ({
+        role,
+        count,
+        pct: (count / total) * 100,
+        color: ROLE_COLORS[role]?.dot ?? "bg-slate-400",
+        label: ROLE_LABELS[role] ?? role,
+    }));
 
     return (
-        <div className="flex items-center gap-3">
-            <div className="flex-1 flex h-2 rounded-full overflow-hidden gap-px">
-                {roles.map(([role, count]) => (
+        <div className="space-y-2">
+            <div className="flex h-2 rounded-full overflow-hidden gap-0.5 bg-slate-100">
+                {segments.map((s) => (
                     <div
-                        key={role}
-                        className={cn("transition-all", ROLE_COLORS[role]?.dot ?? "bg-slate-400")}
-                        style={{ width: `${(count / total) * 100}%` }}
-                        title={`${ROLE_LABELS[role] ?? role}: ${count}`}
+                        key={s.role}
+                        className={cn("h-full transition-all", s.color)}
+                        style={{ width: `${s.pct}%` }}
+                        title={`${s.label}: ${s.count} (${s.pct.toFixed(0)}%)`}
                     />
                 ))}
             </div>
-            <div className="flex items-center gap-3 shrink-0">
-                {roles.slice(0, 4).map(([role, count]) => (
-                    <div key={role} className="flex items-center gap-1.5 text-xs text-slate-500">
-                        <div className={cn("w-2 h-2 rounded-full", ROLE_COLORS[role]?.dot ?? "bg-slate-400")} />
-                        <span>{ROLE_LABELS[role] ?? role} {count}</span>
-                    </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+                {segments.map((s) => (
+                    <span key={s.role} className="inline-flex items-center gap-1.5">
+                        <span className={cn("w-2 h-2 rounded-full", s.color)} />
+                        <span className="font-medium text-slate-700">{s.label}</span>
+                        <span className="text-slate-400">({s.count})</span>
+                    </span>
                 ))}
             </div>
         </div>
@@ -140,62 +147,81 @@ function UserCard({ user, onClick }: { user: User; onClick: () => void }) {
     return (
         <button
             onClick={onClick}
-            className="w-full text-left bg-white rounded-2xl border border-slate-200 p-5 hover:border-indigo-300 hover:shadow-md hover:shadow-indigo-100/50 transition-all duration-200 group"
+            className="group w-full bg-white rounded-2xl border border-slate-200 p-4 hover:border-indigo-300 hover:shadow-md transition-all text-left flex flex-col justify-between"
         >
-            <div className="flex items-start gap-3 mb-4">
-                {/* Avatar */}
-                <div className="relative shrink-0">
-                    <div className={cn("w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center text-white font-bold text-sm shadow-sm", grad)}>
-                        {getInitials(user.name)}
+            <div>
+                {/* Header: avatar + status badge */}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="relative">
+                        <div className={cn("w-11 h-11 rounded-xl bg-gradient-to-br flex items-center justify-center text-white font-bold text-sm shadow-sm", grad)}>
+                            {getInitials(user.name)}
+                        </div>
+                        {/* Online heartbeat dot */}
+                        <span
+                            className={cn(
+                                "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white",
+                                online ? "bg-emerald-500" : user.isActive ? "bg-slate-300" : "bg-rose-400"
+                            )}
+                            title={online ? "En ligne" : user.isActive ? "Hors ligne" : "Inactif"}
+                        />
                     </div>
-                    <span className={cn(
-                        "absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white",
-                        online ? "bg-emerald-500" : user.isActive ? "bg-slate-300" : "bg-rose-400"
-                    )} />
+                    <span className={cn("inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full", role.bg, role.text)}>
+                        <span className={cn("w-1.5 h-1.5 rounded-full", role.dot)} />
+                        {ROLE_LABELS[user.role] ?? user.role}
+                    </span>
                 </div>
-                {/* Name + role */}
-                <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-slate-900 truncate group-hover:text-indigo-700 transition-colors">
-                        {user.name}
-                    </p>
-                    <p className="text-xs text-slate-400 truncate">{user.email}</p>
-                    <div className="flex items-center gap-1.5 mt-1.5">
-                        <span className={cn("text-[11px] font-semibold px-2 py-0.5 rounded-full", role.bg, role.text)}>
-                            {ROLE_LABELS[user.role] ?? user.role}
+
+                {/* Name & email */}
+                <p className="font-bold text-slate-900 group-hover:text-indigo-700 transition-colors truncate">
+                    {user.name}
+                </p>
+                <p className="text-xs text-slate-400 truncate mb-3">{user.email}</p>
+
+                {/* Client pill if client */}
+                {user.client && (
+                    <div className="inline-flex items-center gap-1 text-[11px] font-medium bg-sky-50 text-sky-700 px-2 py-0.5 rounded-md mb-2 truncate max-w-full">
+                        <span>Client :</span>
+                        <span className="font-semibold truncate">{user.client.name}</span>
+                    </div>
+                )}
+
+                {/* VoIP display */}
+                {user.voipProvider && (
+                    <div className="text-[11px] text-slate-500 mb-2 flex items-center gap-1.5">
+                        <Phone className="w-3 h-3 text-slate-400" />
+                        <span className="font-semibold text-slate-700">
+                            {user.voipProvider === "ONOFF" ? "Onoff" : user.voipProvider === "RINGOVER" ? "Ringover" : "Allo"} :
                         </span>
-                        {!user.isActive && (
-                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600">
-                                Inactif
-                            </span>
-                        )}
+                        <span>{user.onoffNumber || user.alloPhoneNumber || user.ringoverNumber || "Configuré"}</span>
+                    </div>
+                )}
+
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-2 py-2 border-t border-slate-100 text-xs text-slate-500">
+                    <div>
+                        <span className="text-slate-400 block text-[10px] uppercase font-semibold">Missions</span>
+                        <span className="font-bold text-slate-800">{user._count.assignedMissions}</span>
+                    </div>
+                    <div>
+                        <span className="text-slate-400 block text-[10px] uppercase font-semibold">Actions</span>
+                        <span className="font-bold text-slate-800">{user._count.actions}</span>
                     </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-400 transition-colors shrink-0 mt-1" />
             </div>
 
-            {/* Stats row */}
-            <div className="grid grid-cols-3 gap-2">
-                <div className="bg-slate-50 rounded-lg p-2 text-center">
-                    <p className="text-lg font-bold text-slate-900">{user._count.actions}</p>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide">Actions</p>
-                </div>
-                <div className="bg-slate-50 rounded-lg p-2 text-center">
-                    <p className="text-lg font-bold text-slate-900">{user._count.assignedMissions}</p>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide">Missions</p>
-                </div>
-                <div className="bg-slate-50 rounded-lg p-2 text-center">
-                    <p className="text-sm font-semibold text-slate-600 truncate">{timeAgo(user.lastSignInAt)}</p>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide">Connexion</p>
-                </div>
+            {/* Footer: last login */}
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                <span className="flex items-center gap-1">
+                    <LogIn className="w-3 h-3" />
+                    {timeAgo(user.lastSignInAt)}
+                </span>
+                {user.lastSignInCountry && (
+                    <span className="flex items-center gap-1">
+                        <Globe className="w-3 h-3" />
+                        {user.lastSignInCountry}
+                    </span>
+                )}
             </div>
-
-            {/* Online indicator */}
-            {online && (
-                <div className="mt-3 flex items-center gap-1.5 text-xs text-emerald-600">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    En session maintenant
-                </div>
-            )}
         </button>
     );
 }
@@ -274,7 +300,8 @@ function UserFormFields({
 }: {
     data: {
         name: string; email: string; password: string; role: string;
-        clientId: string; alloPhoneNumber: string;
+        clientId: string;
+        voipProvider: string; alloPhoneNumber: string; onoffNumber: string; onoffUserId: string; ringoverNumber: string;
         sdrFeedbackPromptTime: string; sdrFeedbackRequiredDaily: boolean;
     };
     errors: Record<string, string>;
@@ -308,21 +335,61 @@ function UserFormFields({
                     </select>
                 </div>
             </div>
-            <div>
-                <label className={labelClass}>Email</label>
-                <input className={cn(fieldClass, errors.email && "border-red-300")} type="email" value={data.email} onChange={(e) => onChange({ email: e.target.value })} placeholder="jean@example.com" />
-                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-            </div>
             <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label className={labelClass}>Email</label>
+                    <input className={cn(fieldClass, errors.email && "border-red-300")} type="email" value={data.email} onChange={(e) => onChange({ email: e.target.value })} placeholder="jean@example.com" />
+                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                </div>
                 <div>
                     <label className={labelClass}>Mot de passe <span className="text-slate-400 normal-case font-normal">(optionnel)</span></label>
                     <input className={fieldClass} type="password" value={data.password} onChange={(e) => onChange({ password: e.target.value })} placeholder="Généré auto" />
                 </div>
-                <div>
-                    <label className={labelClass}>Numéro Allo <span className="text-slate-400 normal-case font-normal">(optionnel)</span></label>
-                    <input className={fieldClass} value={data.alloPhoneNumber} onChange={(e) => onChange({ alloPhoneNumber: e.target.value })} placeholder="+33612345678" />
-                </div>
             </div>
+
+            {/* VoIP / Telephony System Selector */}
+            {(data.role === "SDR" || data.role === "BOOKER" || data.role === "BUSINESS_DEVELOPER") && (
+                <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-3">
+                    <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Système Téléphonie / VoIP</p>
+                    <div>
+                        <label className={labelClass}>Fournisseur VoIP</label>
+                        <select className={fieldClass} value={data.voipProvider} onChange={(e) => onChange({ voipProvider: e.target.value })}>
+                            <option value="ALLO">WithAllo (Allo)</option>
+                            <option value="ONOFF">Onoff Business</option>
+                            <option value="RINGOVER">Ringover</option>
+                            <option value="NONE">Aucun / Manuel</option>
+                        </select>
+                    </div>
+
+                    {data.voipProvider === "ALLO" && (
+                        <div>
+                            <label className={labelClass}>Numéro Allo <span className="text-slate-400 normal-case font-normal">(optionnel)</span></label>
+                            <input className={fieldClass} value={data.alloPhoneNumber} onChange={(e) => onChange({ alloPhoneNumber: e.target.value })} placeholder="+33612345678" />
+                        </div>
+                    )}
+
+                    {data.voipProvider === "ONOFF" && (
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className={labelClass}>Numéro Onoff</label>
+                                <input className={fieldClass} value={data.onoffNumber} onChange={(e) => onChange({ onoffNumber: e.target.value })} placeholder="+33612345678" />
+                            </div>
+                            <div>
+                                <label className={labelClass}>ID Membre Onoff</label>
+                                <input className={fieldClass} value={data.onoffUserId} onChange={(e) => onChange({ onoffUserId: e.target.value })} placeholder="user_12345" />
+                            </div>
+                        </div>
+                    )}
+
+                    {data.voipProvider === "RINGOVER" && (
+                        <div>
+                            <label className={labelClass}>Numéro Ringover</label>
+                            <input className={fieldClass} value={data.ringoverNumber} onChange={(e) => onChange({ ringoverNumber: e.target.value })} placeholder="+33123456789" />
+                        </div>
+                    )}
+                </div>
+            )}
+
             {data.role === "CLIENT" && (
                 <div>
                     <label className={labelClass}>Client <span className="text-red-500">*</span></label>
@@ -358,7 +425,9 @@ function UserFormFields({
 
 const EMPTY_FORM = {
     name: "", email: "", password: "", role: "SDR",
-    clientId: "", alloPhoneNumber: "", sdrFeedbackPromptTime: "15:45", sdrFeedbackRequiredDaily: true,
+    clientId: "",
+    voipProvider: "ALLO", alloPhoneNumber: "", onoffNumber: "", onoffUserId: "", ringoverNumber: "",
+    sdrFeedbackPromptTime: "15:45", sdrFeedbackRequiredDaily: true,
 };
 
 export default function UtilisateursPage() {
@@ -415,7 +484,11 @@ export default function UtilisateursPage() {
                 name: formData.name, email: formData.email,
                 password: formData.password || undefined,
                 role: formData.role,
+                voipProvider: formData.voipProvider,
                 alloPhoneNumber: formData.alloPhoneNumber.trim() || undefined,
+                onoffNumber: formData.onoffNumber.trim() || undefined,
+                onoffUserId: formData.onoffUserId.trim() || undefined,
+                ringoverNumber: formData.ringoverNumber.trim() || undefined,
             };
             if (formData.role === "CLIENT" && formData.clientId) payload.clientId = formData.clientId;
 

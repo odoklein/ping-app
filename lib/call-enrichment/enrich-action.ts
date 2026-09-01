@@ -112,8 +112,33 @@ async function collectCandidatePhones(actionId: string): Promise<string[]> {
   return [...new Set(normalized)];
 }
 
-function getAlloNumbers(): string[] {
-  return (process.env.ALLO_NUMBERS ?? '').split(',').map((n) => n.trim()).filter(Boolean);
+async function getVoipNumbersForSdr(sdrId?: string): Promise<string[]> {
+  const { getGlobalVoipConfig } = await import('@/app/api/system-config/voip/route');
+  const globalConfig = await getGlobalVoipConfig();
+
+  const globalNumbers = (globalConfig.alloNumbers ?? "")
+    .split(",")
+    .concat((globalConfig.onoffNumbers ?? "").split(","))
+    .map((n) => n.trim())
+    .filter(Boolean);
+
+  if (!sdrId) return [...new Set(globalNumbers)];
+
+  const user = await prisma.user.findUnique({
+    where: { id: sdrId },
+    select: { voipProvider: true, alloPhoneNumber: true, onoffNumber: true, ringoverNumber: true },
+  });
+
+  const specificNumber =
+    user?.voipProvider === "ONOFF"
+      ? user.onoffNumber?.trim()
+      : user?.alloPhoneNumber?.trim() || user?.ringoverNumber?.trim();
+
+  if (specificNumber) {
+    return [...new Set([specificNumber, ...globalNumbers])];
+  }
+
+  return [...new Set(globalNumbers)];
 }
 
 /** True when default enrichment would skip but résumé or enregistrement is still missing (re-sync avec force). */
@@ -167,7 +192,7 @@ export async function enrichActionFromCallProvider(
   }
 
   const phones = await collectCandidatePhones(actionId);
-  const alloNumbers = getAlloNumbers();
+  const alloNumbers = await getVoipNumbersForSdr(action.sdrId);
 
   console.log(
     `[call-enrichment] phones=${JSON.stringify(phones)} alloNumbers=${JSON.stringify(alloNumbers)} actionCreatedAt=${action.createdAt.toISOString()}`,
@@ -240,6 +265,7 @@ export async function enrichActionFromCallProvider(
       callSummary:         record.summary        ?? null,
       callTranscription:   record.transcription  ?? null,
       callRecordingUrl:    record.recordingUrl   ?? null,
+      ...(record.duration ? { duration: record.duration } : {}),
       callEnrichmentAt:    new Date(),
       callEnrichmentError: null,
     },

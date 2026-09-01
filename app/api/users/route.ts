@@ -66,7 +66,11 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
                 email: true,
                 role: true,
                 isActive: true,
+                voipProvider: true,
                 alloPhoneNumber: true,
+                onoffNumber: true,
+                onoffUserId: true,
+                ringoverNumber: true,
                 createdAt: true,
                 updatedAt: true,
                 lastSignInAt: true,
@@ -113,7 +117,11 @@ const createUserSchema = z.object({
     password: z.string().min(6, 'Mot de passe requis (min 6 caractères)').optional(),
     role: z.enum(['SDR', 'MANAGER', 'CLIENT', 'DEVELOPER', 'BUSINESS_DEVELOPER']).default('SDR'),
     clientId: z.string().optional(),
+    voipProvider: z.enum(['ALLO', 'ONOFF', 'RINGOVER', 'NONE']).optional(),
     alloPhoneNumber: z.string().optional(),
+    onoffNumber: z.string().optional(),
+    onoffUserId: z.string().optional(),
+    ringoverNumber: z.string().optional(),
 });
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
@@ -144,7 +152,11 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
                 role: data.role,
                 isActive: true,
                 clientId: data.clientId,
+                voipProvider: data.voipProvider || 'ALLO',
                 alloPhoneNumber: data.alloPhoneNumber?.trim() || null,
+                onoffNumber: data.onoffNumber?.trim() || null,
+                onoffUserId: data.onoffUserId?.trim() || null,
+                ringoverNumber: data.ringoverNumber?.trim() || null,
             },
             select: {
                 id: true,
@@ -152,7 +164,11 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
                 email: true,
                 role: true,
                 isActive: true,
+                voipProvider: true,
                 alloPhoneNumber: true,
+                onoffNumber: true,
+                onoffUserId: true,
+                ringoverNumber: true,
                 createdAt: true,
             },
         });

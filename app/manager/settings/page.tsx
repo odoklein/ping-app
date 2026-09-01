@@ -6,7 +6,7 @@ import {
   Mail, RotateCcw, Save, Eye, Info,
   CheckCircle2, AlertCircle, Sparkles, Code2,
   ChevronRight, Zap, Variable, Key, ShieldCheck, Link2,
-  ListOrdered, Megaphone
+  ListOrdered, Megaphone, Phone
 } from "lucide-react";
 import { RDV_TEMPLATE_VARIABLES } from "@/lib/email/templates/rdv-notification";
 
@@ -153,6 +153,18 @@ export default function ManagerSettingsPage() {
   const [transactionalEmailError, setTransactionalEmailError] = useState<string | null>(null);
   const [transactionalEmailSaved, setTransactionalEmailSaved] = useState(false);
 
+  // VoIP config state
+  const [voipStatus, setVoipStatus] = useState<any>(null);
+  const [voipAlloKey, setVoipAlloKey] = useState("");
+  const [voipAlloNumbers, setVoipAlloNumbers] = useState("");
+  const [voipOnoffKey, setVoipOnoffKey] = useState("");
+  const [voipOnoffNumbers, setVoipOnoffNumbers] = useState("");
+  const [voipRingoverKey, setVoipRingoverKey] = useState("");
+  const [voipRingoverSecret, setVoipRingoverSecret] = useState("");
+  const [voipSaving, setVoipSaving] = useState(false);
+  const [voipError, setVoipError] = useState<string | null>(null);
+  const [voipSaved, setVoipSaved] = useState(false);
+
   useEffect(() => {
     setLoading(true);
     Promise.all([
@@ -160,7 +172,8 @@ export default function ManagerSettingsPage() {
       fetch("/api/system-config/master-password").then((r) => r.json()),
       fetch("/api/system-config/leexi").then((r) => r.json()),
       fetch("/api/system-config/transactional-email").then((r) => r.json()),
-    ]).then(([tplRes, mpRes, leexiRes, transactionalEmailRes]) => {
+      fetch("/api/system-config/voip").then((r) => r.json()),
+    ]).then(([tplRes, mpRes, leexiRes, transactionalEmailRes, voipRes]) => {
       if (tplRes.success) {
         setTemplate(tplRes.data);
         setSubject(tplRes.data.subject);
@@ -177,6 +190,11 @@ export default function ManagerSettingsPage() {
       if (transactionalEmailRes.success) {
         setTransactionalEmailFrom(transactionalEmailRes.data.from || "");
         setTransactionalEmailSource(transactionalEmailRes.data.source);
+      }
+      if (voipRes.success) {
+        setVoipStatus(voipRes.data);
+        setVoipAlloNumbers(voipRes.data.allo?.numbers || "");
+        setVoipOnoffNumbers(voipRes.data.onoff?.numbers || "");
       }
     }).finally(() => setLoading(false));
   }, []);
@@ -219,6 +237,44 @@ export default function ManagerSettingsPage() {
       setLeexiError("Erreur de connexion");
     } finally {
       setLeexiSaving(false);
+    }
+  }
+
+  async function handleSaveVoipConfig() {
+    setVoipSaving(true);
+    setVoipError(null);
+    setVoipSaved(false);
+    try {
+      const payload: Record<string, string> = {};
+      if (voipAlloKey.trim()) payload.alloApiKey = voipAlloKey.trim();
+      if (voipAlloNumbers !== undefined) payload.alloNumbers = voipAlloNumbers.trim();
+      if (voipOnoffKey.trim()) payload.onoffApiKey = voipOnoffKey.trim();
+      if (voipOnoffNumbers !== undefined) payload.onoffNumbers = voipOnoffNumbers.trim();
+      if (voipRingoverKey.trim()) payload.ringoverApiKey = voipRingoverKey.trim();
+      if (voipRingoverSecret.trim()) payload.ringoverWebhookSecret = voipRingoverSecret.trim();
+
+      const res = await fetch("/api/system-config/voip", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setVoipSaved(true);
+        setVoipAlloKey("");
+        setVoipOnoffKey("");
+        setVoipRingoverKey("");
+        setVoipRingoverSecret("");
+        const refreshed = await fetch("/api/system-config/voip").then((r) => r.json());
+        if (refreshed.success) setVoipStatus(refreshed.data);
+        setTimeout(() => setVoipSaved(false), 3000);
+      } else {
+        setVoipError(json.error || "Erreur de sauvegarde");
+      }
+    } catch {
+      setVoipError("Erreur réseau");
+    } finally {
+      setVoipSaving(false);
     }
   }
 
@@ -751,6 +807,10 @@ export default function ManagerSettingsPage() {
                 />
               </div>
 
+                  className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent"
+                />
+              </div>
+
               <button
                 onClick={handleSaveTransactionalEmailFrom}
                 disabled={transactionalEmailSaving || !transactionalEmailFrom.trim()}
@@ -758,7 +818,6 @@ export default function ManagerSettingsPage() {
               >
                 {transactionalEmailSaving ? "Enregistrement…" : "Enregistrer"}
               </button>
-
               <button
                 onClick={handleResetTransactionalEmailFrom}
                 disabled={transactionalEmailSaving || transactionalEmailSource !== "settings"}
@@ -771,6 +830,163 @@ export default function ManagerSettingsPage() {
             {(transactionalEmailError || transactionalEmailSaved) && (
               <p className={`text-sm ${transactionalEmailError ? "text-red-600" : "text-emerald-600"}`}>
                 {transactionalEmailError || "Expéditeur enregistré"}
+              </p>
+            )}
+          </div>
+        </Section>
+
+        {/* Global VoIP & Telephony System */}
+        <Section
+          label="Téléphonie & VoIP Globale (WithAllo, Onoff Business, Ringover)"
+          icon={Phone}
+          badge={
+            voipStatus?.allo?.configured || voipStatus?.onoff?.configured || voipStatus?.ringover?.configured ? (
+              <span className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-emerald-50 text-emerald-600 border border-emerald-200/80 rounded-full">
+                <ShieldCheck className="w-3 h-3" />
+                Configuré
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 bg-slate-100 text-slate-500 rounded-full">
+                Non configuré
+              </span>
+            )
+          }
+        >
+          <div className="space-y-6">
+            <p className="text-sm text-slate-500">
+              Configurez ici les clés API globales de téléphonie de l&apos;agence. Tous les SDR et Bookers utiliseront ces paramètres par défaut pour synchroniser leurs appels, durées et enregistrements RDV.
+            </p>
+
+            {/* WithAllo */}
+            <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-sm text-slate-800">WithAllo (Allo)</span>
+                  {voipStatus?.allo?.configured && (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                      {voipStatus.allo.source === "database" ? "En base de données" : "Via ENV"}
+                    </span>
+                  )}
+                </div>
+                {voipStatus?.allo?.maskedKey && (
+                  <span className="text-xs font-mono text-slate-400">{voipStatus.allo.maskedKey}</span>
+                )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Clé API WithAllo</label>
+                  <input
+                    type="password"
+                    value={voipAlloKey}
+                    onChange={(e) => setVoipAlloKey(e.target.value)}
+                    placeholder="Entrez une nouvelle clé API…"
+                    className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Numéros de ligne Allo (séparés par virgule)</label>
+                  <input
+                    type="text"
+                    value={voipAlloNumbers}
+                    onChange={(e) => setVoipAlloNumbers(e.target.value)}
+                    placeholder="+33123456789, +33987654321"
+                    className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Onoff Business */}
+            <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-sm text-slate-800">Onoff Business</span>
+                  {voipStatus?.onoff?.configured && (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                      {voipStatus.onoff.source === "database" ? "En base de données" : "Via ENV"}
+                    </span>
+                  )}
+                </div>
+                {voipStatus?.onoff?.maskedKey && (
+                  <span className="text-xs font-mono text-slate-400">{voipStatus.onoff.maskedKey}</span>
+                )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Clé API Onoff Business</label>
+                  <input
+                    type="password"
+                    value={voipOnoffKey}
+                    onChange={(e) => setVoipOnoffKey(e.target.value)}
+                    placeholder="Entrez une nouvelle clé API Onoff…"
+                    className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Numéros Onoff (séparés par virgule)</label>
+                  <input
+                    type="text"
+                    value={voipOnoffNumbers}
+                    onChange={(e) => setVoipOnoffNumbers(e.target.value)}
+                    placeholder="+33123456789, +33987654321"
+                    className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Ringover */}
+            <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-sm text-slate-800">Ringover</span>
+                  {voipStatus?.ringover?.configured && (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                      {voipStatus.ringover.source === "database" ? "En base de données" : "Via ENV"}
+                    </span>
+                  )}
+                </div>
+                {voipStatus?.ringover?.maskedKey && (
+                  <span className="text-xs font-mono text-slate-400">{voipStatus.ringover.maskedKey}</span>
+                )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Clé API Ringover</label>
+                  <input
+                    type="password"
+                    value={voipRingoverKey}
+                    onChange={(e) => setVoipRingoverKey(e.target.value)}
+                    placeholder="Entrez une nouvelle clé Ringover…"
+                    className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Secret Webhook Ringover</label>
+                  <input
+                    type="password"
+                    value={voipRingoverSecret}
+                    onChange={(e) => setVoipRingoverSecret(e.target.value)}
+                    placeholder="Secret de signature webhook…"
+                    className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                onClick={handleSaveVoipConfig}
+                disabled={voipSaving}
+                className="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl disabled:opacity-50 transition-colors shadow-sm"
+              >
+                {voipSaving ? "Enregistrement…" : "Enregistrer la configuration VoIP globale"}
+              </button>
+            </div>
+
+            {(voipError || voipSaved) && (
+              <p className={`text-sm font-medium ${voipError ? "text-red-600" : "text-emerald-600"}`}>
+                {voipError || "Configuration VoIP enregistrée avec succès pour toute l'équipe."}
               </p>
             )}
           </div>

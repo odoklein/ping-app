@@ -222,7 +222,8 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         meetingPhone: data.meetingPhone,
     }, statusDef);
 
-    if (data.channel === 'CALL') {
+    // Sync audio transcription & call records for RDVs (MEETING_BOOKED) only
+    if (data.channel === 'CALL' && action.result === 'MEETING_BOOKED') {
         after(() =>
             enrichActionFromCallProvider(action.id).catch((err) => {
                 console.error('[call-enrichment]', action.id, err);

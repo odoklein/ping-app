@@ -23,7 +23,12 @@ type TabId = "apercu" | "activite" | "planning" | "historique" | "securite" | "a
 
 interface UserDetail {
     id: string; name: string; email: string; role: string;
-    isActive: boolean; alloPhoneNumber?: string | null;
+    isActive: boolean;
+    voipProvider?: string | null;
+    alloPhoneNumber?: string | null;
+    onoffNumber?: string | null;
+    onoffUserId?: string | null;
+    ringoverNumber?: string | null;
     createdAt: string; lastSignInAt?: string | null;
     lastSignInIp?: string | null; lastSignInCountry?: string | null;
     lastConnectedAt?: string | null;
@@ -695,7 +700,12 @@ function AccesTab({ user, onUserUpdate }: { user: UserDetail; onUserUpdate: (u: 
     const [deleteInput, setDeleteInput] = useState("");
     const [formData, setFormData]       = useState({
         name: user.name, email: user.email, password: "",
-        role: user.role, alloPhoneNumber: user.alloPhoneNumber ?? "",
+        role: user.role,
+        voipProvider: user.voipProvider ?? "ALLO",
+        alloPhoneNumber: user.alloPhoneNumber ?? "",
+        onoffNumber: user.onoffNumber ?? "",
+        onoffUserId: user.onoffUserId ?? "",
+        ringoverNumber: user.ringoverNumber ?? "",
         clientId: user.client?.id ?? "",
         sdrFeedbackPromptTime: user.preferences?.sdrFeedback?.promptTime ?? "15:45",
         sdrFeedbackRequiredDaily: user.preferences?.sdrFeedback?.requiredDaily ?? true,
@@ -753,7 +763,11 @@ function AccesTab({ user, onUserUpdate }: { user: UserDetail; onUserUpdate: (u: 
         try {
             const payload: Record<string, unknown> = {
                 name: formData.name, email: formData.email, role: formData.role,
+                voipProvider: formData.voipProvider,
                 alloPhoneNumber: formData.alloPhoneNumber.trim() || null,
+                onoffNumber: formData.onoffNumber.trim() || null,
+                onoffUserId: formData.onoffUserId.trim() || null,
+                ringoverNumber: formData.ringoverNumber.trim() || null,
             };
             if (formData.password) payload.password = formData.password;
             if (formData.role === "CLIENT") payload.clientId = formData.clientId || null;
@@ -764,7 +778,16 @@ function AccesTab({ user, onUserUpdate }: { user: UserDetail; onUserUpdate: (u: 
             const res = await fetch(`/api/users/${user.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
             const j = await res.json();
             if (j.success) {
-                onUserUpdate({ name: formData.name, email: formData.email, role: formData.role });
+                onUserUpdate({
+                    name: formData.name,
+                    email: formData.email,
+                    role: formData.role,
+                    voipProvider: formData.voipProvider,
+                    alloPhoneNumber: formData.alloPhoneNumber,
+                    onoffNumber: formData.onoffNumber,
+                    onoffUserId: formData.onoffUserId,
+                    ringoverNumber: formData.ringoverNumber,
+                });
                 setFormDirty(false);
                 success("Profil mis à jour", "Les modifications ont été enregistrées.");
             } else {
@@ -830,14 +853,53 @@ function AccesTab({ user, onUserUpdate }: { user: UserDetail; onUserUpdate: (u: 
                         <input className={fieldClass} type="email" value={formData.email} onChange={(e) => patch({ email: e.target.value })} />
                     </div>
                     <div>
-                        <label className={labelClass}>Numéro Allo</label>
-                        <input className={fieldClass} value={formData.alloPhoneNumber} onChange={(e) => patch({ alloPhoneNumber: e.target.value })} placeholder="+33…" />
+                        <label className={labelClass}>Nouveau mot de passe <span className="text-slate-400 normal-case font-normal">(laisser vide pour conserver)</span></label>
+                        <input className={fieldClass} type="password" value={formData.password} onChange={(e) => patch({ password: e.target.value })} placeholder="••••••••" />
                     </div>
                 </div>
-                <div>
-                    <label className={labelClass}>Nouveau mot de passe <span className="text-slate-400 normal-case font-normal">(laisser vide pour conserver)</span></label>
-                    <input className={fieldClass} type="password" value={formData.password} onChange={(e) => patch({ password: e.target.value })} placeholder="••••••••" />
-                </div>
+
+                {/* VoIP / Telephony System Selector */}
+                {(formData.role === "SDR" || formData.role === "BOOKER" || formData.role === "BUSINESS_DEVELOPER") && (
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-3">
+                        <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Système Téléphonie / VoIP</p>
+                        <div>
+                            <label className={labelClass}>Fournisseur VoIP</label>
+                            <select className={fieldClass} value={formData.voipProvider} onChange={(e) => patch({ voipProvider: e.target.value })}>
+                                <option value="ALLO">WithAllo (Allo)</option>
+                                <option value="ONOFF">Onoff Business</option>
+                                <option value="RINGOVER">Ringover</option>
+                                <option value="NONE">Aucun / Manuel</option>
+                            </select>
+                        </div>
+
+                        {formData.voipProvider === "ALLO" && (
+                            <div>
+                                <label className={labelClass}>Numéro Allo</label>
+                                <input className={fieldClass} value={formData.alloPhoneNumber} onChange={(e) => patch({ alloPhoneNumber: e.target.value })} placeholder="+33…" />
+                            </div>
+                        )}
+
+                        {formData.voipProvider === "ONOFF" && (
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className={labelClass}>Numéro Onoff</label>
+                                    <input className={fieldClass} value={formData.onoffNumber} onChange={(e) => patch({ onoffNumber: e.target.value })} placeholder="+33…" />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>ID Membre Onoff</label>
+                                    <input className={fieldClass} value={formData.onoffUserId} onChange={(e) => patch({ onoffUserId: e.target.value })} placeholder="user_12345" />
+                                </div>
+                            </div>
+                        )}
+
+                        {formData.voipProvider === "RINGOVER" && (
+                            <div>
+                                <label className={labelClass}>Numéro Ringover</label>
+                                <input className={fieldClass} value={formData.ringoverNumber} onChange={(e) => patch({ ringoverNumber: e.target.value })} placeholder="+33…" />
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {formData.role === "CLIENT" && (
                     <div>

@@ -34,6 +34,7 @@ const preferencesSchema = z.object({
     notifications: notificationsSchema.optional(),
     appearance: appearanceSchema.optional(),
     workingHours: workingHoursSchema.optional(),
+    voipApiKey: z.string().optional(),
     sdrFeedback: z
         .object({
             promptTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(),
@@ -45,6 +46,11 @@ const preferencesSchema = z.object({
 const putProfileSchema = z.object({
     name: z.string().min(1).max(200).optional(),
     phone: z.string().max(50).optional().nullable(),
+    voipProvider: z.enum(["ALLO", "ONOFF", "RINGOVER", "NONE"]).optional(),
+    alloPhoneNumber: z.string().max(50).optional().nullable(),
+    onoffNumber: z.string().max(50).optional().nullable(),
+    onoffUserId: z.string().max(100).optional().nullable(),
+    ringoverNumber: z.string().max(50).optional().nullable(),
     timezone: z.string().max(100).optional(),
     language: z.string().max(10).optional(),
     preferences: preferencesSchema.optional(),
@@ -54,6 +60,7 @@ type PreferencesJson = {
     notifications?: Record<string, boolean>;
     appearance?: Record<string, boolean>;
     workingHours?: Record<string, string>;
+    voipApiKey?: string;
     sdrFeedback?: {
         promptTime?: string;
         requiredDaily?: boolean;
@@ -77,6 +84,11 @@ export async function GET() {
                 name: true,
                 email: true,
                 phone: true,
+                voipProvider: true,
+                alloPhoneNumber: true,
+                onoffNumber: true,
+                onoffUserId: true,
+                ringoverNumber: true,
                 timezone: true,
                 preferences: true,
             },
@@ -93,6 +105,11 @@ export async function GET() {
                 name: user.name,
                 email: user.email,
                 phone: user.phone ?? "",
+                voipProvider: user.voipProvider ?? "ALLO",
+                alloPhoneNumber: user.alloPhoneNumber ?? "",
+                onoffNumber: user.onoffNumber ?? "",
+                onoffUserId: user.onoffUserId ?? "",
+                ringoverNumber: user.ringoverNumber ?? "",
                 timezone: user.timezone ?? "Europe/Paris",
                 language: (prefs as { language?: string }).language ?? "fr",
                 preferences: {
@@ -123,6 +140,7 @@ export async function GET() {
                         requiredDaily: true,
                         ...prefs.sdrFeedback,
                     },
+                    voipApiKey: prefs.voipApiKey ?? "",
                 },
             },
         });
@@ -152,7 +170,18 @@ export async function PUT(request: NextRequest) {
             );
         }
 
-        const { name, phone, timezone, language, preferences: newPrefs } = parsed.data;
+        const {
+            name,
+            phone,
+            voipProvider,
+            alloPhoneNumber,
+            onoffNumber,
+            onoffUserId,
+            ringoverNumber,
+            timezone,
+            language,
+            preferences: newPrefs,
+        } = parsed.data;
 
         const current = await prisma.user.findUnique({
             where: { id: session.user.id },
@@ -163,12 +192,22 @@ export async function PUT(request: NextRequest) {
         const updateData: {
             name?: string;
             phone?: string | null;
+            voipProvider?: "ALLO" | "ONOFF" | "RINGOVER" | "NONE";
+            alloPhoneNumber?: string | null;
+            onoffNumber?: string | null;
+            onoffUserId?: string | null;
+            ringoverNumber?: string | null;
             timezone?: string;
             preferences?: PreferencesJson;
         } = {};
 
         if (name !== undefined) updateData.name = name;
         if (phone !== undefined) updateData.phone = phone || null;
+        if (voipProvider !== undefined) updateData.voipProvider = voipProvider;
+        if (alloPhoneNumber !== undefined) updateData.alloPhoneNumber = alloPhoneNumber?.trim() || null;
+        if (onoffNumber !== undefined) updateData.onoffNumber = onoffNumber?.trim() || null;
+        if (onoffUserId !== undefined) updateData.onoffUserId = onoffUserId?.trim() || null;
+        if (ringoverNumber !== undefined) updateData.ringoverNumber = ringoverNumber?.trim() || null;
         if (timezone !== undefined) updateData.timezone = timezone;
 
         if (newPrefs) {
@@ -190,6 +229,10 @@ export async function PUT(request: NextRequest) {
                     newPrefs.sdrFeedback !== undefined
                         ? { ...currentPrefs.sdrFeedback, ...newPrefs.sdrFeedback }
                         : currentPrefs.sdrFeedback,
+                voipApiKey:
+                    newPrefs.voipApiKey !== undefined
+                        ? newPrefs.voipApiKey
+                        : currentPrefs.voipApiKey,
             };
             if (language !== undefined) {
                 (updateData.preferences as Record<string, unknown>).language = language;

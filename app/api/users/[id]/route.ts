@@ -29,7 +29,11 @@ export const GET = withErrorHandler(async (
             name: true,
             role: true,
             isActive: true,
+            voipProvider: true,
             alloPhoneNumber: true,
+            onoffNumber: true,
+            onoffUserId: true,
+            ringoverNumber: true,
             createdAt: true,
             updatedAt: true,
             lastSignInAt: true,
@@ -85,7 +89,11 @@ const updateUserSchema = z.object({
     role: z.enum(['SDR', 'MANAGER', 'CLIENT', 'DEVELOPER', 'BUSINESS_DEVELOPER']).optional(),
     password: z.string().min(6).optional(),
     clientId: z.string().nullable().optional(),
+    voipProvider: z.enum(['ALLO', 'ONOFF', 'RINGOVER', 'NONE']).optional(),
     alloPhoneNumber: z.string().nullable().optional(),
+    onoffNumber: z.string().nullable().optional(),
+    onoffUserId: z.string().nullable().optional(),
+    ringoverNumber: z.string().nullable().optional(),
     preferences: z
         .object({
             sdrFeedback: z
@@ -136,8 +144,18 @@ export const PUT = withErrorHandler(async (
     if (data.email) updateData.email = data.email;
     if (data.role) updateData.role = data.role;
     if (data.clientId !== undefined) updateData.clientId = data.clientId;
+    if (data.voipProvider !== undefined) updateData.voipProvider = data.voipProvider;
     if (data.alloPhoneNumber !== undefined) {
         updateData.alloPhoneNumber = data.alloPhoneNumber?.trim() || null;
+    }
+    if (data.onoffNumber !== undefined) {
+        updateData.onoffNumber = data.onoffNumber?.trim() || null;
+    }
+    if (data.onoffUserId !== undefined) {
+        updateData.onoffUserId = data.onoffUserId?.trim() || null;
+    }
+    if (data.ringoverNumber !== undefined) {
+        updateData.ringoverNumber = data.ringoverNumber?.trim() || null;
     }
     if (data.password) {
         updateData.password = await bcrypt.hash(data.password, 10);
@@ -164,7 +182,11 @@ export const PUT = withErrorHandler(async (
             name: true,
             role: true,
             isActive: true,
+            voipProvider: true,
             alloPhoneNumber: true,
+            onoffNumber: true,
+            onoffUserId: true,
+            ringoverNumber: true,
             preferences: true,
             clientId: true,
             createdAt: true,

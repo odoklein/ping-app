@@ -129,6 +129,21 @@ export const config = {
       enabled: process.env.APOLLO_ENABLED === "true",
       apiKey: process.env.APOLLO_API_KEY || "",
     },
+    allo: {
+      enabled: !!process.env.ALLO_API_KEY,
+      apiKey: process.env.ALLO_API_KEY || "",
+      numbers: (process.env.ALLO_NUMBERS || "").split(",").map((n) => n.trim()).filter(Boolean),
+    },
+    onoff: {
+      enabled: !!process.env.ONOFF_API_KEY,
+      apiKey: process.env.ONOFF_API_KEY || "",
+      numbers: (process.env.ONOFF_NUMBERS || "").split(",").map((n) => n.trim()).filter(Boolean),
+    },
+    ringover: {
+      enabled: !!process.env.RINGOVER_API_KEY,
+      apiKey: process.env.RINGOVER_API_KEY || "",
+      webhookSecret: process.env.RINGOVER_WEBHOOK_SECRET || "",
+    },
     umami: {
       url: process.env.NEXT_PUBLIC_UMAMI_URL || "",
       websiteId: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID || "",
