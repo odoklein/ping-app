@@ -6,11 +6,11 @@ const config: CapacitorConfig = {
   webDir: "public",
   server: {
     // Live production URL
-    url: process.env.CAPACITOR_SERVER_URL || "https://crm.pinglead-agency.fr",
+    url: process.env.CAPACITOR_SERVER_URL || "https://crm.ping-leadagency.fr",
     cleartext: false,
     allowNavigation: [
-      "crm.pinglead-agency.fr",
-      "*.pinglead-agency.fr",
+      "crm.ping-leadagency.fr",
+      "*.ping-leadagency.fr",
       "accounts.google.com",
       "login.microsoftonline.com",
       "*.sslip.io",
