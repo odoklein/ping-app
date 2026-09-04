@@ -278,7 +278,7 @@ export default function ClientPortalEmailPage() {
                         <Download className="w-4 h-4" />
                         Exporter
                     </button>
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#2890F8] to-[#1a75ce] flex items-center justify-center shadow-lg shadow-[rgba(40,144,248,0.25)] shrink-0">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-lg shadow-[rgba(var(--brand-primary-rgb),0.25)] shrink-0">
                         <Mail className="w-6 h-6 text-white" />
                     </div>
                 </div>
@@ -374,7 +374,7 @@ export default function ClientPortalEmailPage() {
             {/* Table */}
             <div className="premium-card overflow-hidden" style={{ animation: "dashFadeUp 0.4s ease both", animationDelay: "120ms" }}>
                 <div className="flex items-center gap-2.5 px-6 pt-5 pb-4 border-b border-[var(--elan-line)]">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2890F8] to-[#1a75ce] flex items-center justify-center shadow-sm shadow-[rgba(40,144,248,0.2)]">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-sm shadow-[rgba(var(--brand-primary-rgb),0.2)]">
                         <Send className="w-4 h-4 text-white" />
                     </div>
                     <div>

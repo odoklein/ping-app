@@ -290,7 +290,7 @@ export default function SdrCalendarPage() {
                     </div>
                     <button
                         onClick={goToToday}
-                        className="rounded-lg bg-[#EEF3F1] px-2.5 py-1.5 text-sm font-medium text-[#1F4D47] transition-colors hover:bg-[#E2ECE9] sm:ml-2 sm:px-3"
+                        className="rounded-lg bg-primary-light px-2.5 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-[#E2ECE9] sm:ml-2 sm:px-3"
                     >
                         <span className="sm:hidden">Auj.</span>
                         <span className="hidden sm:inline">Aujourd&apos;hui</span>
@@ -310,7 +310,7 @@ export default function SdrCalendarPage() {
                         )}
                         <div className="flex items-center gap-2">
                             <span className="text-slate-500">Alloué:</span>
-                            <span className="font-semibold text-[#1F4D47]">{totalAllocated}j</span>
+                            <span className="font-semibold text-primary">{totalAllocated}j</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="text-slate-500">Planifié:</span>
@@ -391,7 +391,7 @@ export default function SdrCalendarPage() {
                                                     </span>
 
                                                     {dateBlocks.length > 0 && (
-                                                        <span className="rounded-full bg-[#EEF3F1] px-1.5 py-0.5 text-[9px] font-bold text-[#1F4D47] sm:px-2 sm:text-[10px]">
+                                                        <span className="rounded-full bg-primary-light px-1.5 py-0.5 text-[9px] font-bold text-primary sm:px-2 sm:text-[10px]">
                                                             {dateBlocks.length}
                                                         </span>
                                                     )}

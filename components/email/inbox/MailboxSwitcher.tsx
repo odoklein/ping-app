@@ -103,7 +103,7 @@ export function MailboxSwitcher({
         return (
             <>
                 <button
-                    className="flex items-center justify-center gap-2 h-10 px-3 text-sm font-bold text-[#2890F8] border border-[rgba(40,144,248,0.3)] bg-white hover:bg-[#e6f0fa] rounded-lg transition-colors w-full"
+                    className="flex items-center justify-center gap-2 h-10 px-3 text-sm font-bold text-primary border border-[rgba(var(--brand-primary-rgb),0.3)] bg-white hover:bg-primary-light rounded-lg transition-colors w-full"
                     onClick={() => setShowManagerDialog(true)}
                 >
                     <Plus className="w-4 h-4" />
@@ -128,14 +128,14 @@ export function MailboxSwitcher({
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
                     "w-full flex items-center gap-2.5 p-2 rounded-lg border transition-colors",
-                    isOpen ? "bg-white border-[#2890F8]/40 shadow-sm" : "border-transparent hover:bg-[#e6f0fa]/40"
+                    isOpen ? "bg-white border-primary/40 shadow-sm" : "border-transparent hover:bg-primary-light/40"
                 )}
                 aria-expanded={isOpen}
                 aria-haspopup="listbox"
             >
                 <div
                     className="relative w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0"
-                    style={{ backgroundColor: selectedMailbox ? getProviderColor(selectedMailbox.provider) : "#2890F8" }}
+                    style={{ backgroundColor: selectedMailbox ? getProviderColor(selectedMailbox.provider) : "var(--brand-primary)" }}
                 >
                     {selectedMailbox?.email?.[0]?.toUpperCase() || <Mail className="w-4 h-4" />}
                     {selectedMailbox && (
@@ -164,7 +164,7 @@ export function MailboxSwitcher({
             {/* Dropdown */}
             {isOpen && (
                 <div
-                    className="absolute left-0 right-0 top-full mt-1 z-30 bg-white border border-[#DDE5E2] rounded-lg shadow-[0_14px_35px_rgba(40,144,248,0.12)] py-1.5 max-h-72 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-150"
+                    className="absolute left-0 right-0 top-full mt-1 z-30 bg-white border border-[#DDE5E2] rounded-lg shadow-[0_14px_35px_rgba(var(--brand-primary-rgb),0.12)] py-1.5 max-h-72 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-150"
                     role="listbox"
                 >
                     {/* All mailboxes option */}
@@ -175,7 +175,7 @@ export function MailboxSwitcher({
                         }}
                         className={cn(
                             "w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-slate-50 transition-colors",
-                            !selectedMailboxId && "bg-[#e6f0fa]/60 font-semibold"
+                            !selectedMailboxId && "bg-primary-light/60 font-semibold"
                         )}
                         role="option"
                         aria-selected={!selectedMailboxId}
@@ -188,7 +188,7 @@ export function MailboxSwitcher({
                             <p className="text-[11px] text-slate-400">{mailboxes.length} boîte{mailboxes.length > 1 ? "s" : ""}</p>
                         </div>
                         {!selectedMailboxId && (
-                            <Check className="w-4 h-4 text-[#2890F8] flex-shrink-0" />
+                            <Check className="w-4 h-4 text-primary flex-shrink-0" />
                         )}
                     </button>
 
@@ -201,8 +201,8 @@ export function MailboxSwitcher({
                             className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-slate-50 transition-colors"
                             role="option"
                         >
-                            <div className="w-8 h-8 rounded-lg bg-[#e6f0fa] flex items-center justify-center flex-shrink-0">
-                                <Users className="w-4 h-4 text-[#2890F8]" />
+                            <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center flex-shrink-0">
+                                <Users className="w-4 h-4 text-primary" />
                             </div>
                             <div className="flex-1 text-left">
                                 <p className="text-[13px] font-medium text-slate-800">Team Inbox</p>
@@ -223,7 +223,7 @@ export function MailboxSwitcher({
                             }}
                             className={cn(
                                 "w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-slate-50 transition-colors",
-                                selectedMailboxId === mailbox.id && "bg-[#e6f0fa]/60 font-semibold"
+                                selectedMailboxId === mailbox.id && "bg-primary-light/60 font-semibold"
                             )}
                             role="option"
                             aria-selected={selectedMailboxId === mailbox.id}
@@ -247,7 +247,7 @@ export function MailboxSwitcher({
                                 </p>
                             </div>
                             {selectedMailboxId === mailbox.id && (
-                                <Check className="w-4 h-4 text-[#2890F8] flex-shrink-0" />
+                                <Check className="w-4 h-4 text-primary flex-shrink-0" />
                             )}
                         </button>
                     ))}
@@ -259,7 +259,7 @@ export function MailboxSwitcher({
                             setIsOpen(false);
                             setShowManagerDialog(true);
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-[13px] text-[#2890F8] hover:bg-[#e6f0fa] transition-colors font-bold"
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-[13px] text-primary hover:bg-primary-light transition-colors font-bold"
                     >
                         <Settings className="w-4 h-4" />
                         Gérer les boîtes mails

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import {
   successResponse,
   errorResponse,
-  requireRole,
+  requireOrganization,
   withErrorHandler,
 } from '@/lib/api-utils';
 import { fetchLeexiRecaps, isLeexiAvailable } from '@/lib/leexi/service';
@@ -15,7 +15,7 @@ import { matchRecapsToClients } from '@/lib/leexi/matching';
 // ============================================
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
-  await requireRole(['MANAGER'], request);
+  const { organizationId } = await requireOrganization(request);
 
   if (!(await isLeexiAvailable())) {
     return errorResponse(
@@ -28,6 +28,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     const [recaps, clients] = await Promise.all([
       fetchLeexiRecaps(1, 50),
       prisma.client.findMany({
+        where: { organizationId },
         select: { id: true, name: true },
         orderBy: { name: 'asc' },
       }),

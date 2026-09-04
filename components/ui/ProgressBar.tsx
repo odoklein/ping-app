@@ -35,7 +35,7 @@ export function ProgressBar({
                 <div
                     className={cn(
                         "h-full rounded-full relative",
-                        "bg-gradient-to-r from-[#1a75ce] via-[#2890F8] to-[#5baefc]",
+                        "bg-gradient-to-r from-primary-hover via-[var(--brand-primary)] to-[#5baefc]",
                         variant === "shimmer" && mounted && "progress-shimmer"
                     )}
                     style={{

@@ -157,7 +157,7 @@ export function EditMissionDialog({ isOpen, onClose, mission, onSaved }: EditMis
                 <div className="relative overflow-hidden bg-gradient-to-br from-[#0B0F19] via-[#0D1527] to-[#04060A] px-6 sm:px-8 py-5 border-b border-slate-800 flex-shrink-0">
                     <div className="relative z-10 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-2xl bg-[#2890F8]/20 border border-[#2890F8]/30 flex items-center justify-center text-[#2890F8] shadow-md shadow-blue-500/20">
+                            <div className="w-10 h-10 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-md shadow-blue-500/20">
                                 <Building2 className="w-5 h-5" />
                             </div>
                             <div>
@@ -194,7 +194,7 @@ export function EditMissionDialog({ isOpen, onClose, mission, onSaved }: EditMis
                                 <select
                                     value={formData.clientId}
                                     onChange={(e) => setFormData((prev) => ({ ...prev, clientId: e.target.value }))}
-                                    className="w-full h-11 px-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] cursor-pointer"
+                                    className="w-full h-11 px-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-primary cursor-pointer"
                                 >
                                     <option value="">Sélectionner un client...</option>
                                     {clients.map((c) => (
@@ -215,7 +215,7 @@ export function EditMissionDialog({ isOpen, onClose, mission, onSaved }: EditMis
                                 onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                                 placeholder="Ex: Prospection SaaS Q1 2026"
                                 className={cn(
-                                    "w-full h-11 px-3.5 border rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8]",
+                                    "w-full h-11 px-3.5 border rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-primary",
                                     errors.name ? "border-red-400 bg-red-50/20" : "border-slate-200"
                                 )}
                             />
@@ -231,7 +231,7 @@ export function EditMissionDialog({ isOpen, onClose, mission, onSaved }: EditMis
                             onChange={(e) => setFormData((prev) => ({ ...prev, objective: e.target.value }))}
                             placeholder="Ex: Générer 50 rendez-vous qualifiés..."
                             rows={2}
-                            className="w-full p-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] resize-none"
+                            className="w-full p-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-primary resize-none"
                         />
                     </div>
 
@@ -261,13 +261,13 @@ export function EditMissionDialog({ isOpen, onClose, mission, onSaved }: EditMis
                                         className={cn(
                                             "flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-bold transition-all",
                                             isSelected
-                                                ? "border-[#2890F8] bg-blue-50 text-blue-800 shadow-2xs"
+                                                ? "border-primary bg-blue-50 text-blue-800 shadow-2xs"
                                                 : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                                         )}
                                     >
                                         <div className={cn(
                                             "w-4 h-4 rounded-md flex items-center justify-center text-white",
-                                            isSelected ? "bg-[#2890F8]" : "bg-slate-200"
+                                            isSelected ? "bg-primary" : "bg-slate-200"
                                         )}>
                                             {isSelected && <Check className="w-3 h-3" />}
                                         </div>
@@ -296,7 +296,7 @@ export function EditMissionDialog({ isOpen, onClose, mission, onSaved }: EditMis
                                     className={cn(
                                         "h-10 px-3 rounded-xl border text-xs font-bold transition-all",
                                         formData.status === s.val
-                                            ? "border-[#2890F8] bg-blue-50 text-blue-900 shadow-2xs"
+                                            ? "border-primary bg-blue-50 text-blue-900 shadow-2xs"
                                             : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                                     )}
                                 >
@@ -314,7 +314,7 @@ export function EditMissionDialog({ isOpen, onClose, mission, onSaved }: EditMis
                                 type="date"
                                 value={formData.startDate}
                                 onChange={(e) => setFormData((prev) => ({ ...prev, startDate: e.target.value }))}
-                                className="w-full h-11 px-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:border-[#2890F8] cursor-pointer"
+                                className="w-full h-11 px-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:border-primary cursor-pointer"
                             />
                         </div>
                         <div>
@@ -324,7 +324,7 @@ export function EditMissionDialog({ isOpen, onClose, mission, onSaved }: EditMis
                                 value={formData.endDate}
                                 onChange={(e) => setFormData((prev) => ({ ...prev, endDate: e.target.value }))}
                                 className={cn(
-                                    "w-full h-11 px-3.5 border rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:border-[#2890F8] cursor-pointer",
+                                    "w-full h-11 px-3.5 border rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:border-primary cursor-pointer",
                                     errors.endDate ? "border-red-400" : "border-slate-200"
                                 )}
                             />

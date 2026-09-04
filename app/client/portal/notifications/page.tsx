@@ -279,7 +279,7 @@ export default function ClientPortalNotificationsPage() {
                 >
                     <Inbox className="w-3.5 h-3.5" /> Non lues
                     {unreadCount > 0 && (
-                        <span className="ml-0.5 px-2 py-0.5 text-[10px] font-bold bg-gradient-to-r from-[#2890F8] to-[#1a75ce] text-white rounded-full shadow-sm shadow-[rgba(40,144,248,0.2)]">
+                        <span className="ml-0.5 px-2 py-0.5 text-[10px] font-bold bg-gradient-to-r from-primary to-primary-hover text-white rounded-full shadow-sm shadow-[rgba(var(--brand-primary-rgb),0.2)]">
                             {unreadCount}
                         </span>
                     )}

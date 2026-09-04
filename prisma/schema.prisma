@@ -362,6 +362,9 @@ model User {
   name          String
   role          UserRole
   isActive      Boolean   @default(true)  // For banning/disabling users
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  organizationRole OrganizationRole? @default(MEMBER)
   clientId      String?
   client        Client?   @relation(fields: [clientId], references: [id])
   interlocuteurId String?  @unique  // For COMMERCIAL role: links to their ClientInterlocuteur record
@@ -387,6 +390,7 @@ model User {
   // Email Accounts (legacy)
   emailAccounts    EmailAccount[]
   notifications    Notification[]
+  deviceTokens     UserDeviceToken[]
   taskReminderDeliveries TaskReminderDelivery[]
   
   // Email Hub - Mailboxes
@@ -502,10 +506,21 @@ model User {
   reportedIntakeTickets IntakeTicket[] @relation("IntakeTicketReporter")
   triagedIntakeTickets  IntakeTicket[] @relation("IntakeTicketTriager")
 
+  // Invitation traceability (Phase 2 — token-based onboarding)
+  invitedById   String?
+  invitedBy     User?     @relation("UserInvitedBy", fields: [invitedById], references: [id], onDelete: SetNull)
+  invitedUsers  User[]    @relation("UserInvitedBy")
+  sentInvitations UserInvitation[] @relation("SentInvitations")
+
+  // Role-specific onboarding wizard (shown once, on first login)
+  hasCompletedRoleOnboarding Boolean   @default(false)
+  onboardingCompletedAt      DateTime?
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   @@index([isActive])
+  @@index([invitedById])
 }
 
 // ============================================
@@ -612,6 +627,8 @@ model Client {
   industry      String?
   logo          String?
   bookingUrl    String?   // URL for booking tools (Calendly, etc.)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   
   // Default mailbox for this client (optional)
   defaultMailboxId String?
@@ -666,6 +683,9 @@ model Client {
   // API Keys scoped to this client
   apiKeys       ApiKey[]
 
+  // Pending/So-far invitations attached to this client (CLIENT / COMMERCIAL seats)
+  invitations   UserInvitation[]
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -708,6 +728,8 @@ model ClientInterlocuteur {
 
 model Mission {
   id            String    @id @default(cuid())
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   clientId      String
   client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
   name          String
@@ -792,6 +814,8 @@ model SDRAssignment {
 
 model Campaign {
   id            String    @id @default(cuid())
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   missionId     String
   mission       Mission   @relation(fields: [missionId], references: [id], onDelete: Cascade)
   name          String
@@ -848,6 +872,8 @@ model List {
 
 model Company {
   id            String    @id @default(cuid())
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   listId        String
   list          List      @relation(fields: [listId], references: [id], onDelete: Cascade)
   name          String
@@ -867,6 +893,8 @@ model Company {
 
 model Contact {
   id            String    @id @default(cuid())
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   companyId     String
   company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
   firstName     String?
@@ -896,6 +924,8 @@ model Contact {
 
 model Action {
   id            String       @id @default(cuid())
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   contactId     String?      // Optional - can call company directly
   contact       Contact?     @relation(fields: [contactId], references: [id], onDelete: Cascade)
   companyId     String?      // Optional - for company-level actions
@@ -1840,6 +1870,20 @@ model TaskReminderDelivery {
 
   @@index([userId])
   @@index([createdAt])
+}
+
+// Push notification device tokens for mobile app (iOS APNs / Android FCM)
+model UserDeviceToken {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token       String   @unique
+  platform    String   // "ios" | "android" | "web"
+  deviceModel String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
 }
 
 // ============================================
@@ -3724,4 +3768,114 @@ model BroadcastEmailRecipient {
   @@index([broadcastEmailId])
   @@index([openedAt])
   @@index([userId])
+}
+
+// ============================================
+// USER INVITATIONS & ROLE ONBOARDING (Phase 2)
+// ============================================
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+// Magic-link invitation issued by a MANAGER. The raw token only ever exists in
+// the email/URL; the database stores its SHA-256 hash so a DB leak cannot be
+// replayed to create accounts.
+model UserInvitation {
+  id          String           @id @default(cuid())
+  email       String           // normalized to lowercase
+  name        String?          // pre-filled by the inviting manager
+  role        UserRole         @default(SDR)
+  status      InvitationStatus @default(PENDING)
+
+  tokenHash   String           @unique // SHA-256(rawToken)
+  expiresAt   DateTime         // default: now + 7 days
+  acceptedAt  DateTime?
+  revokedAt   DateTime?
+
+  invitedById String
+  invitedBy   User             @relation("SentInvitations", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  // Required when role is CLIENT or COMMERCIAL
+  clientId    String?
+  client      Client?          @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  // Pre-configured attribution: { voipProvider, alloPhoneNumber, onoffNumber,
+  // onoffUserId, ringoverNumber, phone, assignedMissionIds: string[] }
+  metadata    Json?
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([email])
+  @@index([tokenHash])
+  @@index([status])
+  @@index([invitedById])
+  @@index([clientId])
+}
+
+
+// ============================================
+// MULTI-TENANT ARCHITECTURE (Dedicated Agency Spaces)
+// ============================================
+
+enum OrganizationStatus {
+  TRIAL
+  ACTIVE
+  SUSPENDED
+}
+
+enum OrganizationPlan {
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+enum OrganizationRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model Organization {
+  id              String             @id @default(cuid())
+  name            String
+  slug            String             @unique
+  customDomain    String?            @unique
+  status          OrganizationStatus @default(ACTIVE)
+  plan            OrganizationPlan   @default(PRO)
+  maxUsers        Int                @default(20)
+
+  // White-label branding (BrandConfig JSON: name, tagline, primaryColor, logoUrl, logoDarkUrl, faviconUrl)
+  branding        Json?
+
+  // Encrypted Integration API configurations
+  voipConfig      Json?              // { provider, alloApiKey, ringoverApiKey, onoffApiToken }
+  leexiConfig     Json?              // { keyId, keySecret }
+  smtpConfig      Json?              // { host, port, user, pass, fromName, fromEmail }
+  
+  // Feature flags
+  features        Json?              // { voipEnabled: true, leexiEnabled: true, emailHubEnabled: true, pdpEnabled: false }
+
+  // Child entity relations
+  users           User[]
+  clients         Client[]
+  missions        Mission[]
+  campaigns       Campaign[]
+  actions         Action[]
+  contacts        Contact[]
+  companies       Company[]
+  invitations     UserInvitation[]
+
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([slug])
+  @@index([customDomain])
+  @@index([status])
 }

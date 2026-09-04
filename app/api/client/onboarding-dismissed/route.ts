@@ -11,7 +11,7 @@ import {
 // Mark client onboarding as permanently dismissed
 // ============================================
 
-export const PATCH = withErrorHandler(async () => {
+export const PATCH = withErrorHandler(async (request: NextRequest) => {
     const session = await requireRole(["CLIENT"], request);
 
     await prisma.user.update({

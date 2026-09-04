@@ -197,7 +197,7 @@ export default function ManagerDashboard() {
                     <p className="mt-2 text-xs text-slate-500 leading-relaxed">{error instanceof Error ? error.message : "Une erreur inattendue est survenue."}</p>
                     <button
                         onClick={() => refetch()}
-                        className="mt-6 inline-flex h-11 items-center gap-2 rounded-xl bg-[#2890F8] px-6 text-sm font-bold text-white hover:bg-[#1a75ce] shadow-md shadow-blue-500/20 active:translate-y-px transition-all"
+                        className="mt-6 inline-flex h-11 items-center gap-2 rounded-xl bg-primary px-6 text-sm font-bold text-white hover:bg-primary-hover shadow-md shadow-blue-500/20 active:translate-y-px transition-all"
                     >
                         <RefreshCw className="h-4 w-4" /> Réessayer
                     </button>
@@ -212,7 +212,7 @@ export default function ManagerDashboard() {
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-slate-200/70">
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-xl bg-[#0B0F19] text-[#2890F8] flex items-center justify-center shadow-md shadow-black/20 border border-slate-800">
+                        <div className="w-9 h-9 rounded-xl bg-[#0B0F19] text-primary flex items-center justify-center shadow-md shadow-black/20 border border-slate-800">
                             <Activity className="w-5 h-5" />
                         </div>
                         <div>
@@ -261,9 +261,9 @@ export default function ManagerDashboard() {
                         <button
                             onClick={() => setDateFilterOpen((o) => !o)}
                             aria-expanded={dateFilterOpen}
-                            className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:border-[#2890F8] hover:shadow-xs transition-all shadow-2xs"
+                            className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:border-primary hover:shadow-xs transition-all shadow-2xs"
                         >
-                            <Calendar className="w-3.5 h-3.5 text-[#2890F8]" />
+                            <Calendar className="w-3.5 h-3.5 text-primary" />
                             <span>{dateRange.preset ? PRESET_LABELS[dateRange.preset] : "Plage"}</span>
                             <ChevronDown className={cn("w-3.5 h-3.5 text-slate-400 transition-transform", dateFilterOpen && "rotate-180")} />
                         </button>
@@ -281,7 +281,7 @@ export default function ManagerDashboard() {
                     <select
                         value={missionFilter}
                         onChange={(e) => setMissionFilter(e.target.value)}
-                        className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl min-w-[160px] focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 focus:border-[#2890F8] shadow-2xs"
+                        className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl min-w-[160px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-2xs"
                     >
                         <option value="">Toutes les missions</option>
                         {missions.map((m) => (
@@ -294,15 +294,15 @@ export default function ManagerDashboard() {
                         onClick={() => refetch()}
                         disabled={isFetching}
                         title="Actualiser les données"
-                        className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-[#2890F8] hover:border-blue-300 transition-all shadow-2xs disabled:opacity-50"
+                        className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:border-blue-300 transition-all shadow-2xs disabled:opacity-50"
                     >
-                        <RefreshCw className={cn("w-4 h-4", isFetching && "animate-spin text-[#2890F8]")} />
+                        <RefreshCw className={cn("w-4 h-4", isFetching && "animate-spin text-primary")} />
                     </button>
 
                     {/* New mission CTA */}
                     <Link
                         href="/manager/missions/new"
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#2890F8] to-[#156cd4] hover:from-[#1e7fd8] hover:to-[#0f5ab5] shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all"
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-primary to-[#156cd4] hover:from-[#1e7fd8] hover:to-[#0f5ab5] shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all"
                     >
                         <span className="text-base leading-none">+</span>
                         <span>Nouvelle mission</span>
@@ -317,10 +317,10 @@ export default function ManagerDashboard() {
                     href="/manager/prospection"
                     className="group relative p-5 rounded-3xl bg-gradient-to-br from-[#0A1224] via-[#0B152A] to-[#050B16] border border-blue-900/70 text-white shadow-xl shadow-black/20 hover:border-blue-400/60 hover:shadow-2xl hover:shadow-blue-500/15 transition-all duration-300 text-left flex flex-col justify-between overflow-hidden"
                 >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#2890F8]/15 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/15 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
 
                     <div className="flex items-center justify-between z-10">
-                        <div className="w-11 h-11 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-[#2890F8] group-hover:scale-105 transition-transform backdrop-blur-xs">
+                        <div className="w-11 h-11 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-primary group-hover:scale-105 transition-transform backdrop-blur-xs">
                             <Phone className="w-5 h-5" />
                         </div>
                         <span className="px-2.5 py-0.5 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[10px] font-bold tracking-wide backdrop-blur-xs">
@@ -342,7 +342,7 @@ export default function ManagerDashboard() {
                     <div className="space-y-1.5 z-10 pt-2 border-t border-white/10">
                         <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
                             <div
-                                className="h-full bg-gradient-to-r from-[#2890F8] via-[#38BDF8] to-emerald-400 rounded-full transition-all duration-500"
+                                className="h-full bg-gradient-to-r from-primary via-[#38BDF8] to-emerald-400 rounded-full transition-all duration-500"
                                 style={{ width: stats?.totalActions ? "100%" : "20%" }}
                             />
                         </div>
@@ -364,7 +364,7 @@ export default function ManagerDashboard() {
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
 
                     <div className="flex items-center justify-between z-10">
-                        <div className="w-11 h-11 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-[#2890F8] group-hover:scale-105 transition-transform">
+                        <div className="w-11 h-11 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
                             <Trophy className="w-5 h-5 text-amber-400" />
                         </div>
                         <span className="px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-300 text-[10px] font-bold">
@@ -386,7 +386,7 @@ export default function ManagerDashboard() {
                     <div className="space-y-1.5 z-10 pt-2 border-t border-white/10">
                         <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
                             <div
-                                className="h-full bg-gradient-to-r from-[#2890F8] to-amber-400 rounded-full transition-all duration-500"
+                                className="h-full bg-gradient-to-r from-primary to-amber-400 rounded-full transition-all duration-500"
                                 style={{ width: `${rdvGoalPct}%` }}
                             />
                         </div>
@@ -490,7 +490,7 @@ export default function ManagerDashboard() {
                 <section className="xl:col-span-7 bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm flex flex-col justify-between">
                     <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#2890F8]">
+                            <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-primary">
                                 <BarChart3 className="w-5 h-5" />
                             </div>
                             <div>
@@ -505,7 +505,7 @@ export default function ManagerDashboard() {
                                 Réalisé
                             </span>
                             <span className="inline-flex items-center gap-1.5 text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
-                                <span className="h-2.5 w-2.5 rounded-full bg-[#2890F8]" />
+                                <span className="h-2.5 w-2.5 rounded-full bg-primary" />
                                 Objectif
                             </span>
                         </div>
@@ -516,8 +516,8 @@ export default function ManagerDashboard() {
                             <AreaChart data={weeklyGoalData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="manager-perf-gradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#2890F8" stopOpacity={0.35} />
-                                        <stop offset="95%" stopColor="#2890F8" stopOpacity={0.0} />
+                                        <stop offset="5%" stopColor="var(--brand-primary)" stopOpacity={0.35} />
+                                        <stop offset="95%" stopColor="var(--brand-primary)" stopOpacity={0.0} />
                                     </linearGradient>
                                 </defs>
                                 <XAxis
@@ -535,7 +535,7 @@ export default function ManagerDashboard() {
                                 <Line
                                     type="monotone"
                                     dataKey="objectif"
-                                    stroke="#2890F8"
+                                    stroke="var(--brand-primary)"
                                     strokeWidth={2}
                                     strokeDasharray="5 5"
                                     dot={false}
@@ -561,7 +561,7 @@ export default function ManagerDashboard() {
                         </div>
                         <div className="text-center border-x border-slate-200">
                             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">RDV Confirmés</p>
-                            <p className="text-base font-black text-[#2890F8] tabular-nums">{stats?.meetingsBooked ?? 0}</p>
+                            <p className="text-base font-black text-primary tabular-nums">{stats?.meetingsBooked ?? 0}</p>
                         </div>
                         <div className="text-center">
                             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Taux de Succès</p>
@@ -617,7 +617,7 @@ export default function ManagerDashboard() {
                                 value: stats?.meetingsBooked ?? 0,
                                 badge: "Gagné",
                                 badgeCls: "bg-blue-100 text-[#1a75ce]",
-                                iconBg: "bg-blue-50 text-[#2890F8] border border-blue-200",
+                                iconBg: "bg-blue-50 text-primary border border-blue-200",
                             },
                         ].map((row) => {
                             const Icon = row.icon;
@@ -625,7 +625,7 @@ export default function ManagerDashboard() {
                                 <Link
                                     key={row.label}
                                     href={row.href}
-                                    className="group flex items-center gap-3.5 p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 hover:border-[#2890F8] hover:bg-white hover:shadow-md transition-all"
+                                    className="group flex items-center gap-3.5 p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 hover:border-primary hover:bg-white hover:shadow-md transition-all"
                                 >
                                     <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform", row.iconBg)}>
                                         <Icon className="w-5 h-5" />
@@ -640,7 +640,7 @@ export default function ManagerDashboard() {
                                         <p className="text-[11px] text-slate-500 truncate mt-0.5">{row.help}</p>
                                     </div>
                                     <span className="text-xl font-black tabular-nums text-slate-900 px-2">{row.value}</span>
-                                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#2890F8] group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0" />
                                 </Link>
                             );
                         })}
@@ -663,7 +663,7 @@ export default function ManagerDashboard() {
                                 <p className="text-xs text-slate-500">Classement par volume de rendez-vous générés</p>
                             </div>
                         </div>
-                        <Link href="/manager/missions" className="text-xs font-bold text-[#2890F8] hover:text-[#1a75ce] flex items-center gap-1">
+                        <Link href="/manager/missions" className="text-xs font-bold text-primary hover:text-[#1a75ce] flex items-center gap-1">
                             <span>Voir toutes</span>
                             <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
@@ -673,7 +673,7 @@ export default function ManagerDashboard() {
                         <div className="py-12 text-center">
                             <Target className="mx-auto h-8 w-8 text-slate-300" />
                             <p className="mt-2 text-sm text-slate-600 font-medium">Aucune mission active sur cette période.</p>
-                            <Link href="/manager/missions/new" className="mt-3 inline-flex text-xs font-bold text-[#2890F8]">
+                            <Link href="/manager/missions/new" className="mt-3 inline-flex text-xs font-bold text-primary">
                                 + Créer une première mission
                             </Link>
                         </div>
@@ -691,7 +691,7 @@ export default function ManagerDashboard() {
                                         <div className="flex items-start justify-between gap-4 mb-2">
                                             <div className="min-w-0">
                                                 <div className="flex items-center gap-2">
-                                                    <p className="text-sm font-bold text-slate-900 group-hover:text-[#2890F8] transition-colors truncate">
+                                                    <p className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors truncate">
                                                         {m.name}
                                                     </p>
                                                     <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-semibold">
@@ -719,7 +719,7 @@ export default function ManagerDashboard() {
                                             <div
                                                 className={cn(
                                                     "h-full rounded-full transition-all duration-500",
-                                                    pct >= 80 ? "bg-gradient-to-r from-emerald-400 to-teal-500" : "bg-gradient-to-r from-[#2890F8] to-[#156cd4]"
+                                                    pct >= 80 ? "bg-gradient-to-r from-emerald-400 to-teal-500" : "bg-gradient-to-r from-primary to-[#156cd4]"
                                                 )}
                                                 style={{ width: `${pct}%` }}
                                             />
@@ -779,7 +779,7 @@ export default function ManagerDashboard() {
 
                                             <div className="h-1.5 w-full bg-slate-200/80 rounded-full overflow-hidden mt-1.5">
                                                 <div
-                                                    className="h-full bg-gradient-to-r from-[#2890F8] to-[#156cd4] rounded-full"
+                                                    className="h-full bg-gradient-to-r from-primary to-[#156cd4] rounded-full"
                                                     style={{ width: `${Math.round((person.rdv / maxRdv) * 100)}%` }}
                                                 />
                                             </div>
@@ -804,7 +804,7 @@ export default function ManagerDashboard() {
                 <section className="xl:col-span-12 bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
                     <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#2890F8]">
+                            <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-primary">
                                 <Activity className="w-5 h-5" />
                             </div>
                             <div>
@@ -835,7 +835,7 @@ export default function ManagerDashboard() {
                                             className={cn(
                                                 "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5",
                                                 isMeeting
-                                                    ? "bg-blue-100 text-[#2890F8]"
+                                                    ? "bg-blue-100 text-primary"
                                                     : isCall
                                                         ? "bg-slate-200 text-slate-700"
                                                         : "bg-amber-100 text-amber-700"
@@ -848,7 +848,7 @@ export default function ManagerDashboard() {
                                             <p className="text-xs text-slate-700 leading-relaxed">
                                                 <strong className="text-slate-900 font-bold">{item.user}</strong> {item.action}
                                                 {item.contactOrCompanyName ? (
-                                                    <> avec <span className="font-bold text-[#2890F8]">{item.contactOrCompanyName}</span></>
+                                                    <> avec <span className="font-bold text-primary">{item.contactOrCompanyName}</span></>
                                                 ) : null}
                                             </p>
                                             <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-2">

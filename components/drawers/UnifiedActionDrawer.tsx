@@ -1417,7 +1417,7 @@ export function UnifiedActionDrawer({
                                     <button
                                         type="button"
                                         onClick={() => setNewActionResult("ENVOIE_MAIL")}
-                                        className="inline-flex h-9 shrink-0 items-center gap-2 rounded-[10px] border border-[#d7e3df] bg-white px-3 text-xs font-semibold text-[#1f4d47] hover:bg-[#eef4f2] active:scale-[0.98]"
+                                        className="inline-flex h-9 shrink-0 items-center gap-2 rounded-[10px] border border-[#d7e3df] bg-white px-3 text-xs font-semibold text-primary hover:bg-[#eef4f2] active:scale-[0.98]"
                                     >
                                         <Mail className="h-3.5 w-3.5" /> Envoyer un email
                                     </button>
@@ -1427,7 +1427,7 @@ export function UnifiedActionDrawer({
                                         href={contact.linkedin}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="inline-flex h-9 shrink-0 items-center gap-2 rounded-[10px] border border-[#d7e3df] bg-white px-3 text-xs font-semibold text-[#1f4d47] hover:bg-[#eef4f2] active:scale-[0.98]"
+                                        className="inline-flex h-9 shrink-0 items-center gap-2 rounded-[10px] border border-[#d7e3df] bg-white px-3 text-xs font-semibold text-primary hover:bg-[#eef4f2] active:scale-[0.98]"
                                     >
                                         <Linkedin className="h-3.5 w-3.5" /> LinkedIn
                                     </a>
@@ -1449,7 +1449,7 @@ export function UnifiedActionDrawer({
                                 {
                                     label: "Dernière action",
                                     value: sortedHistoryActions[0] ? (statusLabels[sortedHistoryActions[0].result] ?? sortedHistoryActions[0].result) : "Jamais contacté",
-                                    tone: sortedHistoryActions[0] ? "text-[#1f4d47]" : "text-slate-500",
+                                    tone: sortedHistoryActions[0] ? "text-primary" : "text-slate-500",
                                 },
                                 {
                                     label: "Rappel",
@@ -1466,7 +1466,7 @@ export function UnifiedActionDrawer({
                                 {
                                     label: "Canal",
                                     value: campaigns[0]?.mission?.channel === "EMAIL" ? "Email" : campaigns[0]?.mission?.channel === "LINKEDIN" ? "LinkedIn" : "Appel",
-                                    tone: "text-[#1f4d47]",
+                                    tone: "text-primary",
                                 },
                             ].map((item) => (
                                 <div key={item.label} className="border-b border-r border-[#edf1ef] px-3 py-2.5 last:border-r-0 md:border-b-0">
@@ -2896,12 +2896,12 @@ export function UnifiedActionDrawer({
 
                                     {/* ── Inline email panel: mailbox + template + edit-before-send ── */}
                                     {newActionResult === "ENVOIE_MAIL" && (
-                                        <div className="rounded-xl border border-[#CBD8D4] bg-[#F7F9F8] p-3.5 space-y-3">
+                                        <div className="rounded-xl border border-primary/20 bg-[#F7F9F8] p-3.5 space-y-3">
                                             <div className="flex items-center gap-2 mb-0.5">
-                                                <div className="w-6 h-6 rounded-lg bg-[#1F4D47] flex items-center justify-center">
+                                                <div className="w-6 h-6 rounded-lg bg-primary flex items-center justify-center">
                                                     <Mail className="w-3.5 h-3.5 text-white" aria-hidden="true" />
                                                 </div>
-                                                <span className="text-sm font-semibold text-[#1F4D47]">Envoyer un email</span>
+                                                <span className="text-sm font-semibold text-primary">Envoyer un email</span>
                                                 {missionName && <span className="text-xs text-slate-400 truncate">· {missionName}</span>}
                                             </div>
 
@@ -2933,7 +2933,7 @@ export function UnifiedActionDrawer({
                                                     <select
                                                         value={emailSelectedMailboxId}
                                                         onChange={e => setEmailSelectedMailboxId(e.target.value)}
-                                                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1F4D47]/25 focus:border-[#1F4D47]"
+                                                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary"
                                                     >
                                                         {emailMailboxes.map(mb => (
                                                             <option key={mb.id} value={mb.id}>
@@ -2959,7 +2959,7 @@ export function UnifiedActionDrawer({
                                                         {emailTemplates.map(mt => {
                                                             const isSelected = (emailSelectedTemplateId || emailTemplates[0]?.templateId) === mt.templateId;
                                                             const catColors: Record<string, string> = {
-                                                                OUTREACH: "bg-[#EDF4F2] text-[#1F4D47]",
+                                                                OUTREACH: "bg-primary-light text-primary",
                                                                 FOLLOW_UP: "bg-amber-100 text-amber-700",
                                                                 NURTURE: "bg-violet-100 text-violet-700",
                                                                 CLOSING: "bg-emerald-100 text-emerald-700",
@@ -2975,11 +2975,11 @@ export function UnifiedActionDrawer({
                                                                     className={cn(
                                                                         "flex items-start gap-2.5 px-3 py-2 rounded-lg border cursor-pointer transition-all",
                                                                         isSelected
-                                                                            ? "border-[#1F4D47] bg-[#EDF4F2] ring-1 ring-[#1F4D47]/30"
+                                                                            ? "border-primary bg-primary-light ring-1 ring-primary/30"
                                                                             : "border-slate-200 bg-white hover:border-[#9DBBB4] hover:bg-[#F1F4F3]"
                                                                     )}
                                                                 >
-                                                                    <div className={cn("mt-0.5 w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center transition-all", isSelected ? "border-[#1F4D47] bg-[#1F4D47]" : "border-slate-300")}>
+                                                                    <div className={cn("mt-0.5 w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center transition-all", isSelected ? "border-primary bg-primary" : "border-slate-300")}>
                                                                         {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                                                                     </div>
                                                                     <div className="flex-1 min-w-0">
@@ -3012,7 +3012,7 @@ export function UnifiedActionDrawer({
                                                             onClick={() => setEmailIsEditing(v => !v)}
                                                             className={cn(
                                                                 "flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-md transition-colors",
-                                                                emailIsEditing ? "text-white bg-[#1F4D47] hover:bg-[#173A35]" : "text-[#1F4D47] hover:bg-[#EDF4F2]"
+                                                                emailIsEditing ? "text-white bg-primary hover:bg-primary-hover" : "text-primary hover:bg-primary-light"
                                                             )}
                                                         >
                                                             <Edit3 className="w-3 h-3" />
@@ -3059,12 +3059,12 @@ export function UnifiedActionDrawer({
                                             )}
 
                                             {/* Send buttons */}
-                                            <div className="flex gap-2 pt-1 border-t border-[#CBD8D4]">
+                                            <div className="flex gap-2 pt-1 border-t border-primary/20">
                                                 <button
                                                     type="button"
                                                     onClick={() => handleSendEmailAndRecord(false)}
                                                     disabled={sendEmailMutation.isPending || !contact?.email || !emailSelectedMailboxId || !getChosenTemplateId()}
-                                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-[#1F4D47] hover:bg-[#173A35] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors"
+                                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors"
                                                 >
                                                     {sendEmailMutation.isPending ? (
                                                         <><Loader2 className="w-4 h-4 animate-spin" /> Envoi...</>
@@ -3077,7 +3077,7 @@ export function UnifiedActionDrawer({
                                                         type="button"
                                                         onClick={() => handleSendEmailAndRecord(true)}
                                                         disabled={sendEmailMutation.isPending || !contact?.email || !emailSelectedMailboxId || !getChosenTemplateId()}
-                                                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-[#1F4D47] bg-[#EDF4F2] hover:bg-[#DDE9E5] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors"
+                                                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary bg-primary-light hover:bg-[#DDE9E5] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors"
                                                     >
                                                         {sendEmailMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <ChevronRight className="w-4 h-4" />}
                                                         Envoyer &amp; Suivant
@@ -3114,7 +3114,7 @@ export function UnifiedActionDrawer({
                                             {canOpenBookingFlow ? (
                                                 <>
                                                     <div className="flex items-start gap-2.5">
-                                                        <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-[#1F4D47]" aria-hidden="true" />
+                                                        <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
                                                         <div>
                                                             <p className="text-sm font-semibold text-[#173C37]">Rendez-vous en 2 étapes</p>
                                                             <p className="mt-0.5 text-xs leading-relaxed text-slate-600">
@@ -3126,7 +3126,7 @@ export function UnifiedActionDrawer({
                                                         type="button"
                                                         variant="secondary"
                                                         onClick={() => setShowBookingDrawer(true)}
-                                                        className="w-full gap-2 border-[#8FB2AA] text-[#1F4D47] hover:bg-white"
+                                                        className="w-full gap-2 border-[#8FB2AA] text-primary hover:bg-white"
                                                     >
                                                         <Calendar className="w-4 h-4" aria-hidden="true" />
                                                         Reprendre la planification

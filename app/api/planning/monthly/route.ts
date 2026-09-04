@@ -3,7 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse, requirePlanningAccess, withErrorHandler } from '@/lib/api-utils';
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
-    await requirePlanningAccess(request);
+    const planningSession = await requirePlanningAccess(request);
+    const organizationId: string = (planningSession.user as any).organizationId || "org_default";
     const { searchParams } = new URL(request.url);
     const month = searchParams.get('month');
 
@@ -53,7 +54,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     });
 
     const missions = await prisma.mission.findMany({
-        where: { isActive: true },
+        where: { organizationId, isActive: true },
         select: {
             id: true,
             name: true,

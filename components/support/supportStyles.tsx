@@ -18,8 +18,8 @@ export function SupportStyles() {
             @keyframes cpSupSlideDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
             @keyframes cpSupSlideUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
             @keyframes cpSupFabPulse {
-                0%, 100% { box-shadow: 0 12px 32px rgba(40,144,248,0.32), 0 0 0 0 rgba(40,144,248,0.35); }
-                50%      { box-shadow: 0 12px 32px rgba(40,144,248,0.32), 0 0 0 14px rgba(40,144,248,0); }
+                0%, 100% { box-shadow: 0 12px 32px rgba(var(--brand-primary-rgb),0.32), 0 0 0 0 rgba(var(--brand-primary-rgb),0.35); }
+                50%      { box-shadow: 0 12px 32px rgba(var(--brand-primary-rgb),0.32), 0 0 0 14px rgba(var(--brand-primary-rgb),0); }
             }
             @keyframes cpSupStatusPing {
                 0%, 100% { transform: scale(1); opacity: 0.55; }
@@ -32,8 +32,8 @@ export function SupportStyles() {
             @keyframes cpSupBadgePop { from { transform: scale(0); } to { transform: scale(1); } }
             @keyframes cpSupPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
             @keyframes cpSupResolvedWash {
-                from { background-color: rgba(40,144,248,0); }
-                to   { background-color: rgba(40,144,248,0.06); }
+                from { background-color: rgba(var(--brand-primary-rgb),0); }
+                to   { background-color: rgba(var(--brand-primary-rgb),0.06); }
             }
 
             .cp-support-root .cp-sup-scroll-hidden::-webkit-scrollbar { display: none; }
@@ -61,11 +61,11 @@ export const SUP_LIGHT = {
     ink2: "#333333",
     ink3: "#666666",
     ink4: "#8d9b96",
-    brand: "#2890F8",
+    brand: "var(--brand-primary)",
     brandStrong: "#1a75ce",
     brandSoft: "#e6f0fa",
     brandSofter: "#f0f6fc",
-    accentAmber: "#2890F8",
+    accentAmber: "var(--brand-primary)",
     accentAmberSoft: "#e6f0fa",
     danger: "#b9433e",
     dangerSoft: "#fae9e6",
@@ -76,7 +76,7 @@ export const SUP_LIGHT = {
     radiusXS: 10,
     shadowPanel:
         "0 32px 80px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6)",
-    shadowFab: "0 12px 28px rgba(40,144,248,0.32)",
+    shadowFab: "0 12px 28px rgba(var(--brand-primary-rgb),0.32)",
 };
 
 /** Manager workspace tokens — sits above the dark sidebar, Ping blue accent. */
@@ -90,11 +90,11 @@ export const SUP_DARK = {
     ink2: "#cccccc",
     ink3: "#888888",
     ink4: "#555555",
-    brand: "#2890F8",
+    brand: "var(--brand-primary)",
     brandStrong: "#1a75ce",
-    brandSoft: "rgba(40,144,248,0.2)",
+    brandSoft: "rgba(var(--brand-primary-rgb),0.2)",
     accentAmber: "#5baefc",
-    accentAmberSoft: "rgba(40,144,248,0.15)",
+    accentAmberSoft: "rgba(var(--brand-primary-rgb),0.15)",
     danger: "#b9433e",
     dangerSoft: "rgba(185,67,62,0.12)",
     radiusXL: 24,

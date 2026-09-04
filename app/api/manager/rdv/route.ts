@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
   successResponse,
-  requireRole,
+  requireOrganization,
   withErrorHandler,
   getPaginationParams,
 } from "@/lib/api-utils";
@@ -11,7 +11,7 @@ import { createClientPortalNotification, sendNewRdvEmailNotification } from "@/l
 import { filterRdvList } from "@/lib/utils/meetingFilters";
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
-  await requireRole(["MANAGER"], request);
+  const { organizationId } = await requireOrganization(request);
   const sp = new URL(request.url).searchParams;
 
   const search = sp.get("search")?.trim() ?? "";
@@ -40,6 +40,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000);
   const toAutoConfirm = await prisma.action.findMany({
     where: {
+      organizationId,
       result: "MEETING_BOOKED",
       confirmationStatus: "PENDING",
       createdAt: { lt: cutoff },
@@ -99,6 +100,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   }
 
   const where: Prisma.ActionWhereInput = {
+    organizationId,
     result: { in: ["MEETING_BOOKED", "MEETING_CANCELLED"] },
   };
 

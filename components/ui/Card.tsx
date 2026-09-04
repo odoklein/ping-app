@@ -9,7 +9,7 @@ const CARD_VARIANTS: Record<string, string> = {
     default: "bg-white border border-slate-200/80 shadow-sm",
     glass: "bg-white/92 backdrop-blur-xl border border-slate-200/80 shadow-sm",
     elevated:
-        "bg-white border border-slate-200 shadow-[0_18px_50px_rgba(40,144,248,.07)]",
+        "bg-white border border-slate-200 shadow-[0_18px_50px_rgba(var(--brand-primary-rgb),.07)]",
 };
 
 const Card = forwardRef<HTMLDivElement, CardProps>(

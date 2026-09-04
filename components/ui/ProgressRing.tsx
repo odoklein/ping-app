@@ -46,9 +46,9 @@ export function ProgressRing({
             >
                 <defs>
                     <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#2890F8" />
+                        <stop offset="0%" stopColor="var(--brand-primary)" />
                         <stop offset="50%" stopColor="#5baefc" />
-                        <stop offset="100%" stopColor="#2890F8" />
+                        <stop offset="100%" stopColor="var(--brand-primary)" />
                     </linearGradient>
                     {variant === "glow" && (
                         <filter id={glowId}>

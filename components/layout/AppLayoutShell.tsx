@@ -12,6 +12,7 @@ import { NavSection, getNavByRole, ROLE_CONFIG } from "@/lib/navigation/config";
 import { NotificationBell } from "@/components/ui/NotificationBell";
 import { IntakeTriggerButton } from "@/components/intake";
 import { Modal } from "@/components/ui";
+import { MobileBottomNav } from "./MobileBottomNav";
 import { cn } from "@/lib/utils";
 import { RefreshCw, AlertTriangle, BellRing, PhoneCall } from "lucide-react";
 
@@ -562,7 +563,7 @@ function InnerLayout({
                         {children}
                     </div>
                 ) : (
-                    <div className="cp-content">
+                    <div className="cp-content pb-24 lg:pb-6">
                         <div className="min-w-0 w-full">{children}</div>
                     </div>
                 )}
@@ -780,6 +781,7 @@ function InnerLayout({
                     )}
                 </Modal>
             </main>
+            <MobileBottomNav />
         </div>
     );
 }

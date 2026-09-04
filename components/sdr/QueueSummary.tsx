@@ -24,7 +24,7 @@ const ITEMS = [
         label: "Actions restantes",
         note: "Dans la file affichée",
         icon: ListTodo,
-        tone: "bg-[#e8f1ee] text-[#1f4d47] border-[#d8e5e0]",
+        tone: "bg-[#e8f1ee] text-primary border-[#d8e5e0]",
     },
     {
         key: "urgentCallbacks",

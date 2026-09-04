@@ -5,28 +5,18 @@ import { usePathname } from "next/navigation";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Shared sub-navigation primitive — Phase 2 of manager refactor.
-// Replaces the per-feature sub-nav components (BillingSubNav, EmailHubTabs,
-// future SettingsSubNav, ProspectsSubNav) with one tested pattern.
-// Pass label + href + icon. `exact` controls active-state matching: use it
-// for the landing item so its prefix-match doesn't swallow sibling routes.
-
 export interface SubNavItem {
     href: string;
     label: string;
     icon: LucideIcon;
-    /** Match only the exact href (use for landing items). Defaults to false. */
     exact?: boolean;
-    /** Optional permission code; item is hidden if user lacks it. */
     permission?: string;
 }
 
 interface SubNavProps {
     items: SubNavItem[];
-    /** Small uppercase label rendered above the nav (e.g. "Facturation"). */
     eyebrow?: string;
     className?: string;
-    /** Optional product tone for active and focus states. */
     tone?: "default" | "email";
     "aria-label"?: string;
 }
@@ -46,18 +36,16 @@ export function SubNav({
     const pathname = usePathname();
 
     return (
-        <div className={cn("flex flex-col gap-4", className)}>
+        <div className="flex flex-col gap-4">
             {eyebrow && (
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <p className="text-xs font-semibold text-muted uppercase tracking-wider">
                     {eyebrow}
                 </p>
             )}
             <nav
                 className={cn(
-                    "flex items-center gap-1 p-1 rounded-xl border overflow-x-auto",
-                    tone === "email"
-                        ? "bg-[#EEF3F1] border-[#D7E1DE]"
-                        : "bg-slate-100 border-slate-200/80"
+                    "flex items-center gap-1 p-1 rounded-xl border border-border bg-subtle overflow-x-auto",
+                    className
                 )}
                 aria-label={ariaLabel ?? eyebrow ?? "Sub-navigation"}
             >
@@ -72,12 +60,8 @@ export function SubNav({
                             className={cn(
                                 "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors",
                                 isActive
-                                    ? tone === "email"
-                                        ? "bg-white text-[#1F4D47] shadow-sm border border-[#CBD8D4]"
-                                        : "bg-white text-indigo-700 shadow-sm border border-slate-200/80"
-                                    : tone === "email"
-                                        ? "text-slate-600 hover:text-[#1F4D47] hover:bg-white/70"
-                                        : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                                    ? "bg-surface text-primary shadow-sm border border-border font-semibold"
+                                    : "text-muted hover:text-ink hover:bg-surface/60"
                             )}
                         >
                             <Icon className="w-4 h-4 flex-shrink-0" />

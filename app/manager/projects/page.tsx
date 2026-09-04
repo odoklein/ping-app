@@ -370,7 +370,7 @@ export default function ManagerProjectsPage() {
                             className={cn(
                                 "px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all",
                                 statusFilter === f.value
-                                    ? "bg-[#EEF3F1] text-[#1F4D47] border-[#AFC5BF] shadow-sm"
+                                    ? "bg-primary-light text-primary border-[#AFC5BF] shadow-sm"
                                     : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
                             )}
                         >
@@ -397,13 +397,13 @@ export default function ManagerProjectsPage() {
                 <div className="flex bg-slate-100 border border-slate-200 rounded-xl p-0.5 ml-auto">
                     <button
                         onClick={() => setView("grid")}
-                        className={cn("p-2 rounded-lg transition-all", view === "grid" ? "bg-white shadow-sm text-[#1F4D47]" : "text-slate-400 hover:text-slate-600")}
+                        className={cn("p-2 rounded-lg transition-all", view === "grid" ? "bg-white shadow-sm text-primary" : "text-slate-400 hover:text-slate-600")}
                     >
                         <LayoutGrid className="w-4 h-4" />
                     </button>
                     <button
                         onClick={() => setView("list")}
-                        className={cn("p-2 rounded-lg transition-all", view === "list" ? "bg-white shadow-sm text-[#1F4D47]" : "text-slate-400 hover:text-slate-600")}
+                        className={cn("p-2 rounded-lg transition-all", view === "list" ? "bg-white shadow-sm text-primary" : "text-slate-400 hover:text-slate-600")}
                     >
                         <LayoutList className="w-4 h-4" />
                     </button>
@@ -433,7 +433,7 @@ export default function ManagerProjectsPage() {
                     </p>
                     <button
                         onClick={() => setShowCreate(true)}
-                        className="flex items-center gap-2 rounded-[10px] border border-[#143C37] bg-[#1F4D47] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#143C37]"
+                        className="flex items-center gap-2 rounded-[10px] border border-primary-hover bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover"
                     >
                         <Plus className="w-4 h-4" />
                         Créer un projet

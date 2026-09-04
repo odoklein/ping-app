@@ -428,7 +428,7 @@ export function EmailComposer({
 
             <div
                 className={cn(
-                    "fixed z-[100] bg-white flex flex-col transition-[width,height,inset] duration-200 ease-out border-[#CBD8D4]",
+                    "fixed z-[100] bg-white flex flex-col transition-[width,height,inset] duration-200 ease-out border-primary/20",
                     isMinimized
                         ? "bottom-0 right-4 w-80 h-10 rounded-t-xl shadow-lg border border-slate-200"
                         : isFullscreen
@@ -442,8 +442,8 @@ export function EmailComposer({
                     sendSuccess
                         ? "bg-emerald-600 rounded-t-2xl"
                         : isMinimized
-                            ? "bg-[#1F4D47] rounded-t-xl"
-                            : "bg-[#1F4D47] rounded-t-xl"
+                            ? "bg-primary rounded-t-xl"
+                            : "bg-primary rounded-t-xl"
                 )}>
                     <div className="flex items-center gap-2 min-w-0">
                         {sendSuccess ? (
@@ -522,12 +522,12 @@ export function EmailComposer({
                             {to.map((email, i) => (
                                 <span
                                     key={i}
-                                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#EDF4F2] text-[#1F4D47] text-[12px] rounded-lg font-medium border border-[#C9D9D5]"
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-primary-light text-primary text-[12px] rounded-lg font-medium border border-[#C9D9D5]"
                                 >
                                     {email}
                                     <button
                                         onClick={() => setTo(prev => prev.filter((_, idx) => idx !== i))}
-                                        className="text-[#66847F] hover:text-[#1F4D47] ml-0.5"
+                                        className="text-[#66847F] hover:text-primary ml-0.5"
                                     >
                                         <X className="w-3 h-3" />
                                     </button>
@@ -558,7 +558,7 @@ export function EmailComposer({
                                                 className={cn(
                                                     "cursor-pointer px-3 py-2 text-[13px] font-medium",
                                                     i === domainSuggestionsIndex
-                                                        ? "bg-[#EDF4F2] text-[#1F4D47]"
+                                                        ? "bg-primary-light text-primary"
                                                         : "text-slate-700 hover:bg-slate-50"
                                                 )}
                                                 onMouseDown={(e) => {
@@ -574,12 +574,12 @@ export function EmailComposer({
                             </div>
                             <div className="flex items-center gap-1.5 text-[12px] text-slate-400 flex-shrink-0">
                                 {!showCc && (
-                                    <button onClick={() => setShowCc(true)} className="hover:text-[#1F4D47] font-medium">
+                                    <button onClick={() => setShowCc(true)} className="hover:text-primary font-medium">
                                         Cc
                                     </button>
                                 )}
                                 {!showBcc && (
-                                    <button onClick={() => setShowBcc(true)} className="hover:text-[#1F4D47] font-medium">
+                                    <button onClick={() => setShowBcc(true)} className="hover:text-primary font-medium">
                                         Cci
                                     </button>
                                 )}
@@ -624,7 +624,7 @@ export function EmailComposer({
                                                     aria-selected={i === domainSuggestionsIndex}
                                                     className={cn(
                                                         "cursor-pointer px-3 py-2 text-[13px] font-medium",
-                                                        i === domainSuggestionsIndex ? "bg-[#EDF4F2] text-[#1F4D47]" : "text-slate-700 hover:bg-slate-50"
+                                                        i === domainSuggestionsIndex ? "bg-primary-light text-primary" : "text-slate-700 hover:bg-slate-50"
                                                     )}
                                                     onMouseDown={(e) => {
                                                         e.preventDefault();
@@ -678,7 +678,7 @@ export function EmailComposer({
                                                     aria-selected={i === domainSuggestionsIndex}
                                                     className={cn(
                                                         "cursor-pointer px-3 py-2 text-[13px] font-medium",
-                                                        i === domainSuggestionsIndex ? "bg-[#EDF4F2] text-[#1F4D47]" : "text-slate-700 hover:bg-slate-50"
+                                                        i === domainSuggestionsIndex ? "bg-primary-light text-primary" : "text-slate-700 hover:bg-slate-50"
                                                     )}
                                                     onMouseDown={(e) => {
                                                         e.preventDefault();
@@ -750,7 +750,7 @@ export function EmailComposer({
                             <div className="w-px h-4 bg-slate-200 mx-0.5" />
                             <button
                                 onClick={() => setShowAiDraftDialog(true)}
-                                className="flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-[#EDF4F2] text-[#1F4D47] transition-colors"
+                                className="flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-primary-light text-primary transition-colors"
                                 title="Rédaction assistée par IA"
                             >
                                 <Sparkles className="w-4 h-4" />
@@ -771,13 +771,13 @@ export function EmailComposer({
                         {/* Server-managed signature preview. It is intentionally
                             outside the editable message body to prevent duplicates. */}
                         {selectedMailbox?.signatureHtml && (
-                            <div className="mx-4 mb-3 border-t border-dashed border-[#CBD8D4] pt-3">
+                            <div className="mx-4 mb-3 border-t border-dashed border-primary/20 pt-3">
                                 <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                                    <CheckCircle2 className="h-3 w-3 text-[#1F4D47]" />
+                                    <CheckCircle2 className="h-3 w-3 text-primary" />
                                     Signature ajoutée automatiquement
                                 </div>
                                 <div
-                                    className="pointer-events-none text-[13px] leading-relaxed text-slate-600 [&_a]:text-[#1F4D47] [&_a]:underline"
+                                    className="pointer-events-none text-[13px] leading-relaxed text-slate-600 [&_a]:text-primary [&_a]:underline"
                                     dangerouslySetInnerHTML={{ __html: selectedMailbox.signatureHtml }}
                                 />
                             </div>
@@ -883,7 +883,7 @@ export function EmailComposer({
                                         "flex items-center gap-2 px-5 py-2 text-sm font-bold rounded-lg transition-colors active:translate-y-px",
                                         isSending || !selectedMailboxId || to.length === 0 || isOverLimit
                                             ? "bg-slate-300 cursor-not-allowed text-slate-500"
-                                            : "bg-[#2890F8] text-white hover:bg-[#1a75ce] shadow-sm"
+                                            : "bg-primary text-white hover:bg-primary-hover shadow-sm"
                                     )}
                                 >
                                     {isSending ? (

@@ -27,7 +27,7 @@ const tk = {
   ink3: "#666666",
   ink4: "#8d9b96",
 
-  accent:      "#2890F8",
+  accent:      "var(--brand-primary)",
   accentMid:   "#5baefc",
   accentLight: "#e6f0fa",
   accentText:  "#1a75ce",
@@ -37,8 +37,8 @@ const tk = {
   greenMid:   "#2e9b7b",
   greenText:  "#237d63",
 
-  amber:      "#2890F8",
-  amberLight: "rgba(40,144,248,0.12)",
+  amber:      "var(--brand-primary)",
+  amberLight: "rgba(var(--brand-primary-rgb),0.12)",
   amberText:  "#1a75ce",
 
   red:        "#b9433e",

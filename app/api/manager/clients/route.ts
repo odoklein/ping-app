@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireRole, successResponse, withErrorHandler } from '@/lib/api-utils';
+import { requireOrganization, successResponse, withErrorHandler } from '@/lib/api-utils';
 
 // ============================================
 // GET /api/manager/clients
@@ -8,9 +8,10 @@ import { requireRole, successResponse, withErrorHandler } from '@/lib/api-utils'
 // ============================================
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
-  await requireRole(['MANAGER'], request);
+  const { organizationId } = await requireOrganization(request);
 
   const clients = await prisma.client.findMany({
+    where: { organizationId },
     select: {
       id: true,
       name: true,

@@ -78,6 +78,16 @@ export default withAuth(
             return NextResponse.redirect(new URL("/unauthorized", req.url));
         }
 
+        // Super-admin surface: only platform org (org_default) or designated admin email.
+        if (path.startsWith("/super-admin")) {
+            const orgId = token?.organizationId as string | undefined;
+            const email = token?.email as string | undefined;
+            const isSuperAdmin = orgId === "org_default" || email === "admin@ping-crm.com";
+            if (!isSuperAdmin) {
+                return NextResponse.redirect(new URL("/unauthorized", req.url));
+            }
+        }
+
         return NextResponse.next();
     },
     {
@@ -102,7 +112,9 @@ export const config = {
         "/admin/intake/:path*",
         "/calendar",
         "/dashboard",
-        // All /api routes except /api/auth/* (NextAuth handles its own routes)
-        "/api/((?!auth/).*)",
+        // All /api routes except NextAuth's own routes and the public
+        // invitation endpoints (activation happens before a session exists).
+        "/super-admin/:path*",
+        "/api/((?!auth/|invitations/verify|invitations/accept|invitations/request-resend).*)",
     ],
 };

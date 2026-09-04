@@ -3,13 +3,14 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
-    Users, Plus, Search, LayoutGrid, List, Loader2,
-    UserCheck, UserX, ChevronRight, Phone, Calendar,
-    Shield, Globe, LogIn, MoreHorizontal, X,
+    Users, Search, LayoutGrid, List, Loader2,
+    UserCheck, UserX, ChevronRight, Phone,
+    Globe, LogIn, X, UserPlus, MailPlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { InviteUserModal, type InviteResult } from "@/components/manager/InviteUserModal";
+import { PendingInvitationsTable } from "@/components/manager/PendingInvitationsTable";
 import { useToast } from "@/components/ui";
-import { Modal, ModalFooter, ConfirmModal } from "@/components/ui/Modal";
 
 // ============================================
 // TYPES
@@ -289,150 +290,12 @@ function UserRow({ user, onClick }: { user: User; onClick: () => void }) {
 }
 
 // ============================================
-// INLINE USER FORM
-// ============================================
-
-function UserFormFields({
-    data,
-    errors,
-    clients,
-    onChange,
-}: {
-    data: {
-        name: string; email: string; password: string; role: string;
-        clientId: string;
-        voipProvider: string; alloPhoneNumber: string; onoffNumber: string; onoffUserId: string; ringoverNumber: string;
-        sdrFeedbackPromptTime: string; sdrFeedbackRequiredDaily: boolean;
-    };
-    errors: Record<string, string>;
-    clients: { id: string; name: string }[];
-    onChange: (patch: Partial<typeof data>) => void;
-}) {
-    const fieldClass = "w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-slate-900 placeholder:text-slate-400";
-    const labelClass = "block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5";
-
-    return (
-        <div className="space-y-4">
-            {errors.general && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">{errors.general}</div>
-            )}
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className={labelClass}>Nom</label>
-                    <input className={cn(fieldClass, errors.name && "border-red-300")} value={data.name} onChange={(e) => onChange({ name: e.target.value })} placeholder="Jean Dupont" />
-                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-                </div>
-                <div>
-                    <label className={labelClass}>Rôle</label>
-                    <select className={fieldClass} value={data.role} onChange={(e) => onChange({ role: e.target.value, clientId: e.target.value === "CLIENT" ? data.clientId : "" })}>
-                        <option value="SDR">SDR</option>
-                        <option value="BOOKER">Booker</option>
-                        <option value="BUSINESS_DEVELOPER">Business Dev</option>
-                        <option value="MANAGER">Manager</option>
-                        <option value="DEVELOPER">Développeur</option>
-                        <option value="CLIENT">Client</option>
-                        <option value="COMMERCIAL">Commercial</option>
-                    </select>
-                </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className={labelClass}>Email</label>
-                    <input className={cn(fieldClass, errors.email && "border-red-300")} type="email" value={data.email} onChange={(e) => onChange({ email: e.target.value })} placeholder="jean@example.com" />
-                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-                </div>
-                <div>
-                    <label className={labelClass}>Mot de passe <span className="text-slate-400 normal-case font-normal">(optionnel)</span></label>
-                    <input className={fieldClass} type="password" value={data.password} onChange={(e) => onChange({ password: e.target.value })} placeholder="Généré auto" />
-                </div>
-            </div>
-
-            {/* VoIP / Telephony System Selector */}
-            {(data.role === "SDR" || data.role === "BOOKER" || data.role === "BUSINESS_DEVELOPER") && (
-                <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-3">
-                    <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Système Téléphonie / VoIP</p>
-                    <div>
-                        <label className={labelClass}>Fournisseur VoIP</label>
-                        <select className={fieldClass} value={data.voipProvider} onChange={(e) => onChange({ voipProvider: e.target.value })}>
-                            <option value="ALLO">WithAllo (Allo)</option>
-                            <option value="ONOFF">Onoff Business</option>
-                            <option value="RINGOVER">Ringover</option>
-                            <option value="NONE">Aucun / Manuel</option>
-                        </select>
-                    </div>
-
-                    {data.voipProvider === "ALLO" && (
-                        <div>
-                            <label className={labelClass}>Numéro Allo <span className="text-slate-400 normal-case font-normal">(optionnel)</span></label>
-                            <input className={fieldClass} value={data.alloPhoneNumber} onChange={(e) => onChange({ alloPhoneNumber: e.target.value })} placeholder="+33612345678" />
-                        </div>
-                    )}
-
-                    {data.voipProvider === "ONOFF" && (
-                        <div className="grid grid-cols-2 gap-3">
-                            <div>
-                                <label className={labelClass}>Numéro Onoff</label>
-                                <input className={fieldClass} value={data.onoffNumber} onChange={(e) => onChange({ onoffNumber: e.target.value })} placeholder="+33612345678" />
-                            </div>
-                            <div>
-                                <label className={labelClass}>ID Membre Onoff</label>
-                                <input className={fieldClass} value={data.onoffUserId} onChange={(e) => onChange({ onoffUserId: e.target.value })} placeholder="user_12345" />
-                            </div>
-                        </div>
-                    )}
-
-                    {data.voipProvider === "RINGOVER" && (
-                        <div>
-                            <label className={labelClass}>Numéro Ringover</label>
-                            <input className={fieldClass} value={data.ringoverNumber} onChange={(e) => onChange({ ringoverNumber: e.target.value })} placeholder="+33123456789" />
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {data.role === "CLIENT" && (
-                <div>
-                    <label className={labelClass}>Client <span className="text-red-500">*</span></label>
-                    <select className={cn(fieldClass, errors.clientId && "border-red-300")} value={data.clientId} onChange={(e) => onChange({ clientId: e.target.value })}>
-                        <option value="">Sélectionner un client</option>
-                        {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
-                    {errors.clientId && <p className="text-red-500 text-xs mt-1">{errors.clientId}</p>}
-                </div>
-            )}
-            {(data.role === "SDR" || data.role === "BOOKER") && (
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                    <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Feedback SDR</p>
-                    <div className="grid grid-cols-2 gap-3 items-end">
-                        <div>
-                            <label className={labelClass}>Heure d'affichage</label>
-                            <input type="time" className={fieldClass} value={data.sdrFeedbackPromptTime} onChange={(e) => onChange({ sdrFeedbackPromptTime: e.target.value })} />
-                        </div>
-                        <label className="flex items-center gap-2 text-sm text-slate-700 pb-2.5 cursor-pointer">
-                            <input type="checkbox" checked={data.sdrFeedbackRequiredDaily} onChange={(e) => onChange({ sdrFeedbackRequiredDaily: e.target.checked })} className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
-                            Obligatoire chaque jour
-                        </label>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-}
-
-// ============================================
 // MAIN PAGE
 // ============================================
 
-const EMPTY_FORM = {
-    name: "", email: "", password: "", role: "SDR",
-    clientId: "",
-    voipProvider: "ALLO", alloPhoneNumber: "", onoffNumber: "", onoffUserId: "", ringoverNumber: "",
-    sdrFeedbackPromptTime: "15:45", sdrFeedbackRequiredDaily: true,
-};
-
 export default function UtilisateursPage() {
     const router = useRouter();
-    const { success, error: showError } = useToast();
+    const { success } = useToast();
 
     const [users, setUsers]         = useState<User[]>([]);
     const [loading, setLoading]     = useState(true);
@@ -441,10 +304,10 @@ export default function UtilisateursPage() {
     const [roleFilter, setRoleFilter] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
 
-    const [showCreate, setShowCreate] = useState(false);
-    const [formData, setFormData]   = useState(EMPTY_FORM);
-    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-    const [formLoading, setFormLoading] = useState(false);
+    const [tab, setTab]             = useState<"members" | "invitations">("members");
+    const [showInvite, setShowInvite] = useState(false);
+    const [invitationsRefreshKey, setInvitationsRefreshKey] = useState(0);
+    const [pendingCount, setPendingCount] = useState(0);
     const [clients, setClients]     = useState<{ id: string; name: string }[]>([]);
 
     const fetchUsers = useCallback(async () => {
@@ -472,39 +335,26 @@ export default function UtilisateursPage() {
         }).catch(() => {});
     }, []);
 
-    const handleCreate = async () => {
-        setFormErrors({});
-        if (!formData.name.trim()) { setFormErrors({ name: "Nom requis" }); return; }
-        if (!formData.email.trim()) { setFormErrors({ email: "Email requis" }); return; }
-        if (formData.role === "CLIENT" && !formData.clientId) { setFormErrors({ clientId: "Sélectionnez un client" }); return; }
-
-        setFormLoading(true);
+    const fetchPendingCount = useCallback(async () => {
         try {
-            const payload: Record<string, unknown> = {
-                name: formData.name, email: formData.email,
-                password: formData.password || undefined,
-                role: formData.role,
-                voipProvider: formData.voipProvider,
-                alloPhoneNumber: formData.alloPhoneNumber.trim() || undefined,
-                onoffNumber: formData.onoffNumber.trim() || undefined,
-                onoffUserId: formData.onoffUserId.trim() || undefined,
-                ringoverNumber: formData.ringoverNumber.trim() || undefined,
-            };
-            if (formData.role === "CLIENT" && formData.clientId) payload.clientId = formData.clientId;
-
-            const res = await fetch("/api/users", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+            const res = await fetch("/api/invitations?status=PENDING", { cache: "no-store" });
             const json = await res.json();
-            if (!json.success) { setFormErrors({ general: json.error }); return; }
-
-            setShowCreate(false);
-            setFormData(EMPTY_FORM);
-            await fetchUsers();
-            success("Utilisateur créé", `${formData.name} a rejoint l'équipe.`);
+            if (json?.success) setPendingCount(json.data.total ?? 0);
         } catch {
-            setFormErrors({ general: "Erreur lors de la création" });
-        } finally {
-            setFormLoading(false);
+            /* the badge is informational — a failure just leaves it at 0 */
         }
+    }, []);
+
+    useEffect(() => { fetchPendingCount(); }, [fetchPendingCount, invitationsRefreshKey]);
+
+    const handleInvited = (result: InviteResult) => {
+        setInvitationsRefreshKey((k) => k + 1);
+        success(
+            result.emailSent ? "Invitation envoyée" : "Invitation créée",
+            result.emailSent
+                ? `${result.email} va recevoir son lien d'activation (${result.roleLabel}).`
+                : `Email indisponible — transmettez le lien d'activation à ${result.email}.`,
+        );
     };
 
     // Derived stats
@@ -529,145 +379,181 @@ export default function UtilisateursPage() {
                     <p className="text-sm text-slate-500 mt-0.5">Gérez votre équipe et leurs accès</p>
                 </div>
                 <button
-                    onClick={() => setShowCreate(true)}
-                    className="inline-flex items-center justify-center gap-2 rounded-[10px] border border-[#143C37] bg-[#1F4D47] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#143C37]"
+                    onClick={() => setShowInvite(true)}
+                    className="inline-flex items-center justify-center gap-2 rounded-[10px] border border-primary bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover shadow-sm cursor-pointer"
                 >
-                    <Plus className="w-4 h-4" />
-                    Nouvel utilisateur
+                    <UserPlus className="w-4 h-4" />
+                    Inviter un collaborateur
                 </button>
             </div>
 
-            {/* ── Role distribution bar ── */}
-            {!loading && users.length > 0 && (
-                <div className="bg-white rounded-2xl border border-slate-200 px-5 py-3">
-                    <RoleDistributionBar users={users} />
-                </div>
-            )}
-
-            {/* ── Stats row ── */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                {[
-                    { label: "Total", value: stats.total, color: "text-slate-900", bg: "bg-white border-slate-200" },
-                    { label: "Actifs", value: stats.active, color: "text-emerald-700", bg: "bg-emerald-50 border-emerald-200" },
-                    { label: "SDR / Booker", value: stats.sdrCount, color: "text-blue-700", bg: "bg-blue-50 border-blue-200" },
-                    { label: "Inactifs", value: stats.inactive, color: "text-rose-600", bg: "bg-rose-50 border-rose-200" },
-                    { label: "En ligne", value: stats.online, color: "text-[#1F4D47]", bg: "bg-[#EEF3F1] border-[#CBD8D4]" },
-                ].map((s) => (
-                    <div key={s.label} className={cn("rounded-2xl border px-4 py-3", s.bg)}>
-                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{s.label}</p>
-                        <p className={cn("text-2xl font-extrabold mt-1", s.color)}>{s.value}</p>
-                    </div>
-                ))}
-            </div>
-
-            {/* ── Filter bar ── */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-3 flex flex-wrap items-center gap-2">
-                {/* Search */}
-                <div className="relative flex-1 min-w-[200px]">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input
-                        type="text"
-                        placeholder="Rechercher…"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="w-full rounded-[10px] border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#E07C00] focus:ring-2 focus:ring-[#FF9E1B]/20"
-                    />
-                    {search && (
-                        <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
-                            <X className="w-3.5 h-3.5 text-slate-400" />
-                        </button>
-                    )}
-                </div>
-
-                {/* Role pills */}
-                <div className="flex items-center gap-1 flex-wrap">
-                    <button
-                        onClick={() => setRoleFilter("")}
-                        className={cn("px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors", !roleFilter ? "bg-[#1F4D47] text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200")}
-                    >Tous</button>
-                    {ROLES.map((r) => (
+            {/* -- Tabs: members / pending invitations -- */}
+            <div className="flex items-center gap-1 border-b border-slate-200">
+                {([
+                    { id: "members", label: "Membres", icon: Users, count: users.length },
+                    { id: "invitations", label: "Invitations en cours", icon: MailPlus, count: pendingCount },
+                ] as const).map((t) => {
+                    const TabIcon = t.icon;
+                    const active = tab === t.id;
+                    return (
                         <button
-                            key={r}
-                            onClick={() => setRoleFilter(roleFilter === r ? "" : r)}
-                            className={cn("px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors",
-                                roleFilter === r
-                                    ? cn(ROLE_COLORS[r]?.bg, ROLE_COLORS[r]?.text, "ring-1 ring-current/20")
-                                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                            key={t.id}
+                            onClick={() => setTab(t.id)}
+                            className={cn(
+                                "inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors cursor-pointer",
+                                active
+                                    ? "border-primary text-primary"
+                                    : "border-transparent text-slate-500 hover:text-slate-800",
                             )}
-                        >{ROLE_LABELS[r] ?? r}</button>
-                    ))}
-                </div>
-
-                {/* Status toggle */}
-                <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-                >
-                    <option value="all">Tous les statuts</option>
-                    <option value="active">Actifs</option>
-                    <option value="inactive">Inactifs</option>
-                </select>
-
-                {/* View toggle */}
-                <div className="flex items-center bg-slate-100 rounded-lg p-0.5 gap-0.5 ml-auto">
-                    <button onClick={() => setView("cards")} className={cn("p-1.5 rounded-md transition-colors", view === "cards" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600")}>
-                        <LayoutGrid className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => setView("list")} className={cn("p-1.5 rounded-md transition-colors", view === "list" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600")}>
-                        <List className="w-4 h-4" />
-                    </button>
-                </div>
+                        >
+                            <TabIcon className="w-4 h-4" />
+                            {t.label}
+                            {t.count > 0 && (
+                                <span className={cn(
+                                    "rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
+                                    active ? "bg-primary-light text-primary" : "bg-slate-100 text-slate-500",
+                                )}>
+                                    {t.count}
+                                </span>
+                            )}
+                        </button>
+                    );
+                })}
             </div>
 
-            {/* ── Content ── */}
-            {loading ? (
-                <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-7 h-7 text-indigo-500 animate-spin" />
-                </div>
-            ) : users.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-                        <Users className="w-8 h-8 text-slate-400" />
-                    </div>
-                    <p className="font-semibold text-slate-700">Aucun utilisateur trouvé</p>
-                    <p className="text-sm text-slate-400 mt-1">Modifiez vos filtres ou créez un nouveau compte.</p>
-                </div>
-            ) : view === "cards" ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {users.map((u) => (
-                        <UserCard key={u.id} user={u} onClick={() => router.push(`/manager/utilisateurs/${u.id}`)} />
-                    ))}
-                </div>
+            {tab === "invitations" ? (
+                <PendingInvitationsTable refreshKey={invitationsRefreshKey} />
             ) : (
-                <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                    <div className="hidden lg:grid grid-cols-[auto_1fr_120px_90px_110px_80px_40px] items-center gap-4 px-4 py-2 bg-slate-50 border-b border-slate-100 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
-                        <div className="w-9" />
-                        <div>Utilisateur</div>
-                        <div>Rôle</div>
-                        <div>Statut</div>
-                        <div className="text-right">Connexion</div>
-                        <div className="text-center">Missions</div>
-                        <div />
+                <>
+
+                {/* ── Role distribution bar ── */}
+                {!loading && users.length > 0 && (
+                    <div className="bg-white rounded-2xl border border-slate-200 px-5 py-3">
+                        <RoleDistributionBar users={users} />
                     </div>
-                    {users.map((u) => (
-                        <UserRow key={u.id} user={u} onClick={() => router.push(`/manager/utilisateurs/${u.id}`)} />
+                )}
+
+                {/* ── Stats row ── */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {[
+                        { label: "Total", value: stats.total, color: "text-slate-900", bg: "bg-white border-slate-200" },
+                        { label: "Actifs", value: stats.active, color: "text-emerald-700", bg: "bg-emerald-50 border-emerald-200" },
+                        { label: "SDR / Booker", value: stats.sdrCount, color: "text-blue-700", bg: "bg-blue-50 border-blue-200" },
+                        { label: "Inactifs", value: stats.inactive, color: "text-rose-600", bg: "bg-rose-50 border-rose-200" },
+                        { label: "En ligne", value: stats.online, color: "text-primary", bg: "bg-primary-light border-primary/20" },
+                    ].map((s) => (
+                        <div key={s.label} className={cn("rounded-2xl border px-4 py-3", s.bg)}>
+                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{s.label}</p>
+                            <p className={cn("text-2xl font-extrabold mt-1", s.color)}>{s.value}</p>
+                        </div>
                     ))}
                 </div>
+
+                {/* ── Filter bar ── */}
+                <div className="bg-white rounded-2xl border border-slate-200 p-3 flex flex-wrap items-center gap-2">
+                    {/* Search */}
+                    <div className="relative flex-1 min-w-[200px]">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                            type="text"
+                            placeholder="Rechercher…"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full rounded-[10px] border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                        />
+                        {search && (
+                            <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
+                                <X className="w-3.5 h-3.5 text-slate-400" />
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Role pills */}
+                    <div className="flex items-center gap-1 flex-wrap">
+                        <button
+                            onClick={() => setRoleFilter("")}
+                            className={cn("px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors", !roleFilter ? "bg-primary text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200")}
+                        >Tous</button>
+                        {ROLES.map((r) => (
+                            <button
+                                key={r}
+                                onClick={() => setRoleFilter(roleFilter === r ? "" : r)}
+                                className={cn("px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors",
+                                    roleFilter === r
+                                        ? cn(ROLE_COLORS[r]?.bg, ROLE_COLORS[r]?.text, "ring-1 ring-current/20")
+                                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                )}
+                            >{ROLE_LABELS[r] ?? r}</button>
+                        ))}
+                    </div>
+
+                    {/* Status toggle */}
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                    >
+                        <option value="all">Tous les statuts</option>
+                        <option value="active">Actifs</option>
+                        <option value="inactive">Inactifs</option>
+                    </select>
+
+                    {/* View toggle */}
+                    <div className="flex items-center bg-slate-100 rounded-lg p-0.5 gap-0.5 ml-auto">
+                        <button onClick={() => setView("cards")} className={cn("p-1.5 rounded-md transition-colors", view === "cards" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600")}>
+                            <LayoutGrid className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => setView("list")} className={cn("p-1.5 rounded-md transition-colors", view === "list" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600")}>
+                            <List className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* ── Content ── */}
+                {loading ? (
+                    <div className="flex items-center justify-center py-20">
+                        <Loader2 className="w-7 h-7 text-indigo-500 animate-spin" />
+                    </div>
+                ) : users.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                        <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                            <Users className="w-8 h-8 text-slate-400" />
+                        </div>
+                        <p className="font-semibold text-slate-700">Aucun utilisateur trouvé</p>
+                        <p className="text-sm text-slate-400 mt-1">Modifiez vos filtres ou invitez un collaborateur.</p>
+                    </div>
+                ) : view === "cards" ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {users.map((u) => (
+                            <UserCard key={u.id} user={u} onClick={() => router.push(`/manager/utilisateurs/${u.id}`)} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                        <div className="hidden lg:grid grid-cols-[auto_1fr_120px_90px_110px_80px_40px] items-center gap-4 px-4 py-2 bg-slate-50 border-b border-slate-100 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
+                            <div className="w-9" />
+                            <div>Utilisateur</div>
+                            <div>Rôle</div>
+                            <div>Statut</div>
+                            <div className="text-right">Connexion</div>
+                            <div className="text-center">Missions</div>
+                            <div />
+                        </div>
+                        {users.map((u) => (
+                            <UserRow key={u.id} user={u} onClick={() => router.push(`/manager/utilisateurs/${u.id}`)} />
+                        ))}
+                    </div>
+                )}
+                </>
             )}
 
-            {/* ── Create modal ── */}
-            <Modal isOpen={showCreate} onClose={() => { setShowCreate(false); setFormData(EMPTY_FORM); setFormErrors({}); }} title="Nouvel utilisateur" size="md">
-                <UserFormFields data={formData} errors={formErrors} clients={clients} onChange={(p) => setFormData((d) => ({ ...d, ...p }))} />
-                <ModalFooter>
-                    <button onClick={() => { setShowCreate(false); setFormData(EMPTY_FORM); setFormErrors({}); }} className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
-                        Annuler
-                    </button>
-                    <button onClick={handleCreate} disabled={formLoading} className="px-4 py-2 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50">
-                        {formLoading ? "Création…" : "Créer l'utilisateur"}
-                    </button>
-                </ModalFooter>
-            </Modal>
+            {/* -- Invite modal -- */}
+            <InviteUserModal
+                isOpen={showInvite}
+                onClose={() => setShowInvite(false)}
+                onInvited={handleInvited}
+                clients={clients}
+            />
         </div>
     );
 }

@@ -132,7 +132,7 @@ function TemplateEditor({ template, onClose, onSave }: TemplateEditorProps) {
             <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />
             <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-4xl bg-white shadow-2xl flex flex-col animate-slide-in-right">
                 <form onSubmit={handleSubmit} className="flex flex-col h-full">
-                    <div className="flex items-center justify-between px-6 py-4 border-b border-[#173A35] bg-[#1F4D47]">
+                    <div className="flex items-center justify-between px-6 py-4 border-b border-[#173A35] bg-primary">
                         <h2 className="text-lg font-semibold text-white">
                             {template ? "Modifier le template" : "Nouveau template"}
                         </h2>
@@ -306,7 +306,7 @@ function TemplateEditor({ template, onClose, onSave }: TemplateEditorProps) {
                         <button
                             type="submit"
                             disabled={isSaving}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-[#1F4D47] text-white text-sm font-medium rounded-xl hover:bg-[#173A35] disabled:opacity-50 transition-colors"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-medium rounded-xl hover:bg-primary-hover disabled:opacity-50 transition-colors"
                         >
                             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                             {template ? "Mettre à jour" : "Créer"}
@@ -537,7 +537,7 @@ export default function EmailTemplatesPage() {
                                     <div className="flex items-center gap-1">
                                         <button
                                             onClick={() => setPreviewTemplate(template)}
-                                            className="p-1.5 text-slate-400 hover:text-[#1F4D47] hover:bg-[#EDF4F2] rounded-lg transition-colors"
+                                            className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary-light rounded-lg transition-colors"
                                             title="Aperçu"
                                         >
                                             <Eye className="w-4 h-4" />
@@ -547,14 +547,14 @@ export default function EmailTemplatesPage() {
                                                 setEditingTemplate(template);
                                                 setEditorOpen(true);
                                             }}
-                                            className="p-1.5 text-slate-400 hover:text-[#1F4D47] hover:bg-[#EDF4F2] rounded-lg transition-colors"
+                                            className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary-light rounded-lg transition-colors"
                                             title="Modifier"
                                         >
                                             <Edit className="w-4 h-4" />
                                         </button>
                                         <button
                                             onClick={() => handleDuplicate(template)}
-                                            className="p-1.5 text-slate-400 hover:text-[#1F4D47] hover:bg-[#EDF4F2] rounded-lg transition-colors"
+                                            className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary-light rounded-lg transition-colors"
                                             title="Dupliquer"
                                         >
                                             <Copy className="w-4 h-4" />

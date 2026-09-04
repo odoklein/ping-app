@@ -4,6 +4,7 @@ import {
     successResponse,
     paginatedResponse,
     requireRole,
+    requireOrganization,
     withErrorHandler,
     validateRequest,
     getPaginationParams,
@@ -38,7 +39,7 @@ const updateContactSchema = createContactSchema.partial();
 // ============================================
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
-    await requireRole(['MANAGER', 'SDR'], request);
+    const { organizationId } = await requireOrganization(request);
     const { searchParams } = new URL(request.url);
     const { page, limit, skip } = getPaginationParams(searchParams);
 
@@ -47,7 +48,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     const status = searchParams.get('status');
     const search = searchParams.get('search');
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { organizationId };
 
     if (companyId) where.companyId = companyId;
     if (listId) where.company = { listId };

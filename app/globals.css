@@ -1,17 +1,33 @@
 @import "tailwindcss";
 
 :root {
-    --brand-primary: var(--elan-amber);
-    --brand-primary-light: #5baefc;
-    --brand-primary-dark: var(--elan-amber-deep);
+    --brand-primary: #2890F8;
+    --brand-primary-hover: #1a75ce;
+    --brand-primary-light: #e6f0fa;
+    --brand-primary-rgb: 40, 144, 248;
+    --elan-amber: var(--brand-primary);
+    --elan-amber-deep: var(--brand-primary-hover);
+    --brand-primary-dark: var(--brand-primary-hover);
     --brand-accent: var(--elan-petrol);
     --brand-success: var(--elan-success);
-    --brand-warning: var(--elan-amber);
+    --brand-warning: var(--brand-primary);
     --brand-danger: var(--elan-danger);
 
     --neutral-50: var(--elan-surface);
     --neutral-100: var(--elan-paper);
     --neutral-200: var(--elan-paper-2);
+    --neutral-300: var(--elan-paper-3);
+    --neutral-400: #8d9b96;
+    --neutral-500: var(--elan-slate);
+    --neutral-600: var(--elan-ink-soft);
+    --neutral-700: #333333;
+    --neutral-800: #1a1a1a;
+    --neutral-900: var(--elan-ink);
+    --neutral-950: #000000;
+
+    --background: var(--elan-paper-2);
+    --foreground: var(--elan-ink);
+    --muted: #8d9b96;
     --neutral-300: var(--elan-paper-3);
     --neutral-400: #8d9b96;
     --neutral-500: var(--elan-slate);
@@ -34,11 +50,33 @@
     --status-partial: var(--elan-amber);
     --status-actionable: var(--elan-success);
 
+    /* Mobile Safe Area Variables (iOS / Android) */
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+
     --glass-bg: rgba(248, 248, 248, 0.92);
     --glass-border: var(--elan-line);
 }
 
+.pt-safe {
+    padding-top: var(--sat);
+}
+.pb-safe {
+    padding-bottom: var(--sab);
+}
+.safe-bottom-nav {
+    padding-bottom: max(0.5rem, var(--sab));
+}
+
 @theme inline {
+
+    --color-primary: var(--brand-primary);
+    --color-primary-hover: var(--brand-primary-hover);
+    --color-primary-light: var(--brand-primary-light);
+    --color-accent: var(--brand-accent);
+
     --color-background: var(--background);
     --color-foreground: var(--foreground);
     --color-brand-primary: var(--brand-primary);

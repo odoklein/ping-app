@@ -48,9 +48,9 @@ export default function TaskReminderSettingsPage() {
   }
 
   return <div className="elan-page mx-auto max-w-5xl">
-    <Link href="/manager/settings" className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-[#1F4D47]"><ArrowLeft className="w-4 h-4" />Retour aux paramètres</Link>
+    <Link href="/manager/settings" className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-primary"><ArrowLeft className="w-4 h-4" />Retour aux paramètres</Link>
     <div className="rounded-2xl border border-slate-200 bg-white p-6">
-      <div className="flex items-center gap-2"><Bell className="w-5 h-5 text-[#1F4D47]" /><h1 className="text-xl font-semibold text-slate-900">Rappels email des tâches</h1></div>
+      <div className="flex items-center gap-2"><Bell className="w-5 h-5 text-primary" /><h1 className="text-xl font-semibold text-slate-900">Rappels email des tâches</h1></div>
       <p className="mt-2 text-sm text-slate-500">Un email groupé est envoyé chaque jour ouvré aux utilisateurs ayant des tâches en retard, à faire aujourd&apos;hui ou prévues dans les 3 jours.</p>
     </div>
     <div className="rounded-2xl border border-slate-200 bg-white p-6 space-y-5">
@@ -59,7 +59,7 @@ export default function TaskReminderSettingsPage() {
       <input value={subject} onChange={(event) => setSubject(event.target.value)} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-mono" />
       <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">HTML</label>
       <textarea value={bodyHtml} onChange={(event) => setBodyHtml(event.target.value)} className="min-h-[380px] w-full rounded-xl border border-slate-200 px-3 py-2 font-mono text-xs" />
-      <div className="flex flex-wrap items-center gap-3"><button onClick={save} disabled={saving || !subject.trim() || !bodyHtml.trim()} className="inline-flex items-center gap-2 rounded-xl bg-[#1F4D47] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"><Save className="w-4 h-4" />{saving ? "Enregistrement…" : "Enregistrer"}</button><button onClick={reset} disabled={saving || !template?.isCustomized} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 disabled:opacity-50"><RotateCcw className="w-4 h-4" />Restaurer le défaut</button>{message && <span className="text-sm text-slate-600">{message}</span>}</div>
+      <div className="flex flex-wrap items-center gap-3"><button onClick={save} disabled={saving || !subject.trim() || !bodyHtml.trim()} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"><Save className="w-4 h-4" />{saving ? "Enregistrement…" : "Enregistrer"}</button><button onClick={reset} disabled={saving || !template?.isCustomized} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 disabled:opacity-50"><RotateCcw className="w-4 h-4" />Restaurer le défaut</button>{message && <span className="text-sm text-slate-600">{message}</span>}</div>
     </div>
   </div>;
 }

@@ -67,8 +67,8 @@ function ResetPasswordForm() {
         <>
             <style>{`
                 .lp {
-                    --cp950: #080808; --cp700: #1a1a1a; --cp600: #1a75ce;
-                    --cp500: #2890F8; --cp400: #5baefc; --cp200: #e6f0fa;
+                    --cp950: #080808; --cp700: #1a1a1a; --cp600: var(--brand-primary-hover);
+                    --cp500: var(--brand-primary); --cp400: #5baefc; --cp200: #e6f0fa;
                     --ink: #080808; --ink2: rgba(8,8,8,.65); --ink3: rgba(8,8,8,.45);
                     --ink4: rgba(8,8,8,.25); --ink5: rgba(8,8,8,.10);
                     --t: 0.18s cubic-bezier(.4,0,.2,1);
@@ -86,8 +86,8 @@ function ResetPasswordForm() {
                     overflow: hidden;
 
                     background:
-                        radial-gradient(55.87% 55.87% at 35.49% -18.37%, rgba(40, 144, 248, 0.16) 0%, rgba(255,255,255,0) 100%),
-                        radial-gradient(70.81% 48.44% at -24.53% -16.02%, rgba(40, 144, 248, 0.12) 0%, rgba(255,255,255,0) 100%),
+                        radial-gradient(55.87% 55.87% at 35.49% -18.37%, rgba(var(--brand-primary-rgb), 0.16) 0%, rgba(255,255,255,0) 100%),
+                        radial-gradient(70.81% 48.44% at -24.53% -16.02%, rgba(var(--brand-primary-rgb), 0.12) 0%, rgba(255,255,255,0) 100%),
                         radial-gradient(91.61% 92.58% at 104.86% -43.36%, rgba(8, 8, 8, 0.06) 0%, rgba(255,255,255,0) 100%),
                         #f8f8f8;
                 }
@@ -165,7 +165,7 @@ function ResetPasswordForm() {
                 .lp-wrap:hover { border-color: var(--ink4); }
                 .lp-wrap.f {
                     border-color: var(--cp500);
-                    box-shadow: 0 0 0 3px rgba(40, 144, 248, 0.18);
+                    box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.18);
                     background: #ffffff;
                 }
                 .lp-wrap.err {
@@ -218,7 +218,7 @@ function ResetPasswordForm() {
                 .lp-btn {
                     width: 100%; height: 46px; border-radius: 12px; border: none;
                     background: linear-gradient(160deg, #4da4fc 0%, var(--cp500) 50%, var(--cp600) 100%);
-                    box-shadow: 0 4px 14px rgba(40, 144, 248, 0.25);
+                    box-shadow: 0 4px 14px rgba(var(--brand-primary-rgb), 0.25);
                     color: #fff; font-family: inherit; font-weight: 600;
                     font-size: 14px; letter-spacing: .01em;
                     cursor: pointer; display: flex; align-items: center;
@@ -228,7 +228,7 @@ function ResetPasswordForm() {
                 }
                 .lp-btn:hover:not(:disabled) {
                     filter: brightness(1.04); transform: translateY(-1px);
-                    box-shadow: 0 6px 20px rgba(40, 144, 248, 0.35);
+                    box-shadow: 0 6px 20px rgba(var(--brand-primary-rgb), 0.35);
                 }
                 .lp-btn:active:not(:disabled) { filter: brightness(.96); transform: translateY(0); }
                 .lp-btn:disabled { opacity: .55; cursor: not-allowed; }

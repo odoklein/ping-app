@@ -353,7 +353,7 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
                         </div>
                     </div>
 
-                    <div className="flex items-start gap-2 rounded-lg border border-[#D7E1DE] bg-[#EEF3F1] px-3 py-2.5 text-xs leading-relaxed text-[#3F625D]">
+                    <div className="flex items-start gap-2 rounded-lg border border-[#D7E1DE] bg-primary-light px-3 py-2.5 text-xs leading-relaxed text-[#3F625D]">
                         <Server className="mt-0.5 h-4 w-4 shrink-0" />
                         <p>Ports habituels: IMAP 993, SMTP 587 (STARTTLS) ou 465 (TLS). Gmail, Outlook et iCloud exigent généralement un mot de passe d'application.</p>
                     </div>
@@ -399,13 +399,13 @@ const SIGNATURE_STARTER_HTML = `<table role="presentation" cellpadding="0" cells
     <td style="padding-right:16px;vertical-align:top">
       <img src="https://example.com/logo.png" alt="Logo" width="72" style="display:block;width:72px;max-width:72px;height:auto">
     </td>
-    <td style="padding-left:16px;border-left:2px solid #ff9e1b;vertical-align:top">
-      <div style="font-size:16px;font-weight:700;color:#173f3a">Prénom Nom</div>
-      <div style="font-size:13px;color:#60706c;margin-top:2px">Fonction · Société</div>
+    <td style="padding-left:16px;border-left:2px solid #2890F8;vertical-align:top">
+      <div style="font-size:16px;font-weight:700;color:#080808">Prénom Nom</div>
+      <div style="font-size:13px;color:#666666;margin-top:2px">Fonction · Société</div>
       <div style="font-size:12px;margin-top:10px">
-        <a href="mailto:prenom@entreprise.com" style="color:#1f4d47;text-decoration:none">prenom@entreprise.com</a><br>
-        <a href="tel:+33102030405" style="color:#1f4d47;text-decoration:none">+33 1 02 03 04 05</a><br>
-        <a href="https://entreprise.com" style="color:#1f4d47;text-decoration:underline">entreprise.com</a>
+        <a href="mailto:prenom@entreprise.com" style="color:#080808;text-decoration:none">prenom@entreprise.com</a><br>
+        <a href="tel:+33102030405" style="color:#080808;text-decoration:none">+33 1 02 03 04 05</a><br>
+        <a href="https://entreprise.com" style="color:#080808;text-decoration:underline">entreprise.com</a>
       </div>
     </td>
   </tr>
@@ -549,7 +549,7 @@ function SignatureEditorDialog({
                             <p className="text-sm font-semibold text-slate-700">Conception de la signature</p>
                             <p className="mt-0.5 text-xs text-slate-500">Collez une signature mise en forme ou utilisez directement votre code HTML.</p>
                         </div>
-                        <div className="grid grid-cols-3 rounded-lg border border-[#CBD8D4] bg-white p-1" role="tablist" aria-label="Mode d'édition">
+                        <div className="grid grid-cols-3 rounded-lg border border-primary/20 bg-white p-1" role="tablist" aria-label="Mode d'édition">
                             {[
                                 { id: "visual" as const, label: "Visuel", icon: PenLine },
                                 { id: "html" as const, label: "HTML", icon: Code2 },
@@ -563,7 +563,7 @@ function SignatureEditorDialog({
                                     onClick={() => changeMode(id)}
                                     className={cn(
                                         "inline-flex h-9 items-center justify-center gap-1.5 rounded-md px-3 text-xs font-bold transition-colors",
-                                        mode === id ? "bg-[#1F4D47] text-white" : "text-slate-500 hover:bg-[#EEF3F1] hover:text-[#1F4D47]",
+                                        mode === id ? "bg-primary text-white" : "text-slate-500 hover:bg-primary-light hover:text-primary",
                                     )}
                                 >
                                     <Icon className="h-3.5 w-3.5" />
@@ -573,7 +573,7 @@ function SignatureEditorDialog({
                         </div>
                     </div>
 
-                    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-[#CBD8D4] bg-white focus-within:border-[#E07C00] focus-within:ring-2 focus-within:ring-[#FF9E1B]/20">
+                    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-primary/20 bg-white focus-within:border-[#E07C00] focus-within:ring-2 focus-within:ring-[#FF9E1B]/20">
                         {mode === "visual" && (
                             <div className="flex items-center gap-1 border-b border-[#E1E7E5] bg-[#F7F9F8] px-2 py-1.5">
                                 {[
@@ -581,7 +581,7 @@ function SignatureEditorDialog({
                                     { command: "italic", label: "Italique", icon: Italic },
                                     { command: "underline", label: "Souligné", icon: Underline },
                                 ].map(({ command, label, icon: Icon }) => (
-                                    <button key={command} type="button" onClick={() => runCommand(command)} className="rounded-lg p-2 text-slate-500 hover:bg-white hover:text-[#1F4D47]" title={label} aria-label={label}>
+                                    <button key={command} type="button" onClick={() => runCommand(command)} className="rounded-lg p-2 text-slate-500 hover:bg-white hover:text-primary" title={label} aria-label={label}>
                                         <Icon className="h-4 w-4" />
                                     </button>
                                 ))}
@@ -592,7 +592,7 @@ function SignatureEditorDialog({
                                         const url = window.prompt("Adresse du lien (https://, mailto: ou tel:)");
                                         if (url) runCommand("createLink", url);
                                     }}
-                                    className="rounded-lg p-2 text-slate-500 hover:bg-white hover:text-[#1F4D47]"
+                                    className="rounded-lg p-2 text-slate-500 hover:bg-white hover:text-primary"
                                     title="Ajouter un lien"
                                     aria-label="Ajouter un lien"
                                 >
@@ -614,7 +614,7 @@ function SignatureEditorDialog({
                         {mode === "html" && (
                             <div className="flex items-center justify-between border-b border-[#E1E7E5] bg-[#F7F9F8] px-3 py-2">
                                 <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
-                                    <Code2 className="h-4 w-4 text-[#1F4D47]" />
+                                    <Code2 className="h-4 w-4 text-primary" />
                                     Source HTML
                                 </div>
                                 <button
@@ -622,7 +622,7 @@ function SignatureEditorDialog({
                                     onClick={() => {
                                         if (isEmpty || window.confirm("Remplacer la signature actuelle par le modèle ?")) setSignatureHtml(SIGNATURE_STARTER_HTML);
                                     }}
-                                    className="inline-flex items-center gap-1.5 rounded-md border border-[#CBD8D4] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#1F4D47] hover:bg-[#EEF3F1]"
+                                    className="inline-flex items-center gap-1.5 rounded-md border border-primary/20 bg-white px-2.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary-light"
                                 >
                                     <ClipboardPaste className="h-3.5 w-3.5" />
                                     Charger un modèle
@@ -647,7 +647,7 @@ function SignatureEditorDialog({
                                 window.requestAnimationFrame(syncFromVisualEditor);
                             }}
                             className={cn(
-                                "min-h-0 flex-1 overflow-auto px-4 py-4 text-sm leading-relaxed text-slate-800 outline-none empty:before:pointer-events-none empty:before:text-slate-400 empty:before:content-[attr(data-placeholder)] [&_a]:text-[#1F4D47] [&_a]:underline [&_img]:max-w-full",
+                                "min-h-0 flex-1 overflow-auto px-4 py-4 text-sm leading-relaxed text-slate-800 outline-none empty:before:pointer-events-none empty:before:text-slate-400 empty:before:content-[attr(data-placeholder)] [&_a]:text-primary [&_a]:underline [&_img]:max-w-full",
                                 mode !== "visual" && "hidden",
                             )}
                         />
@@ -666,18 +666,18 @@ function SignatureEditorDialog({
                         {mode === "preview" && (
                             <div className="flex min-h-0 flex-1 flex-col bg-[#E9EFED]">
                                 <div className="flex h-10 shrink-0 items-center gap-2 border-b border-[#D7E1DE] bg-[#F7F9F8] px-3 text-xs font-semibold text-slate-500">
-                                    <Monitor className="h-4 w-4 text-[#1F4D47]" />
+                                    <Monitor className="h-4 w-4 text-primary" />
                                     Aperçu dans un email
                                     <span className="ml-auto rounded-md border border-[#D7E1DE] bg-white px-2 py-1 text-[10px] text-slate-400">Sandbox sécurisé</span>
                                 </div>
                                 <div className="min-h-0 flex-1 p-3 sm:p-5">
-                                    <iframe title="Aperçu de la signature email" sandbox="" srcDoc={previewDocument} className="h-full min-h-[300px] w-full rounded-lg border border-[#CBD8D4] bg-white shadow-[0_8px_24px_rgba(31,77,71,0.08)]" />
+                                    <iframe title="Aperçu de la signature email" sandbox="" srcDoc={previewDocument} className="h-full min-h-[300px] w-full rounded-lg border border-primary/20 bg-white shadow-[0_8px_24px_rgba(31,77,71,0.08)]" />
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    <div className="mt-3 flex items-start gap-2 rounded-lg border border-[#D7E1DE] bg-[#EEF3F1] px-3 py-2.5 text-xs leading-relaxed text-[#3F625D]">
+                    <div className="mt-3 flex items-start gap-2 rounded-lg border border-[#D7E1DE] bg-primary-light px-3 py-2.5 text-xs leading-relaxed text-[#3F625D]">
                         <CheckCircle className="mt-0.5 h-4 w-4 shrink-0" />
                         <p>Le HTML est nettoyé à l'enregistrement. Les styles inline, tableaux, liens et logos HTTPS sont conservés. Les scripts et événements sont supprimés.</p>
                     </div>
@@ -692,7 +692,7 @@ function SignatureEditorDialog({
                 <div className="flex items-center justify-between gap-3 border-t border-[#E1E7E5] bg-white px-5 py-4">
                     <span className="text-xs text-slate-400">{isEmpty ? "Aucune signature" : `${signatureHtml.length.toLocaleString("fr-FR")} / 100 000 caractères`}</span>
                     <div className="flex gap-2">
-                        <button onClick={onClose} disabled={isSaving} className="h-10 rounded-lg border border-[#CBD8D4] px-4 text-sm font-semibold text-slate-700 hover:bg-[#F1F4F3] disabled:opacity-50">
+                        <button onClick={onClose} disabled={isSaving} className="h-10 rounded-lg border border-primary/20 px-4 text-sm font-semibold text-slate-700 hover:bg-[#F1F4F3] disabled:opacity-50">
                             Annuler
                         </button>
                         <button onClick={handleSave} disabled={isSaving} className="inline-flex h-10 items-center gap-2 rounded-lg border border-[#E07C00] bg-[#FF9E1B] px-4 text-sm font-bold text-[#15201E] hover:bg-[#F09212] active:translate-y-px disabled:opacity-50">
@@ -808,7 +808,7 @@ export function MailboxManagerDialog({ isOpen = false, onClose = () => undefined
             case "OUTLOOK":
                 return "#0078D4";
             default:
-                return "#1F4D47";
+                return "var(--brand-primary)";
         }
     };
 
@@ -940,7 +940,7 @@ export function MailboxManagerDialog({ isOpen = false, onClose = () => undefined
                                     </p>
                                     <button
                                         onClick={() => setView('add')}
-                                        className="inline-flex h-10 items-center px-4 rounded-lg bg-[#2890F8] text-white font-bold hover:bg-[#1a75ce] shadow-sm transition-colors"
+                                        className="inline-flex h-10 items-center px-4 rounded-lg bg-primary text-white font-bold hover:bg-primary-hover shadow-sm transition-colors"
                                     >
                                         Connecter une boîte
                                     </button>
@@ -950,7 +950,7 @@ export function MailboxManagerDialog({ isOpen = false, onClose = () => undefined
                                     {mailboxes.map((mailbox) => (
                                         <div
                                             key={mailbox.id}
-                                            className="group relative bg-white border border-[#DDE5E2] rounded-xl overflow-hidden hover:border-[#B8CAC5] hover:shadow-[0_10px_28px_rgba(40,144,248,0.08)] transition-all"
+                                            className="group relative bg-white border border-[#DDE5E2] rounded-xl overflow-hidden hover:border-[#B8CAC5] hover:shadow-[0_10px_28px_rgba(var(--brand-primary-rgb),0.08)] transition-all"
                                         >
                                             {/* Status Header */}
                                             <div className="h-1.5 w-full" style={{ backgroundColor: getProviderColor(mailbox.provider) }} />
@@ -1039,7 +1039,7 @@ export function MailboxManagerDialog({ isOpen = false, onClose = () => undefined
                                                 <div className="flex items-center gap-2">
                                                     <button
                                                         onClick={() => setSignatureMailbox(mailbox)}
-                                                        className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-[#CBD8D4] bg-white px-3 py-2.5 text-sm font-bold text-[#2890F8] transition-colors hover:bg-[#e6f0fa] active:translate-y-px"
+                                                        className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-primary/20 bg-white px-3 py-2.5 text-sm font-bold text-primary transition-colors hover:bg-primary-light active:translate-y-px"
                                                     >
                                                         <PenLine className="h-4 w-4" />
                                                         {mailbox.signatureHtml ? "Modifier la signature" : "Ajouter une signature"}
@@ -1047,7 +1047,7 @@ export function MailboxManagerDialog({ isOpen = false, onClose = () => undefined
                                                     <button
                                                         onClick={() => handleSync(mailbox.id)}
                                                         disabled={syncingMailboxes.has(mailbox.id)}
-                                                        className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 border border-[#CBD8D4] bg-white hover:bg-[#e6f0fa] text-[#2890F8] text-sm font-bold rounded-lg transition-colors disabled:opacity-50 active:translate-y-px"
+                                                        className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 border border-primary/20 bg-white hover:bg-primary-light text-primary text-sm font-bold rounded-lg transition-colors disabled:opacity-50 active:translate-y-px"
                                                     >
                                                         {syncingMailboxes.has(mailbox.id) ? (
                                                             <Loader2 className="w-4 h-4 animate-spin" />

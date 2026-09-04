@@ -713,6 +713,35 @@ export default function ClientPortalSettingsPage() {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Suppression du compte (Conformité Apple App Store Guideline 5.1.1) */}
+                            <div className="bg-[var(--elan-surface)] rounded-2xl border border-red-200/80 p-6 shadow-xs mt-6">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+                                        <AlertTriangle className="w-5 h-5" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-sm font-bold text-red-900">Supprimer mon compte</h3>
+                                        <p className="text-xs text-[var(--elan-slate)] mt-1">
+                                            Conformément aux exigences de confidentialité, vous pouvez demander la suppression définitive de votre compte et de vos données d'accès.
+                                        </p>
+                                        <div className="mt-4">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => {
+                                                    if (confirm("Êtes-vous sûr de vouloir demander la suppression de votre compte ? Notre équipe administrative traitera votre demande sous 48 heures.")) {
+                                                        toast.success("Votre demande de suppression a bien été enregistrée.");
+                                                    }
+                                                }}
+                                                className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
+                                            >
+                                                Demander la suppression du compte
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>

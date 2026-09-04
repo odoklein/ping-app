@@ -336,7 +336,7 @@ export function ThreadList({
                             setPage(1);
                             fetchThreads(1, false);
                         }}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-[#1F4D47] hover:bg-[#EDF4F2] rounded-lg transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-primary hover:bg-primary-light rounded-lg transition-colors"
                     >
                         <RefreshCw className="w-4 h-4" />
                         Réessayer
@@ -374,7 +374,7 @@ export function ThreadList({
                     {searchInput && (
                         <button
                             onClick={() => setSearchInput("")}
-                            className="mt-4 px-4 py-2 text-sm font-bold text-[#1F4D47] hover:bg-[#EDF4F2] rounded-lg transition-colors"
+                            className="mt-4 px-4 py-2 text-sm font-bold text-primary hover:bg-primary-light rounded-lg transition-colors"
                         >
                             Effacer la recherche
                         </button>
@@ -432,7 +432,7 @@ export function ThreadList({
                 {/* Load more indicator */}
                 {isLoadingMore && (
                     <div className="flex items-center justify-center py-4">
-                        <Loader2 className="w-5 h-5 text-[#1F4D47] animate-spin" />
+                        <Loader2 className="w-5 h-5 text-primary animate-spin" />
                     </div>
                 )}
             </div>
@@ -473,12 +473,12 @@ function SearchBar({
             <div className={cn(
                 "relative rounded-xl transition-all duration-200",
                 isSearchFocused
-                    ? "ring-2 ring-[#2890F8]/25 shadow-sm"
+                    ? "ring-2 ring-primary/25 shadow-sm"
                     : ""
             )}>
                 <Search className={cn(
                     "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors",
-                    isSearchFocused ? "text-[#2890F8]" : "text-slate-400"
+                    isSearchFocused ? "text-primary" : "text-slate-400"
                 )} />
                 <input
                     ref={searchRef}
@@ -488,7 +488,7 @@ function SearchBar({
                     onChange={(e) => setSearchInput(e.target.value)}
                     onFocus={() => setIsSearchFocused(true)}
                     onBlur={() => setIsSearchFocused(false)}
-                    className="w-full pl-9 pr-9 py-2.5 bg-[#F7F9F8] border border-[#DDE5E2] rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#2890F8] focus:bg-white transition-colors"
+                    className="w-full pl-9 pr-9 py-2.5 bg-[#F7F9F8] border border-[#DDE5E2] rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary focus:bg-white transition-colors"
                 />
                 {searchInput ? (
                     <button
@@ -515,7 +515,7 @@ function SearchBar({
                                 "h-7 px-2.5 rounded-md border text-[11px] font-semibold whitespace-nowrap transition-all duration-150 active:translate-y-px",
                                 quickFilter === filter.id
                                     ? "border-[#C98A32] bg-[#FFF4E2] text-[#8A4D00]"
-                                    : "border-[#DDE5E2] bg-white text-slate-500 hover:border-[#CBD8D4] hover:bg-[#F1F4F3] hover:text-[#1F4D47]"
+                                    : "border-[#DDE5E2] bg-white text-slate-500 hover:border-primary/20 hover:bg-[#F1F4F3] hover:text-primary"
                             )}
                         >
                             {filter.label}
@@ -568,9 +568,9 @@ function ThreadListItem({
             tabIndex={0}
             aria-current={isSelected ? "true" : undefined}
             className={cn(
-                "group relative px-4 py-3.5 cursor-pointer border-b border-l-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2890F8] transition-[background-color,border-color,box-shadow] duration-150",
+                "group relative px-4 py-3.5 cursor-pointer border-b border-l-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary transition-[background-color,border-color,box-shadow] duration-150",
                 isSelected
-                    ? "border-l-[#2890F8] border-b-slate-200 bg-[#e6f0fa]/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_2px_10px_rgba(40,144,248,0.06)]"
+                    ? "border-l-[var(--brand-primary)] border-b-slate-200 bg-primary-light/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_2px_10px_rgba(var(--brand-primary-rgb),0.06)]"
                     : "border-l-transparent border-b-[#EEF2F1] hover:bg-[#F7F9F8] hover:border-l-[#CBD8D4] focus-within:bg-[#F7F9F8]",
                 !thread.isRead && !isSelected && "bg-white"
             )}
@@ -587,7 +587,7 @@ function ThreadListItem({
                         {initials}
                     </div>
                     {!thread.isRead && (
-                        <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-[#2890F8] rounded-full ring-2 ring-white" />
+                        <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-primary rounded-full ring-2 ring-white" />
                     )}
                 </div>
 
@@ -610,7 +610,7 @@ function ThreadListItem({
                         </div>
                         <span className={cn(
                             "text-[11px] flex-shrink-0 tabular-nums pr-1",
-                            thread.isRead ? "text-slate-400" : "text-[#2890F8] font-semibold"
+                            thread.isRead ? "text-slate-400" : "text-primary font-semibold"
                         )}>
                             {smartDate}
                         </span>
@@ -652,7 +652,7 @@ function ThreadListItem({
                                 <Paperclip className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" aria-label="Pièce jointe" />
                             ) : null}
                             {thread.summary && (
-                                <Sparkles className="w-3.5 h-3.5 text-[#2890F8] flex-shrink-0" aria-label="Résumé IA disponible" />
+                                <Sparkles className="w-3.5 h-3.5 text-primary flex-shrink-0" aria-label="Résumé IA disponible" />
                             )}
                         </div>
                     </div>

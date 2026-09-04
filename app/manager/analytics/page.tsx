@@ -16,11 +16,11 @@ import { DataTable } from "@/components/ui/DataTable";
 import { Modal } from "@/components/ui";
 
 const SDR_COLORS: Record<string, string> = {
-    'Mathieu Deville': '#2890F8',
+    'Mathieu Deville': "var(--brand-primary)",
     'Rayan': '#059669',
     'Anaïs': '#5BAEFC',
 };
-const getSdrColor = (name: string) => SDR_COLORS[name] || '#2890F8';
+const getSdrColor = (name: string) => SDR_COLORS[name] || "var(--brand-primary)";
 const analyticsPdfEnabled = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS_PDF === "1";
 
 type AiAnalysis = {
@@ -483,10 +483,10 @@ export default function AnalyticsPage() {
     const getBarColor = (entry: { conversionRate: number; calls: number; meetings: number }) => {
         if (personaMetric === 'conversion') {
             if (entry.conversionRate >= 5) return '#10b981';
-            if (entry.conversionRate >= 3) return '#1F4D47';
+            if (entry.conversionRate >= 3) return "var(--brand-primary)";
             return '#94a3b8';
         }
-        if (personaMetric === 'calls') return '#1F4D47';
+        if (personaMetric === 'calls') return "var(--brand-primary)";
         return '#10b981'; // meetings
     };
 
@@ -572,7 +572,7 @@ export default function AnalyticsPage() {
                     <AlertTriangle className="mx-auto mb-3 h-8 w-8 text-red-500" />
                     <h1 className="text-lg font-bold text-slate-900">Performances indisponibles</h1>
                     <p className="mt-2 text-sm text-slate-600">{loadError}</p>
-                    <button onClick={fetchStats} className="mt-5 inline-flex h-10 items-center gap-2 rounded-lg border border-[#CBD8D4] bg-white px-4 text-sm font-bold text-[#1F4D47] hover:bg-[#EEF3F1] active:translate-y-px">
+                    <button onClick={fetchStats} className="mt-5 inline-flex h-10 items-center gap-2 rounded-lg border border-primary/20 bg-white px-4 text-sm font-bold text-primary hover:bg-primary-light active:translate-y-px">
                         <RefreshCw className="h-4 w-4" /> Réessayer
                     </button>
                 </div>
@@ -600,7 +600,7 @@ export default function AnalyticsPage() {
             <div className="order-1 flex flex-wrap items-center justify-between gap-4 mb-5">
                 <div>
                     <div className="flex items-center gap-2 mb-1">
-                        <div className="w-8 h-8 rounded-lg bg-[#1F4D47] flex items-center justify-center shadow-sm">
+                        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
                             <Activity className="w-4 h-4 text-white" />
                         </div>
                         <h1 className="text-[21px] font-bold text-slate-900 tracking-tight">Performance</h1>
@@ -617,7 +617,7 @@ export default function AnalyticsPage() {
                             max={dateRange.to}
                             value={dateRange.from}
                             onChange={e => setDateRange(prev => ({ ...prev, from: e.target.value }))}
-                            className="bg-transparent border-none p-0 outline-none hover:text-[#1F4D47] transition-colors cursor-pointer"
+                            className="bg-transparent border-none p-0 outline-none hover:text-primary transition-colors cursor-pointer"
                         />
                         <span className="text-slate-300 font-normal">→</span>
                         <input
@@ -626,19 +626,19 @@ export default function AnalyticsPage() {
                             min={dateRange.from}
                             value={dateRange.to}
                             onChange={e => setDateRange(prev => ({ ...prev, to: e.target.value }))}
-                            className="bg-transparent border-none p-0 outline-none hover:text-[#1F4D47] transition-colors cursor-pointer"
+                            className="bg-transparent border-none p-0 outline-none hover:text-primary transition-colors cursor-pointer"
                         />
                     </div>
 
                     {analyticsPdfEnabled && (
                         <button
                             onClick={() => setShowReportModal(true)}
-                            className="flex items-center gap-2 px-3.5 py-2 text-[12px] font-semibold text-[#1F4D47] bg-white border border-[#CBD8D4] rounded-lg hover:bg-[#EEF3F1] active:translate-y-px transition-colors shadow-sm"
+                            className="flex items-center gap-2 px-3.5 py-2 text-[12px] font-semibold text-primary bg-white border border-primary/20 rounded-lg hover:bg-primary-light active:translate-y-px transition-colors shadow-sm"
                         >
                             <FileText className="w-3.5 h-3.5 text-slate-400" /> Générer un rapport
                         </button>
                     )}
-                    <button onClick={fetchStats} aria-label="Actualiser les performances" className="w-9 h-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-[#1F4D47] hover:border-[#AFC5BF] active:translate-y-px transition-colors shadow-sm">
+                    <button onClick={fetchStats} aria-label="Actualiser les performances" className="w-9 h-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:border-[#AFC5BF] active:translate-y-px transition-colors shadow-sm">
                         <RefreshCw className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")} />
                     </button>
                 </div>
@@ -659,14 +659,14 @@ export default function AnalyticsPage() {
                         {activeFilterCount > 0 && <span className="rounded-md bg-[#FFF4E2] px-2 py-0.5 text-[11px] font-bold text-[#9A5400]">{activeFilterCount} actif{activeFilterCount > 1 ? "s" : ""}</span>}
                     </div>
                     {activeFilterCount > 0 && (
-                        <button type="button" onClick={clearFilters} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-[#1F4D47] hover:bg-[#EEF3F1] active:translate-y-px">
+                        <button type="button" onClick={clearFilters} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-primary hover:bg-primary-light active:translate-y-px">
                             <X className="h-3.5 w-3.5" /> Effacer
                         </button>
                     )}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
                 <label className="flex min-w-0 items-center gap-3 rounded-lg border border-[#DDE5E2] bg-[#F8FAF9] px-3 py-2.5 focus-within:border-[#E07C00] focus-within:ring-2 focus-within:ring-[#FF9E1B]/20">
-                    <div className="w-8 h-8 rounded-lg bg-[#EEF3F1] flex items-center justify-center shrink-0"><Target className="w-4 h-4 text-[#2F6B62]" /></div>
+                    <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center shrink-0"><Target className="w-4 h-4 text-[#2F6B62]" /></div>
                     <span className="min-w-0 flex-1">
                         <span className="block text-[11px] font-semibold text-slate-500 mb-0.5">Mission</span>
                         <select
@@ -686,7 +686,7 @@ export default function AnalyticsPage() {
                 </label>
 
                 <label className="flex min-w-0 items-center gap-3 rounded-lg border border-[#DDE5E2] bg-[#F8FAF9] px-3 py-2.5 focus-within:border-[#E07C00] focus-within:ring-2 focus-within:ring-[#FF9E1B]/20">
-                    <div className="w-8 h-8 rounded-lg bg-[#EEF3F1] flex items-center justify-center shrink-0"><User className="w-4 h-4 text-[#2F6B62]" /></div>
+                    <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center shrink-0"><User className="w-4 h-4 text-[#2F6B62]" /></div>
                     <span className="min-w-0 flex-1">
                         <span className="block text-[11px] font-semibold text-slate-500 mb-0.5">SDR</span>
                         <select value={selectedSdrs[0] || "all"} className="w-full bg-transparent border-none text-[13px] font-semibold text-slate-800 outline-none p-0 cursor-pointer" onChange={e => {
@@ -895,7 +895,7 @@ export default function AnalyticsPage() {
                                                 <div key={`${item.title}-${idx}`} className="rounded-xl bg-white/5 border border-white/10 p-3">
                                                     <div className="flex items-center justify-between gap-2 mb-1.5">
                                                         <p className="text-[12px] font-bold text-white">{item.title}</p>
-                                                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[#1F4D47]/20 text-[#FFC56E] border border-[#FF9E1B]/30">
+                                                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-primary/20 text-[#FFC56E] border border-[#FF9E1B]/30">
                                                             {item.priority}
                                                         </span>
                                                     </div>
@@ -994,7 +994,7 @@ export default function AnalyticsPage() {
                     </div>
                 ) : !isLoadingAiRecap ? (
                     <div className="relative z-10 flex flex-col items-center justify-center py-5 gap-3">
-                        <div className="w-14 h-14 rounded-2xl bg-[#1F4D47]/10 border border-[#1F4D47]/20 flex items-center justify-center">
+                        <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                             <BrainCircuit className="w-7 h-7 text-[#FFB64F]/60" />
                         </div>
                         <p className="text-[14px] text-white/40 font-medium text-center">Cliquez sur <span className="text-[#FFC56E] font-bold">Ré-analyser</span> pour lancer l&apos;analyse IA</p>
@@ -1008,7 +1008,7 @@ export default function AnalyticsPage() {
                         <div><div className="text-[18px] font-black text-white leading-none tracking-tight">{Math.round((noRespCount / totalCalls) * 100)}%</div><div className="text-[10px] text-white/50 uppercase tracking-widest mt-1">Non-réponse</div></div>
                     </div>
                     <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl px-5 py-3 hover:bg-white/10 transition-colors">
-                        <div className="w-9 h-9 rounded-full bg-[#1F4D47]/20 flex items-center justify-center"><Activity className="w-4 h-4 text-[#8FB0A9]" /></div>
+                        <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center"><Activity className="w-4 h-4 text-[#8FB0A9]" /></div>
                         <div><div className="text-[18px] font-black text-white leading-none tracking-tight">{kpis?.totalCalls || 0}</div><div className="text-[10px] text-white/50 uppercase tracking-widest mt-1">Appels passés</div></div>
                     </div>
                     <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl px-5 py-3 hover:bg-white/10 transition-colors">
@@ -1020,7 +1020,7 @@ export default function AnalyticsPage() {
                         <div><div className="text-[18px] font-black text-white leading-none tracking-tight">{kpis?.meetings || 0}</div><div className="text-[10px] text-white/50 uppercase tracking-widest mt-1">RDV Confirmés</div></div>
                     </div>
                     {sdrPerformance?.[0] && (
-                        <div className="flex items-center gap-3 bg-[#1F4D47]/20 backdrop-blur-md border border-[#1F4D47]/30 rounded-xl px-5 py-3 ml-auto hover:bg-[#1F4D47]/30 transition-colors">
+                        <div className="flex items-center gap-3 bg-primary/20 backdrop-blur-md border border-primary/30 rounded-xl px-5 py-3 ml-auto hover:bg-primary/30 transition-colors">
                             <div className="w-9 h-9 rounded-full bg-[#FF9E1B]/25 flex items-center justify-center"><Trophy className="w-4 h-4 text-[#FFC56E]" /></div>
                             <div><div className="text-[18px] font-black text-white leading-none tracking-tight">{sdrPerformance[0].sdrName.split(' ')[0]}</div><div className="text-[10px] text-[#FFC56E] uppercase tracking-widest mt-1 font-bold">Top SDR</div></div>
                         </div>
@@ -1033,7 +1033,7 @@ export default function AnalyticsPage() {
                 <div className="bg-white rounded-2xl border border-slate-100 p-5 flex flex-col justify-between group hover:shadow-md hover:border-[#D7E3DF] transition-all cursor-default">
                     <div className="flex items-center justify-between mb-3">
                         <div className="w-11 h-11 rounded-xl bg-[#F0F5F3] flex items-center justify-center transition-transform group-hover:scale-110">
-                            <Phone className="w-5 h-5 text-[#1F4D47]" />
+                            <Phone className="w-5 h-5 text-primary" />
                         </div>
                         <span className="px-2 py-1 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-600 flex items-center gap-1"><TrendingUp className="w-3 h-3" />+12%</span>
                     </div>
@@ -1044,8 +1044,8 @@ export default function AnalyticsPage() {
                     <div className="h-10 mt-5 -mx-1">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={dailyData}>
-                                <defs><linearGradient id="gPetrol" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#2890F8" stopOpacity={0.2} /><stop offset="100%" stopColor="#2890F8" stopOpacity={0} /></linearGradient></defs>
-                                <Area type="monotone" dataKey="calls" stroke="#2890F8" strokeWidth={2.5} fillOpacity={1} fill="url(#gPetrol)" />
+                                <defs><linearGradient id="gPetrol" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--brand-primary)" stopOpacity={0.2} /><stop offset="100%" stopColor="var(--brand-primary)" stopOpacity={0} /></linearGradient></defs>
+                                <Area type="monotone" dataKey="calls" stroke="var(--brand-primary)" strokeWidth={2.5} fillOpacity={1} fill="url(#gPetrol)" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
@@ -1070,7 +1070,7 @@ export default function AnalyticsPage() {
 
                 <div className="bg-white rounded-2xl border border-slate-100 p-5 flex flex-col justify-between group hover:shadow-md hover:border-[#D7E3DF] transition-all cursor-default">
                     <div className="flex items-center justify-between mb-5">
-                        <div className="w-11 h-11 rounded-xl bg-[#EEF3F1] flex items-center justify-center transition-transform group-hover:scale-110">
+                        <div className="w-11 h-11 rounded-xl bg-primary-light flex items-center justify-center transition-transform group-hover:scale-110">
                             <Zap className="w-5 h-5 text-[#2F6B62]" />
                         </div>
                         <span className="px-2 py-1 rounded-md text-[10px] font-bold bg-amber-50 text-amber-600 flex items-center gap-1"><TrendingUp className="w-3 h-3 rotate-180" />-2%</span>
@@ -1084,7 +1084,7 @@ export default function AnalyticsPage() {
                     </div>
                     <div className="mt-6">
                         <div className="flex justify-between text-[11px] font-bold text-slate-400 mb-2"><span>Cible (3%)</span><span className="text-slate-700">{Math.min(100, ((kpis?.conversionRate || 0) / 3) * 100).toFixed(0)}%</span></div>
-                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-[#1F4D47] rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, ((kpis?.conversionRate || 0) / 3) * 100)}%` }} /></div>
+                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-primary rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, ((kpis?.conversionRate || 0) / 3) * 100)}%` }} /></div>
                     </div>
                 </div>
 
@@ -1113,7 +1113,7 @@ export default function AnalyticsPage() {
                         <Target className="w-5 h-5 text-[#2F6B62]" />
                         <h3 className="text-[16px] font-bold text-slate-800">Missions proches de l'objectif</h3>
                     </div>
-                    <button className="text-[12px] font-bold text-[#1F4D47] hover:text-[#143C37] transition-colors">Voir toutes →</button>
+                    <button className="text-[12px] font-bold text-primary hover:text-[#143C37] transition-colors">Voir toutes →</button>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -1127,7 +1127,7 @@ export default function AnalyticsPage() {
                                     <div className="overflow-hidden">
                                         <div className="flex items-center gap-2 mb-0.5">
                                             {isHot && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" aria-label="Objectif proche" />}
-                                            <div className="text-[14px] font-bold text-slate-800 truncate group-hover:text-[#1F4D47] transition-colors">{m.missionName}</div>
+                                            <div className="text-[14px] font-bold text-slate-800 truncate group-hover:text-primary transition-colors">{m.missionName}</div>
                                         </div>
                                         <div className="text-[11.5px] text-slate-400 truncate flex items-center gap-1">
                                             <span className={cn("px-1.5 py-0.5 rounded text-[9px] font-bold", m.isActive ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600")}>
@@ -1146,7 +1146,7 @@ export default function AnalyticsPage() {
                                 </div>
                                 <div className="flex justify-between items-center text-[11px] font-semibold text-slate-500">
                                     <div className="flex gap-3">
-                                        <span><span className="text-[#1F4D47] font-bold">{m.calls}</span> Appels</span>
+                                        <span><span className="text-primary font-bold">{m.calls}</span> Appels</span>
                                         <span><span className="text-amber-500 font-bold">{m.callbacks}</span> Rappels</span>
                                     </div>
                                     <div className="flex">
@@ -1171,7 +1171,7 @@ export default function AnalyticsPage() {
                             <h3 className="text-[15px] font-bold text-slate-800">Évolution de l'activité</h3>
                         </div>
                         <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-1.5 text-[11.5px] font-bold text-slate-500"><div className="w-3 h-1.5 rounded bg-[#1F4D47]" />Appels</div>
+                            <div className="flex items-center gap-1.5 text-[11.5px] font-bold text-slate-500"><div className="w-3 h-1.5 rounded bg-primary" />Appels</div>
                             <div className="flex items-center gap-1.5 text-[11.5px] font-bold text-slate-500"><div className="w-3 h-1.5 rounded bg-amber-400" />Meetings</div>
                         </div>
                     </div>
@@ -1179,13 +1179,13 @@ export default function AnalyticsPage() {
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={dailyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
-                                    <linearGradient id="gV" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#2890F8" stopOpacity={0.15} /><stop offset="100%" stopColor="#2890F8" stopOpacity={0} /></linearGradient>
+                                    <linearGradient id="gV" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--brand-primary)" stopOpacity={0.15} /><stop offset="100%" stopColor="var(--brand-primary)" stopOpacity={0} /></linearGradient>
                                 </defs>
                                 <CartesianGrid stroke="#f1f5f9" vertical={false} />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }} dy={10} />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }} />
                                 <RechartsTooltip contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', fontSize: '12px', fontWeight: 600, padding: '10px 14px' }} />
-                                <Area type="monotone" dataKey="calls" stroke="#2890F8" strokeWidth={2.5} fillOpacity={1} fill="url(#gV)" />
+                                <Area type="monotone" dataKey="calls" stroke="var(--brand-primary)" strokeWidth={2.5} fillOpacity={1} fill="url(#gV)" />
                                 <Area type="monotone" dataKey="meetings" stroke="#5BAEFC" strokeWidth={2.5} fillOpacity={0} />
                             </AreaChart>
                         </ResponsiveContainer>
@@ -1304,7 +1304,7 @@ export default function AnalyticsPage() {
             {/* Call Status Funnel */}
             <div className="order-7 bg-white rounded-xl border border-slate-100 p-5 shadow-sm mb-5 hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-2 mb-5">
-                    <div className="w-9 h-9 rounded-xl bg-[#EEF3F1] flex items-center justify-center">
+                    <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
                         <ArrowRight className="w-5 h-5 text-[#2F6B62]" />
                     </div>
                     <div>
@@ -1315,9 +1315,9 @@ export default function AnalyticsPage() {
                 <div className="flex items-end gap-1 justify-center">
                     {[
                         { label: 'Appels', value: funnel?.totalCalls || 0, color: '#080808', bg: 'bg-slate-100' },
-                        { label: 'Contacts', value: funnel?.contacts || 0, color: '#1a75ce', bg: 'bg-[#e6f0fa]' },
-                        { label: 'Opportunités', value: funnel?.opportunities || 0, color: '#5baefc', bg: 'bg-[#e6f0fa]' },
-                        { label: 'RDV', value: funnel?.meetings || 0, color: '#2890F8', bg: 'bg-[#e6f0fa]' },
+                        { label: 'Contacts', value: funnel?.contacts || 0, color: '#1a75ce', bg: 'bg-primary-light' },
+                        { label: 'Opportunités', value: funnel?.opportunities || 0, color: '#5baefc', bg: 'bg-primary-light' },
+                        { label: 'RDV', value: funnel?.meetings || 0, color: "var(--brand-primary)", bg: 'bg-primary-light' },
                     ].map((step, i, arr) => {
                         const maxVal = arr[0].value || 1;
                         const widthPct = Math.max(15, (step.value / maxVal) * 100);
@@ -1385,7 +1385,7 @@ export default function AnalyticsPage() {
                                         </td>
                                         <td className="px-5 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black text-white shrink-0 shadow-sm", isFirst ? "bg-gradient-to-br from-[#2F6B62] to-[#1F4D47] shadow-[#1F4D47]/15" : "")} style={!isFirst ? { background: getSdrColor(s.sdrName) } : {}}>
+                                                <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black text-white shrink-0 shadow-sm", isFirst ? "bg-gradient-to-br from-primary to-primary-hover shadow-primary/15" : "")} style={!isFirst ? { background: getSdrColor(s.sdrName) } : {}}>
                                                     {s.sdrName.substring(0, 2).toUpperCase()}
                                                 </div>
                                                 <div>
@@ -1395,7 +1395,7 @@ export default function AnalyticsPage() {
                                             </div>
                                         </td>
                                         <td className="px-5 py-4 text-center text-[13.5px] font-black text-slate-700">{s.alloCalls ?? 0}</td>
-                                        <td className="px-5 py-4 text-center text-[13.5px] font-black text-[#1F4D47]">{s.connectedCalls ?? 0}</td>
+                                        <td className="px-5 py-4 text-center text-[13.5px] font-black text-primary">{s.connectedCalls ?? 0}</td>
                                         <td className="px-5 py-4 text-center text-[13.5px] font-black text-slate-700">{crmActions}</td>
                                         <td className="px-5 py-4 text-center text-[13.5px] font-bold text-amber-500">{s.callbacks}</td>
                                         <td className="px-5 py-4 text-center">
@@ -1404,7 +1404,7 @@ export default function AnalyticsPage() {
                                         <td className="px-5 py-4">
                                             <div className="flex items-center gap-3 max-w-[140px]">
                                                 <div className="text-[12.5px] font-black text-slate-600 w-10 text-right">{contactRate}%</div>
-                                                <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-[#1F4D47] rounded-full" style={{ width: `${contactRate}%` }} /></div>
+                                                <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-primary rounded-full" style={{ width: `${contactRate}%` }} /></div>
                                             </div>
                                         </td>
                                     </tr>
@@ -1419,8 +1419,8 @@ export default function AnalyticsPage() {
             <div className="order-9 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md transition-shadow p-5 mb-5">
                 <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
                     <div className="flex items-center gap-2">
-                        <div className="w-9 h-9 rounded-xl bg-[#EEF3F1] flex items-center justify-center">
-                            <BarChart3 className="w-5 h-5 text-[#1F4D47]" />
+                        <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
+                            <BarChart3 className="w-5 h-5 text-primary" />
                         </div>
                         <div>
                             <h3 className="text-[15px] font-bold text-slate-800">Persona / Target Intelligence</h3>
@@ -1483,7 +1483,7 @@ export default function AnalyticsPage() {
                                 className={cn(
                                     "px-3 py-1.5 text-[11px] font-bold rounded-xl transition-all",
                                     personaDimension === dim
-                                        ? "bg-[#1F4D47] text-white shadow-md"
+                                        ? "bg-primary text-white shadow-md"
                                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                                 )}
                             >
@@ -1527,7 +1527,7 @@ export default function AnalyticsPage() {
                             <div className="rounded-xl border border-slate-100 bg-gradient-to-br from-[#F0F5F3]/30 to-white p-5">
                                 <div className="flex items-center gap-2 mb-4">
                                     <div className="w-8 h-8 rounded-lg bg-[#E5EFEC] flex items-center justify-center">
-                                        <GitCompare className="w-4 h-4 text-[#1F4D47]" />
+                                        <GitCompare className="w-4 h-4 text-primary" />
                                     </div>
                                     <h4 className="text-[13px] font-bold text-slate-800">{personaData.segmentA?.label}</h4>
                                 </div>
@@ -1549,7 +1549,7 @@ export default function AnalyticsPage() {
                             <div className="rounded-xl border border-slate-100 bg-gradient-to-br from-[#EEF3F1]/30 to-white p-5">
                                 <div className="flex items-center gap-2 mb-4">
                                     <div className="w-8 h-8 rounded-lg bg-[#E5EFEC] flex items-center justify-center">
-                                        <GitCompare className="w-4 h-4 text-[#1F4D47]" />
+                                        <GitCompare className="w-4 h-4 text-primary" />
                                     </div>
                                     <h4 className="text-[13px] font-bold text-slate-800">{personaData.segmentB?.label}</h4>
                                 </div>
@@ -1575,7 +1575,7 @@ export default function AnalyticsPage() {
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="flex gap-1.5 text-[11px] font-bold text-slate-500">
                                         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" />≥5%</span>
-                                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#1F4D47]" />≥3%</span>
+                                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary" />≥3%</span>
                                         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-slate-400" />&lt;3%</span>
                                     </div>
                                 </div>
@@ -1623,7 +1623,7 @@ export default function AnalyticsPage() {
                         <button className={cn("px-3.5 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap rounded-xl flex items-center gap-1.5", journalFilter === 'disqualified' ? "bg-red-500 text-white shadow-md shadow-red-500/20" : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200")} onClick={() => setJournalFilter('disqualified')}>
                             <div className={cn("w-1.5 h-1.5 rounded-full", journalFilter === 'disqualified' ? "bg-white" : "bg-red-500")} /> Disqualifiés
                         </button>
-                        <button className={cn("px-3.5 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap rounded-xl flex items-center gap-1.5", journalFilter === 'no_response' ? "bg-[#1F4D47] text-white shadow-md shadow-[#1F4D47]/20" : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200")} onClick={() => setJournalFilter('no_response')}>
+                        <button className={cn("px-3.5 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap rounded-xl flex items-center gap-1.5", journalFilter === 'no_response' ? "bg-primary text-white shadow-md shadow-primary/20" : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200")} onClick={() => setJournalFilter('no_response')}>
                             <div className={cn("w-1.5 h-1.5 rounded-full", journalFilter === 'no_response' ? "bg-white" : "bg-[#8D9B96]")} /> Sans réponse
                         </button>
                     </div>
@@ -1663,7 +1663,7 @@ export default function AnalyticsPage() {
                         columns={[
                             { key: "createdAt", header: "Date", sortable: true, render: (val: string) => <div className="text-[12px] text-slate-500 font-bold font-mono bg-slate-50 px-2 py-1 rounded w-max">{new Date(val).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</div> },
                             { key: "sdrName", header: "SDR", sortable: true, render: (val: string) => <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-lg flex items-center justify-center text-[9px] font-black text-white shrink-0 shadow-sm" style={{ background: getSdrColor(val) }}>{val.substring(0, 2).toUpperCase()}</div><span className="font-bold text-slate-700">{val}</span></div> },
-                            { key: "missionName", header: "Mission", sortable: true, render: (val: string) => <span className="text-[12px] font-bold text-[#1F4D47] bg-[#F0F5F3] px-2 py-1 rounded-md">{val}</span> },
+                            { key: "missionName", header: "Mission", sortable: true, render: (val: string) => <span className="text-[12px] font-bold text-primary bg-[#F0F5F3] px-2 py-1 rounded-md">{val}</span> },
                             { key: "contactName", header: "Contact", sortable: true, render: (val: string, row: any) => <div><div className="font-black text-slate-800 tracking-tight">{val}</div><div className="text-[11.5px] font-medium text-slate-400">{row.companyName}</div></div> },
                             {
                                 key: "result", header: "Résultat", sortable: true, render: (val: string) => {
@@ -1671,7 +1671,7 @@ export default function AnalyticsPage() {
                                     if (val === 'MEETING_BOOKED') { bg = 'bg-emerald-50 text-emerald-700 border border-emerald-100/50'; dot = 'bg-emerald-500'; }
                                     if (val === 'CALLBACK_REQUESTED' || val === 'INTERESTED') { bg = 'bg-amber-50 text-amber-700 border border-amber-100/50'; dot = 'bg-amber-500'; }
                                     if (val === 'DISQUALIFIED') { bg = 'bg-red-50 text-red-700 border border-red-100/50'; dot = 'bg-red-500'; }
-                                    if (val === 'NO_RESPONSE') { bg = 'bg-[#EEF3F1] text-[#1F4D47] border border-[#D7E3DF]'; dot = 'bg-[#8D9B96]'; }
+                                    if (val === 'NO_RESPONSE') { bg = 'bg-primary-light text-primary border border-[#D7E3DF]'; dot = 'bg-[#8D9B96]'; }
                                     return <span className={cn("px-2.5 py-1.5 rounded-full text-[10px] font-bold tracking-wider flex w-max items-center gap-1.5 uppercase", bg)}><div className={cn("w-1.5 h-1.5 rounded-full", dot)} />{ACTION_RESULT_LABELS[val] || val}</span>
                                 }
                             },
@@ -1780,7 +1780,7 @@ export default function AnalyticsPage() {
                             type="button"
                             onClick={handleGenerateReport}
                             disabled={isGeneratingReport}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-[#1F4D47] text-white text-[13px] font-semibold rounded-xl hover:bg-[#173F3A] disabled:opacity-60 transition-colors"
+                            className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-[13px] font-semibold rounded-xl hover:bg-[#173F3A] disabled:opacity-60 transition-colors"
                         >
                             {isGeneratingReport ? (
                                 <>

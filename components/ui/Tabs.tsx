@@ -25,7 +25,7 @@ function TabBadge({ badge, active }: { badge?: string | number; active: boolean 
             className={cn(
                 "ml-1.5 px-1.5 py-0.5 text-[10px] font-semibold rounded-full min-w-[18px] text-center leading-tight",
                 active
-                    ? "bg-[#e6f0fa] text-[#2890F8]"
+                    ? "bg-primary-light text-primary"
                     : "bg-slate-200 text-slate-600"
             )}
         >
@@ -54,7 +54,7 @@ export function Tabs({
                         className={cn(
                             "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                             activeTab === tab.id
-                                ? "bg-white text-[#2890F8] shadow-sm font-semibold"
+                                ? "bg-white text-primary shadow-sm font-semibold"
                                 : "text-slate-600 hover:text-slate-900"
                         )}
                     >
@@ -76,7 +76,7 @@ export function Tabs({
                     className={cn(
                         "flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors",
                         activeTab === tab.id
-                            ? "text-[#2890F8] border-[#2890F8] font-semibold"
+                            ? "text-primary border-primary font-semibold"
                             : "text-slate-500 border-transparent hover:text-slate-700"
                     )}
                 >

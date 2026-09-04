@@ -423,7 +423,7 @@ export function QuickEmailModal({
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex-none flex items-center justify-between px-6 py-4 border-b border-[#173A35] bg-[#1F4D47]">
+                <div className="flex-none flex items-center justify-between px-6 py-4 border-b border-[#173A35] bg-primary">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center">
                             <Send className="w-5 h-5 text-white" />
@@ -455,7 +455,7 @@ export function QuickEmailModal({
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="h-10 px-4 rounded-lg border border-[#CBD8D4] bg-white text-sm font-semibold text-[#1F4D47] hover:bg-[#F1F4F3] active:translate-y-px transition-colors"
+                                className="h-10 px-4 rounded-lg border border-primary/20 bg-white text-sm font-semibold text-primary hover:bg-[#F1F4F3] active:translate-y-px transition-colors"
                             >
                                 Continuer la prospection
                             </button>
@@ -465,7 +465,7 @@ export function QuickEmailModal({
                                     onClose();
                                     router.push("/sdr/emails/sent");
                                 }}
-                                className="h-10 px-4 rounded-lg bg-[#1F4D47] text-sm font-semibold text-white hover:bg-[#173A35] active:translate-y-px transition-colors"
+                                className="h-10 px-4 rounded-lg bg-primary text-sm font-semibold text-white hover:bg-primary-hover active:translate-y-px transition-colors"
                             >
                                 Voir mes envois
                             </button>
@@ -505,7 +505,7 @@ export function QuickEmailModal({
                                 onClose();
                                 router.push("/sdr/email");
                             }}
-                            className="px-4 py-2 bg-[#1F4D47] text-white text-sm font-medium rounded-lg hover:bg-[#173A35] transition-colors"
+                            className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-hover transition-colors"
                         >
                             Ouvrir l&apos;espace Email
                         </button>
@@ -590,7 +590,7 @@ export function QuickEmailModal({
                                 </label>
                                 <div className="flex flex-wrap items-center gap-2 min-h-11 px-3 py-2 bg-white border border-slate-200 rounded-xl focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition-all">
                                     {recipientEmail && (
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1F4D47] text-white text-sm font-medium">
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium">
                                             {recipientEmail}
                                             <button
                                                 type="button"
@@ -677,14 +677,14 @@ export function QuickEmailModal({
                                                 className={cn(
                                                     "flex items-center gap-3 p-3 rounded-xl border text-left transition-all",
                                                     selectedTemplateId === mt.template.id
-                                                        ? "border-[#1F4D47] bg-[#EDF4F2] ring-2 ring-[#1F4D47]/20"
+                                                        ? "border-primary bg-primary-light ring-2 ring-primary/20"
                                                         : "border-slate-200 bg-white hover:border-[#9DBBB4] hover:bg-[#F1F4F3]"
                                                 )}
                                             >
                                                 <div className={cn(
                                                     "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
                                                     selectedTemplateId === mt.template.id
-                                                        ? "bg-[#1F4D47] text-white"
+                                                        ? "bg-primary text-white"
                                                         : "bg-slate-100 text-slate-500"
                                                 )}>
                                                     <Sparkles className="w-5 h-5" />
@@ -698,7 +698,7 @@ export function QuickEmailModal({
                                                     </p>
                                                 </div>
                                                 {selectedTemplateId === mt.template.id && (
-                                                    <CheckCircle2 className="w-5 h-5 text-[#1F4D47] flex-shrink-0" />
+                                                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
                                                 )}
                                             </button>
                                         ))}
@@ -827,7 +827,7 @@ export function QuickEmailModal({
                                 disabled={isSending || !selectedMailboxId || !effectiveRecipient || (!selectedTemplateId && !subject)}
                                 className={cn(
                                     "flex items-center gap-2 px-6 py-2.5 text-sm font-semibold rounded-xl transition-all",
-                                    "bg-[#1F4D47] text-white hover:bg-[#173A35] hover:shadow-lg hover:shadow-[#1F4D47]/20",
+                                    "bg-primary text-white hover:bg-primary-hover hover:shadow-lg hover:shadow-primary/20",
                                     "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
                                 )}
                             >

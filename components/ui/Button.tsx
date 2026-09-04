@@ -10,20 +10,21 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const BUTTON_BASE_STYLES =
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold rounded-[10px] transition-all duration-150 cursor-pointer border disabled:opacity-45 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2890F8]/35 focus-visible:ring-offset-2 active:translate-y-px";
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold rounded-[10px] transition-all duration-150 cursor-pointer border disabled:opacity-45 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2 active:translate-y-px";
 
 const BUTTON_VARIANTS: Record<string, string> = {
     primary:
-        "bg-[#2890F8] text-white border-[#1a75ce] hover:bg-[#1a75ce] hover:shadow-[0_7px_20px_rgba(40,144,248,.25)]",
+        "bg-primary text-white border-primary-hover hover:bg-primary-hover hover:shadow-sm",
     secondary:
-        "bg-[#f8f8f8] text-[#080808] border-[#e0e0e0] hover:bg-[#eeeeee] hover:border-[#cccccc]",
+        "bg-surface text-ink border-border hover:bg-subtle hover:border-border-strong",
     outline:
-        "bg-transparent text-[#080808] border-[#cccccc] hover:bg-[#f0f0f0] hover:border-[#080808]",
+        "bg-transparent text-ink border-border-strong hover:bg-subtle",
     success:
-        "bg-[#25745F] text-white border-[#1E604F] hover:bg-[#1E604F]",
+        "bg-success text-white border-success hover:opacity-90",
     danger:
-        "bg-[#B9433E] text-white border-[#963632] hover:bg-[#963632]",
-    ghost: "bg-transparent text-[#666666] border-transparent hover:text-[#080808] hover:bg-[#f0f0f0]",
+        "bg-danger text-white border-danger hover:opacity-90",
+    ghost: 
+        "bg-transparent text-muted border-transparent hover:text-ink hover:bg-subtle",
 };
 
 const BUTTON_SIZES: Record<string, string> = {
@@ -83,3 +84,4 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 export default Button;
+export { Button };

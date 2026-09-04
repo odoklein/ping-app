@@ -29,21 +29,20 @@ export function PageHeader({
         return (
             <div
                 className={cn(
-                    "relative overflow-hidden rounded-[14px] bg-[#0C3B38] p-5 text-[#F4F0E8] sm:p-7",
-                    "after:absolute after:inset-x-0 after:bottom-0 after:h-1 after:bg-[#FF9E1B]",
+                    "relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#060911] via-[#0B0F19] to-[#04060B] p-6 text-white sm:p-8 border border-slate-800/80 shadow-md",
                     className
                 )}
             >
                 <div className="relative z-10">
                     {icon && (
-                        <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#FF9E1B]">
+                        <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-primary">
                             {icon}
                         </div>
                     )}
-                    <h1 className="font-display mb-2 text-3xl font-bold tracking-[-0.025em]">
+                    <h1 className="font-display mb-2 text-3xl font-bold tracking-tight text-white">
                         {title}
                     </h1>
-                    {subtitle && <p className="max-w-xl text-[#C0CCC7]">{subtitle}</p>}
+                    {subtitle && <p className="max-w-xl text-slate-300 text-sm leading-relaxed">{subtitle}</p>}
                     {actions && <div className="mt-6 flex flex-wrap items-center gap-3">{actions}</div>}
                 </div>
             </div>
@@ -54,26 +53,26 @@ export function PageHeader({
         <div className={cn("flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5", className)}>
             <div className="flex min-w-0 items-start gap-3">
                 {icon && (
-                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-[#CBD8D4] bg-[#EEF3F1] text-[#1F4D47]">
+                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary-light text-primary">
                         {icon}
                     </div>
                 )}
                 <div className="min-w-0">
-                    <h1 className="font-display text-[24px] font-bold leading-tight tracking-[-0.025em] text-[#15201E] sm:text-[28px]">
+                    <h1 className="font-display text-[24px] font-bold leading-tight tracking-tight text-ink sm:text-[28px]">
                         {title}
                     </h1>
-                    {subtitle && <p className="mt-1 text-sm text-[#5C6E69]">{subtitle}</p>}
+                    {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
                 </div>
             </div>
             <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end sm:gap-3">
                 {onRefresh && (
                     <button
                         onClick={onRefresh}
-                        className="rounded-[9px] border border-[rgba(21,32,30,.16)] bg-[#F4F0E8] p-2.5 transition-colors hover:bg-[#ECE5D8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9E1B]/35"
+                        className="rounded-xl border border-border bg-surface p-2.5 transition-colors hover:bg-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
                         aria-label="Rafraîchir"
                     >
                         <RefreshCw
-                            className={cn("h-4 w-4 text-[#5C6E69]", isRefreshing && "animate-spin")}
+                            className={cn("h-4 w-4 text-muted", isRefreshing && "animate-spin")}
                         />
                     </button>
                 )}

@@ -487,7 +487,7 @@ export function BookingDrawer({
                     className="flex h-dvh min-h-0 w-full max-w-5xl flex-col overflow-hidden border border-[#DDE5E2] bg-white shadow-[0_24px_70px_rgba(21,32,30,0.24)] sm:h-[min(88dvh,820px)] sm:rounded-xl"
                 >
                     {/* Header */}
-                    <div className="flex items-center justify-between border-b border-[#174B45] bg-[#1F4D47] px-5 py-4 text-white sm:px-6">
+                    <div className="flex items-center justify-between border-b border-[#174B45] bg-primary px-5 py-4 text-white sm:px-6">
                         <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
                                 <CalendarCheck className="w-5 h-5" />
@@ -515,16 +515,16 @@ export function BookingDrawer({
                                     <span className={cn(
                                         "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border text-xs font-bold",
                                         step > item.id
-                                            ? "border-[#1F4D47] bg-[#1F4D47] text-white"
+                                            ? "border-primary bg-primary text-white"
                                             : step === item.id
                                                 ? "border-[#E07C00] bg-[#FF9E1B] text-[#15201E]"
-                                                : "border-[#CBD8D4] bg-white text-slate-400"
+                                                : "border-primary/20 bg-white text-slate-400"
                                     )}>
                                         {step > item.id ? <Check className="h-3.5 w-3.5" /> : item.id}
                                     </span>
                                     <span className={cn("truncate text-xs font-semibold sm:text-sm", step === item.id ? "text-[#15201E]" : "text-slate-500")}>{item.label}</span>
                                 </div>
-                                {index === 0 && <div className={cn("mx-3 h-px flex-1 sm:mx-5", step === 2 ? "bg-[#1F4D47]" : "bg-[#CBD8D4]")} />}
+                                {index === 0 && <div className={cn("mx-3 h-px flex-1 sm:mx-5", step === 2 ? "bg-primary" : "bg-[#CBD8D4]")} />}
                             </div>
                         ))}
                     </div>
@@ -661,7 +661,7 @@ export function BookingDrawer({
                                 Détails du rendez-vous
                             </p>
 
-                            <div className="flex items-start gap-2.5 rounded-lg border border-[#D7E1DE] bg-[#EEF3F1] px-3 py-2.5 text-xs leading-relaxed text-[#3F625D]">
+                            <div className="flex items-start gap-2.5 rounded-lg border border-[#D7E1DE] bg-primary-light px-3 py-2.5 text-xs leading-relaxed text-[#3F625D]">
                                 <Calendar className="mt-0.5 h-4 w-4 shrink-0" />
                                 <span>La date et l&apos;heure seront choisies à l&apos;étape suivante dans le calendrier. Aucune double saisie.</span>
                             </div>
@@ -871,7 +871,7 @@ export function BookingDrawer({
                                                 type="button"
                                                 onClick={() => setStep(1)}
                                                 disabled={isProcessing}
-                                                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-[#CBD8D4] bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-[#EEF3F1] disabled:opacity-50"
+                                                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-primary/20 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-primary-light disabled:opacity-50"
                                             >
                                                 <ArrowLeft className="h-4 w-4" />
                                                 Modifier les données CRM
@@ -882,7 +882,7 @@ export function BookingDrawer({
                                                     <button
                                                         type="button"
                                                         onClick={() => setShowManualDate(true)}
-                                                        className="text-xs font-medium text-slate-500 underline underline-offset-2 hover:text-[#1F4D47]"
+                                                        className="text-xs font-medium text-slate-500 underline underline-offset-2 hover:text-primary"
                                                     >
                                                         Le calendrier ne remonte pas le créneau ? Saisie manuelle
                                                     </button>
@@ -895,7 +895,7 @@ export function BookingDrawer({
                                                                 onChange={setEffectiveRdvDate}
                                                                 placeholder="Choisir date et heure…"
                                                                 min={new Date().toISOString().slice(0, 16)}
-                                                                triggerClassName="border-[#CBD8D4] bg-white focus:border-[#E07C00] focus:ring-[#FF9E1B]/20"
+                                                                triggerClassName="border-primary/20 bg-white focus:border-[#E07C00] focus:ring-[#FF9E1B]/20"
                                                             />
                                                         </div>
                                                         <button

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import {
     successResponse,
     errorResponse,
-    requireRole,
+    requireOrganization,
     withErrorHandler,
 } from "@/lib/api-utils";
 import { z } from "zod";
@@ -14,11 +14,12 @@ import { z } from "zod";
  * which statuses are in use and how many actions each has.
  */
 export const GET = withErrorHandler(async (request: NextRequest) => {
-    await requireRole(["MANAGER"], request);
+    const { organizationId } = await requireOrganization(request);
 
-    // Get counts of actions per result code
+    // Get counts of actions per result code, scoped to this org.
     const counts = await prisma.action.groupBy({
         by: ["result"],
+        where: { organizationId },
         _count: { id: true },
     });
 
@@ -74,7 +75,7 @@ const remapSchema = z.object({
  * This updates all Action records matching the fromCode to the toCode.
  */
 export const POST = withErrorHandler(async (request: NextRequest) => {
-    await requireRole(["MANAGER"], request);
+    const { organizationId } = await requireOrganization(request);
 
     const body = await request.json();
     const parsed = remapSchema.safeParse(body);
@@ -132,6 +133,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
                 UPDATE "Action"
                 SET "result" = ${toCode}::"ActionResult"
                 WHERE "result"::text = ${fromCode}
+                  AND "organizationId" = ${organizationId}
             `;
             results.push({ fromCode, toCode, updated: Number(updated) });
         }

@@ -197,7 +197,7 @@ export default function NewMissionPage() {
                     <ArrowLeft className="w-4 h-4 text-slate-600" />
                 </Link>
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-[#0B0F19] text-[#2890F8] flex items-center justify-center shadow-md shadow-black/20 border border-slate-800">
+                    <div className="w-10 h-10 rounded-2xl bg-[#0B0F19] text-primary flex items-center justify-center shadow-md shadow-black/20 border border-slate-800">
                         <Rocket className="w-5 h-5" />
                     </div>
                     <div>

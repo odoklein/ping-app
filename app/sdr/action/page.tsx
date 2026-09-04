@@ -1570,201 +1570,6 @@ export default function SDRActionPage() {
                         return;
                     }
                     if (!missionJson.data?.client?.id) return;
-}
-        } catch {
-            showError("Erreur de connexion");
-        } finally {
-            setSubmittingRowKey(null);
-        }
-    };
-
-    // Queue: open email composer (will record MAIL_ENVOYE when sent)
-    const handleMailToSendChoiceOpenComposer = (targetRow?: QueueItem) => {
-        const row = targetRow || mailToSendChoiceRow;
-        if (!row) return;
-        const mission = missions.find(m => m.name === row.missionName);
-        const missionId = mission?.id || selectedMissionId;
-        setEmailModalContact(row.contact ? {
-            id: row.contact.id,
-            firstName: row.contact.firstName,
-            lastName: row.contact.lastName,
-            email: row.contact.email,
-            title: row.contact.title,
-            company: { id: row.company.id, name: row.company.name }
-        } : null);
-        setEmailModalCompany(row.contact ? null : { id: row.company.id, name: row.company.name, phone: row.company.phone });
-        setEmailModalMissionId(missionId || null);
-        setEmailModalMissionName(mission?.name || row.missionName);
-        setEmailModalPreferredMailboxId(null);
-        if (mission?.defaultMailboxId) setEmailModalPreferredMailboxId(mission.defaultMailboxId);
-        else if (missionId) {
-            (async () => {
-                try {
-                    const missionRes = await fetch(`/api/missions/${missionId}`);
-                    const missionJson = await missionRes.json();
-                    if (!missionJson.success) return;
-                    const missionDefaultMailboxId = missionJson.data?.defaultMailboxId as string | undefined;
-                    if (missionDefaultMailboxId) {
-                        setEmailModalPreferredMailboxId(missionDefaultMailboxId);
-                        return;
-                    }
-                    if (!missionJson.data?.client?.id) return;
-                    const clientId = missionJson.data.client.id as string;
-                    const clientRes = await fetch(`/api/clients/${clientId}`);
-                    const clientJson = await clientRes.json();
-                    if (!clientJson.success) return;
-                    const onboardingData = (clientJson.data?.onboarding?.onboardingData ?? {}) as { defaultMailboxId?: string };
-                    if (onboardingData.defaultMailboxId) setEmailModalPreferredMailboxId(onboardingData.defaultMailboxId);
-                } catch { /* ignore */ }
-            })();
-        }
-        setPendingEmailAction({ row, result: "MAIL_ENVOYE" });
-        setShowMailToSendChoiceModal(false);
-        setMailToSendChoiceRow(null);
-        setMailToSendChoiceNote("");
-        setShowQuickEmailModal(true);
-    };
-
-    const handleBulkDisqualify = async () => {
-        if (tableSelectedIds.size === 0) return;
-        if (!confirm(`Marquer ${tableSelectedIds.size} élément(s) comme disqualifié(s) ?`)) return;
-
-        const keysToRemove = new Set(tableSelectedIds);
-        const rowsToProcess = filteredQueueItems.filter((r) => keysToRemove.has(queueRowKey(r)));
-
-        // Optimistic: remove from UI immediately
-        queryClient.invalidateQueries({ queryKey: queueQueryKey });
-        setTableSelectedIds(new Set());
-        setActionsCompleted((c) => c + rowsToProcess.length);
-        setIsBulkDisqualifying(false);
-
-        // Server: disqualify in background
-        let failCount = 0;
-        const promises = rowsToProcess.map(async (row) => {
-            try {
-                const res = await fetch("/api/actions", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        contactId: row.contactId ?? undefined,
-                        companyId: row.contactId ? undefined : row.companyId,
-                        campaignId: row.campaignId,
-                        channel: row.channel,
-                        result: "DISQUALIFIED" as const,
-                        note: "Disqualifié",
-                    }),
-                });
-                const json = await res.json();
-                if (!json.success) failCount++;
-            } catch {
-                failCount++;
-            }
-        });
-        await Promise.all(promises);
-
-        trackEvent(UMAMI_EVENTS.ACTION_BULK_DISQUALIFIED, { count: rowsToProcess.length, failCount });
-
-        if (failCount > 0) {
-            await refreshQueue();
-            showError("Erreur", `${failCount} élément(s) n'ont pas pu être traités.`);
-        } else {
-            success(`${rowsToProcess.length} élément(s) disqualifié(s).`);
-        }
-    };
-
-    // Handle email sent from QuickEmailModal — record as MAIL_ENVOYE (email actually sent)
-    const handleEmailSent = async () => {
-        if (!pendingEmailAction) return;
-        const result = "MAIL_ENVOYE" as const;
-
-        const isCardMode = "cardMode" in pendingEmailAction && pendingEmailAction.cardMode;
-
-        try {
-            if (isCardMode && currentAction) {
-                const res = await fetch("/api/actions", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        contactId: currentAction.contact?.id,
-                        companyId: !currentAction.contact && currentAction.company ? currentAction.company.id : undefined,
-                        campaignId: currentAction.campaignId,
-                        channel: "EMAIL",
-                        result,
-                        note: "Email envoyé via template",
-                    }),
-                });
-                const json = await res.json();
-                if (!json.success) {
-                    showError(json.error || "Erreur lors de l'enregistrement de l'email");
-                    return;
-                }
-                trackEvent(UMAMI_EVENTS.EMAIL_SENT, { mode: "card" });
-                setActionsCompleted((c) => c + 1);
-                await loadNextAction();
-            } else if (!isCardMode && "row" in pendingEmailAction) {
-                const { row } = pendingEmailAction;
-                const res = await fetch("/api/actions", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        contactId: row.contactId ?? undefined,
-                        companyId: row.contactId ? undefined : row.companyId,
-                        campaignId: row.campaignId,
-                        channel: "EMAIL",
-                        result,
-                        note: "Email envoyé via template",
-                    }),
-                });
-                const json = await res.json();
-                if (!json.success) {
-                    showError(json.error || "Erreur lors de l'enregistrement de l'email");
-                    return;
-                }
-                trackEvent(UMAMI_EVENTS.EMAIL_SENT, { mode: "queue" });
-                queryClient.invalidateQueries({ queryKey: queueQueryKey });
-                setActionsCompleted((c) => c + 1);
-            }
-        } catch {
-            showError("Erreur de connexion");
-        }
-
-        setPendingEmailAction(null);
-        setEmailModalContact(null);
-        setEmailModalCompany(null);
-        setEmailModalMissionId(null);
-        setEmailModalMissionName(null);
-    };
-
-    // Open QuickEmailModal for current card (when SDR chooses "Envoyer un email" for ENVOIE_MAIL)
-    const openEmailModalForCard = () => {
-        if (!currentAction) return;
-        const contact = currentAction.contact;
-        setEmailModalContact(contact ? {
-            id: contact.id,
-            firstName: contact.firstName,
-            lastName: contact.lastName,
-            email: contact.email,
-            title: contact.title,
-            company: currentAction.company ? { id: currentAction.company.id, name: currentAction.company.name } : undefined,
-        } : null);
-        setEmailModalCompany(!contact && currentAction.company ? { id: currentAction.company.id, name: currentAction.company.name, phone: currentAction.company.phone } : null);
-        setEmailModalMissionId(selectedMissionId ?? null);
-        setEmailModalMissionName(currentAction.missionName ?? null);
-        setEmailModalPreferredMailboxId(null);
-        setPendingEmailAction({ cardMode: true, result: "MAIL_ENVOYE" });
-        setShowQuickEmailModal(true);
-        if (selectedMissionId) {
-            (async () => {
-                try {
-                    const missionRes = await fetch(`/api/missions/${selectedMissionId}`);
-                    const missionJson = await missionRes.json();
-                    if (!missionJson.success) return;
-                    const missionDefaultMailboxId = missionJson.data?.defaultMailboxId as string | undefined;
-                    if (missionDefaultMailboxId) {
-                        setEmailModalPreferredMailboxId(missionDefaultMailboxId);
-                        return;
-                    }
-                    if (!missionJson.data?.client?.id) return;
                     const clientId = missionJson.data.client.id as string;
                     const clientRes = await fetch(`/api/clients/${clientId}`);
                     const clientJson = await clientRes.json();
@@ -1775,6 +1580,8 @@ export default function SDRActionPage() {
             })();
         }
     };
+
+
 
     // Submit (wrapped in useCallback so keyboard shortcut always has latest)
     const handleSubmit = useCallback(async () => {
@@ -1847,6 +1654,7 @@ export default function SDRActionPage() {
                 } catch {
                     showError("Appel non enregistré", "Erreur réseau lors de l'enrichissement.");
                 }
+            }
             trackActionCreated({ channel: currentAction.channel ?? "CALL", result: selectedResult, hasContact: !!currentAction.contact, hasCompany: !!currentAction.company });
             setShowSuccess(true);
             setActionsCompleted((prev) => prev + 1);
@@ -2064,10 +1872,10 @@ export default function SDRActionPage() {
                                 e.stopPropagation();
                                 handleMailToSendChoiceOpenComposer(row);
                             }}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-[#1F4D47] bg-[#EDF4F2] hover:bg-[#E2ECE8] border border-[#CBD8D4] rounded-lg transition-all duration-150 hover:shadow-sm group cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-primary bg-primary-light hover:bg-[#E2ECE8] border border-primary/20 rounded-lg transition-all duration-150 hover:shadow-sm group cursor-pointer"
                             title="Envoyer un email (boîte & templates de la mission)"
                         >
-                            <Mail className="w-3.5 h-3.5 text-[#1F4D47]" />
+                            <Mail className="w-3.5 h-3.5 text-primary" />
                             <span className="truncate max-w-[160px] font-mono text-[11px]">{email}</span>
                         </button>
                     );
@@ -2409,7 +2217,7 @@ export default function SDRActionPage() {
 
                         {hasTableFiltersActive && (
                             <div className="mt-3 flex flex-wrap items-center gap-1.5" aria-label="Filtres actifs">
-                                {tableFilterResult && <button type="button" onClick={() => setTableFilterResult("")} className="rounded-full border border-[#d7e3df] bg-[#eef4f2] px-2.5 py-1 text-[10px] font-semibold text-[#1f4d47]">Statut: {tableFilterResult === "NONE" ? "Jamais contacté" : statusLabels[tableFilterResult] ?? tableFilterResult} ×</button>}
+                                {tableFilterResult && <button type="button" onClick={() => setTableFilterResult("")} className="rounded-full border border-[#d7e3df] bg-[#eef4f2] px-2.5 py-1 text-[10px] font-semibold text-primary">Statut: {tableFilterResult === "NONE" ? "Jamais contacté" : statusLabels[tableFilterResult] ?? tableFilterResult} ×</button>}
                                 {tableFilterPriority && <button type="button" onClick={() => setTableFilterPriority("")} className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-semibold text-amber-700">Priorité: {PRIORITY_LABELS[tableFilterPriority]?.label ?? tableFilterPriority} ×</button>}
                                 {tableFilterChannel && <button type="button" onClick={() => setTableFilterChannel("")} className="rounded-full border border-[#d7e3df] bg-white px-2.5 py-1 text-[10px] font-semibold text-slate-600">Canal: {CHANNEL_LABELS[tableFilterChannel as Channel] ?? tableFilterChannel} ×</button>}
                                 {tableFilterType && <button type="button" onClick={() => setTableFilterType("")} className="rounded-full border border-[#d7e3df] bg-white px-2.5 py-1 text-[10px] font-semibold text-slate-600">Type: {tableFilterType === "contact" ? "Contacts" : "Sociétés"} ×</button>}

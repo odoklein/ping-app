@@ -230,7 +230,7 @@ export default function ClientsPage() {
                 <p className="text-sm text-red-600">{(clientsError as Error).message}</p>
                 <button
                     onClick={() => refetchClients()}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#2890F8] text-white text-xs font-bold hover:bg-[#1a75ce] transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover transition-colors"
                 >
                     <RefreshCw className="w-4 h-4" />
                     Réessayer
@@ -245,7 +245,7 @@ export default function ClientsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/70">
                 <div className="space-y-1">
                     <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-xl bg-[#0B0F19] text-[#2890F8] flex items-center justify-center shadow-md shadow-black/20 border border-slate-800">
+                        <div className="w-9 h-9 rounded-xl bg-[#0B0F19] text-primary flex items-center justify-center shadow-md shadow-black/20 border border-slate-800">
                             <Building2 className="w-5 h-5" />
                         </div>
                         <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
@@ -262,14 +262,14 @@ export default function ClientsPage() {
                         onClick={() => refetchClients()}
                         disabled={isFetching}
                         title="Actualiser"
-                        className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-[#2890F8] hover:border-blue-300 transition-all shadow-2xs disabled:opacity-50"
+                        className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:border-blue-300 transition-all shadow-2xs disabled:opacity-50"
                     >
-                        <RefreshCw className={cn("w-4 h-4", isFetching && "animate-spin text-[#2890F8]")} />
+                        <RefreshCw className={cn("w-4 h-4", isFetching && "animate-spin text-primary")} />
                     </button>
 
                     <Link
                         href="/manager/playbook/import"
-                        className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:border-[#2890F8] hover:shadow-xs transition-all shadow-2xs"
+                        className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:border-primary hover:shadow-xs transition-all shadow-2xs"
                     >
                         <FileText className="w-3.5 h-3.5 text-slate-500" />
                         <span>Importer playbook</span>
@@ -277,7 +277,7 @@ export default function ClientsPage() {
 
                     <button
                         onClick={() => setShowOnboardingModal(true)}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#2890F8] to-[#156cd4] hover:from-[#1e7fd8] hover:to-[#0f5ab5] shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all"
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-primary to-[#156cd4] hover:from-[#1e7fd8] hover:to-[#0f5ab5] shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all"
                     >
                         <Plus className="w-4 h-4" />
                         <span>Nouveau client</span>
@@ -289,9 +289,9 @@ export default function ClientsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                 {/* 1. Total Clients — Midnight Sapphire Card */}
                 <div className="p-5 rounded-3xl bg-gradient-to-br from-[#0A1224] via-[#0B152A] to-[#050B16] border border-blue-900/70 text-white shadow-xl shadow-black/20 flex flex-col justify-between relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#2890F8]/15 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/15 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
                     <div className="flex items-center justify-between z-10">
-                        <div className="w-11 h-11 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-[#2890F8]">
+                        <div className="w-11 h-11 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-primary">
                             <Building2 className="w-5 h-5" />
                         </div>
                         <span className="px-2.5 py-0.5 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[10px] font-bold">
@@ -480,7 +480,7 @@ export default function ClientsPage() {
                             placeholder="Rechercher par nom, secteur, email..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full h-10 pl-10 pr-9 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 focus:border-[#2890F8] placeholder:text-slate-400 transition-all"
+                            className="w-full h-10 pl-10 pr-9 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder:text-slate-400 transition-all"
                         />
                         {searchQuery && (
                             <button
@@ -522,7 +522,7 @@ export default function ClientsPage() {
                         <select
                             value={industryFilter}
                             onChange={(e) => setIndustryFilter(e.target.value)}
-                            className="h-10 px-3 text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20"
+                            className="h-10 px-3 text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20"
                         >
                             <option value="all">Tous les secteurs</option>
                             {industries.map((ind) => (
@@ -535,7 +535,7 @@ export default function ClientsPage() {
                     <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                        className="h-10 px-3 text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20"
+                        className="h-10 px-3 text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20"
                     >
                         <option value="recent">Plus récents</option>
                         <option value="name">Nom (A-Z)</option>
@@ -567,7 +567,7 @@ export default function ClientsPage() {
                     {!searchQuery && (
                         <button
                             onClick={() => setShowOnboardingModal(true)}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#2890F8] hover:bg-[#1a75ce] transition-colors"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-primary hover:bg-primary-hover transition-colors"
                         >
                             <Plus className="w-4 h-4" />
                             Créer un compte client
@@ -595,7 +595,7 @@ export default function ClientsPage() {
                                                 {client.name.slice(0, 2).toUpperCase()}
                                             </div>
                                             <div className="min-w-0">
-                                                <h3 className="text-base font-bold text-slate-900 group-hover:text-[#2890F8] transition-colors truncate">
+                                                <h3 className="text-base font-bold text-slate-900 group-hover:text-primary transition-colors truncate">
                                                     {client.name}
                                                 </h3>
                                                 <p className="text-xs text-slate-400 truncate mt-0.5">
@@ -659,7 +659,7 @@ export default function ClientsPage() {
                                     <span className="flex items-center gap-1.5">
                                         <Clock className="w-3.5 h-3.5" /> Créé le {new Date(client.createdAt).toLocaleDateString("fr-FR")}
                                     </span>
-                                    <span className="text-[#2890F8] font-bold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                                    <span className="text-primary font-bold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
                                         Gérer <ArrowRight className="w-3.5 h-3.5" />
                                     </span>
                                 </div>

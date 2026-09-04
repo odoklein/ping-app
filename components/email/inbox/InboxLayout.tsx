@@ -71,12 +71,12 @@ function ToastContainer({
                         "flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border text-sm font-medium animate-in slide-in-from-right-5 fade-in duration-300",
                         toast.type === "success" && "bg-emerald-50 border-emerald-200 text-emerald-800",
                         toast.type === "error" && "bg-red-50 border-red-200 text-red-800",
-                        toast.type === "info" && "bg-[#e6f0fa] border-[#2890F8]/25 text-[#2890F8]"
+                        toast.type === "info" && "bg-primary-light border-primary/25 text-primary"
                     )}
                 >
                     {toast.type === "success" && <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />}
                     {toast.type === "error" && <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />}
-                    {toast.type === "info" && <RefreshCw className="w-4 h-4 text-[#2890F8] flex-shrink-0" />}
+                    {toast.type === "info" && <RefreshCw className="w-4 h-4 text-primary flex-shrink-0" />}
                     <span className="flex-1">{toast.message}</span>
                     <button
                         onClick={() => onDismiss(toast.id)}
@@ -312,7 +312,7 @@ export function InboxLayout({
                 <div className="flex flex-col items-center gap-4">
                     <div className="relative">
                         <div className="w-14 h-14 rounded-xl bg-[#080808] flex items-center justify-center shadow-[0_10px_28px_rgba(0,0,0,0.18)]">
-                            <Loader2 className="w-7 h-7 text-[#2890F8] animate-spin" />
+                            <Loader2 className="w-7 h-7 text-primary animate-spin" />
                         </div>
                     </div>
                     <div className="text-center">
@@ -338,7 +338,7 @@ export function InboxLayout({
                     </div>
                     <button
                         onClick={fetchMailboxes}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-[#2890F8] hover:bg-[#1a75ce] rounded-lg transition-colors active:translate-y-px"
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-lg transition-colors active:translate-y-px"
                     >
                         <RefreshCw className="w-4 h-4" />
                         Réessayer
@@ -416,7 +416,7 @@ export function InboxLayout({
                 <div className="flex-1 flex items-center justify-center">
                     <button
                         onClick={() => setIsLeftPanelCollapsed(!isLeftPanelCollapsed)}
-                        className="p-2 rounded-lg border border-transparent hover:border-[#DDE5E2] hover:bg-[#F1F4F3] text-slate-500 hover:text-[#2890F8] transition-colors mr-2 hidden lg:flex"
+                        className="p-2 rounded-lg border border-transparent hover:border-[#DDE5E2] hover:bg-[#F1F4F3] text-slate-500 hover:text-primary transition-colors mr-2 hidden lg:flex"
                         title={isLeftPanelCollapsed ? "Afficher les dossiers" : "Masquer les dossiers"}
                     >
                         {isLeftPanelCollapsed ? (
@@ -438,14 +438,14 @@ export function InboxLayout({
                         <>
                             <Link
                                 href="/manager/email/overview"
-                                className="hidden md:flex items-center gap-1.5 h-9 px-3 rounded-lg border border-[#DDE5E2] bg-white text-xs font-semibold text-slate-600 hover:bg-[#F1F4F3] hover:text-[#2890F8] transition-colors"
+                                className="hidden md:flex items-center gap-1.5 h-9 px-3 rounded-lg border border-[#DDE5E2] bg-white text-xs font-semibold text-slate-600 hover:bg-[#F1F4F3] hover:text-primary transition-colors"
                             >
                                 <LayoutDashboard className="w-3.5 h-3.5" />
                                 Cockpit
                             </Link>
                             <Link
                                 href="/manager/email/sent"
-                                className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-lg border border-[#DDE5E2] bg-white text-xs font-semibold text-slate-600 hover:bg-[#F1F4F3] hover:text-[#2890F8] transition-colors"
+                                className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-lg border border-[#DDE5E2] bg-white text-xs font-semibold text-slate-600 hover:bg-[#F1F4F3] hover:text-primary transition-colors"
                             >
                                 <Send className="w-3.5 h-3.5" />
                                 Envois équipe
@@ -454,7 +454,7 @@ export function InboxLayout({
                     ) : (
                         <Link
                             href="/sdr/emails/sent"
-                            className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-[#DDE5E2] bg-white text-xs font-semibold text-slate-600 hover:bg-[#F1F4F3] hover:text-[#2890F8] transition-colors"
+                            className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-[#DDE5E2] bg-white text-xs font-semibold text-slate-600 hover:bg-[#F1F4F3] hover:text-primary transition-colors"
                         >
                             <Send className="w-3.5 h-3.5" />
                             <span className="hidden sm:inline">Mes envois</span>
@@ -463,14 +463,14 @@ export function InboxLayout({
                     <button
                         onClick={handleSync}
                         disabled={isSyncing}
-                        className="p-2 rounded-lg border border-[#DDE5E2] bg-white hover:bg-[#F1F4F3] text-slate-500 hover:text-[#2890F8] transition-colors disabled:opacity-50"
+                        className="p-2 rounded-lg border border-[#DDE5E2] bg-white hover:bg-[#F1F4F3] text-slate-500 hover:text-primary transition-colors disabled:opacity-50"
                         title="Synchroniser"
                     >
                         <RefreshCw className={cn("w-4 h-4", isSyncing && "animate-spin")} />
                     </button>
                     <button
                         onClick={() => setShowShortcuts(s => !s)}
-                        className="p-2 rounded-lg border border-[#DDE5E2] bg-white hover:bg-[#F1F4F3] text-slate-500 hover:text-[#2890F8] transition-colors hidden sm:flex"
+                        className="p-2 rounded-lg border border-[#DDE5E2] bg-white hover:bg-[#F1F4F3] text-slate-500 hover:text-primary transition-colors hidden sm:flex"
                         title="Raccourcis clavier (Shift+?)"
                     >
                         <Keyboard className="w-4 h-4" />
@@ -491,7 +491,7 @@ export function InboxLayout({
                     <div className="p-3 pb-1">
                         <button
                             onClick={handleCompose}
-                            className="w-full flex items-center justify-center gap-2.5 h-11 px-4 bg-[#2890F8] text-white text-sm font-bold rounded-lg hover:bg-[#1a75ce] active:translate-y-px transition-colors shadow-sm"
+                            className="w-full flex items-center justify-center gap-2.5 h-11 px-4 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary-hover active:translate-y-px transition-colors shadow-sm"
                         >
                             <Pencil className="w-4 h-4" />
                             Nouveau message
@@ -535,7 +535,7 @@ export function InboxLayout({
                         <div className="p-3 pb-0 lg:hidden">
                             <button
                                 onClick={handleCompose}
-                                className="w-full flex items-center justify-center gap-2.5 h-11 px-4 bg-[#2890F8] text-white text-sm font-bold rounded-lg hover:bg-[#1a75ce] transition-colors active:translate-y-px shadow-sm"
+                                className="w-full flex items-center justify-center gap-2.5 h-11 px-4 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary-hover transition-colors active:translate-y-px shadow-sm"
                             >
                                 <Pencil className="w-4 h-4" />
                                 Nouveau message

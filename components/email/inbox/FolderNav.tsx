@@ -161,23 +161,23 @@ export function FolderNav({
                             className={cn(
                                 "w-full flex items-center gap-2.5 px-3 py-[9px] rounded-lg text-[13px] font-medium transition-colors group relative",
                                 isSelected
-                                    ? "bg-[#e6f0fa] text-[#2890F8]"
+                                    ? "bg-primary-light text-primary"
                                     : "text-slate-600 hover:bg-[#f0f4f8] hover:text-[#080808]"
                             )}
                         >
                             {isSelected && (
-                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-[#2890F8] rounded-r-full" />
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
                             )}
                             <folder.icon className={cn(
                                 "w-[18px] h-[18px] flex-shrink-0 transition-colors",
-                                isSelected ? "text-[#2890F8]" : "text-slate-400 group-hover:text-slate-600"
+                                isSelected ? "text-primary" : "text-slate-400 group-hover:text-slate-600"
                             )} />
                             <span className="flex-1 text-left truncate">{folder.label}</span>
                             {folder.showCount && folder.count > 0 && (
                                 <span className={cn(
                                     "min-w-[20px] h-5 flex items-center justify-center px-1.5 text-[11px] font-bold rounded-full tabular-nums",
                                     isSelected
-                                        ? "bg-[#2890F8] text-white"
+                                        ? "bg-primary text-white"
                                         : "bg-slate-200/80 text-slate-600"
                                 )}>
                                     {folder.count > 99 ? "99+" : folder.count}
@@ -201,24 +201,24 @@ export function FolderNav({
                         className={cn(
                             "w-full flex items-center gap-2.5 px-3 py-[9px] rounded-lg text-[13px] font-medium transition-colors group relative",
                             selectedFolder === "unread"
-                                ? "bg-[#e6f0fa] text-[#2890F8]"
+                                ? "bg-primary-light text-primary"
                                 : "text-slate-600 hover:bg-[#f0f4f8] hover:text-[#080808]"
                         )}
                     >
                         {selectedFolder === "unread" && (
-                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-[#2890F8] rounded-r-full" />
+                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
                         )}
                         <MailOpen className={cn(
                             "w-[18px] h-[18px] flex-shrink-0 transition-colors",
-                            selectedFolder === "unread" ? "text-[#2890F8]" : "text-slate-400 group-hover:text-slate-600"
+                            selectedFolder === "unread" ? "text-primary" : "text-slate-400 group-hover:text-slate-600"
                         )} />
                         <span className="flex-1 text-left">Non lus</span>
                         {counts.unread > 0 && (
                             <span className={cn(
                                 "min-w-[20px] h-5 flex items-center justify-center px-1.5 text-[11px] font-bold rounded-full tabular-nums",
                                 selectedFolder === "unread"
-                                    ? "bg-[#2890F8] text-white"
-                                    : "bg-[#e6f0fa] text-[#1a75ce]"
+                                    ? "bg-primary text-white"
+                                    : "bg-primary-light text-[#1a75ce]"
                             )}>
                                 {counts.unread > 99 ? "99+" : counts.unread}
                             </span>
@@ -249,7 +249,7 @@ export function FolderNav({
                                     className={cn(
                                         "w-full flex items-center gap-2.5 px-3 py-[9px] rounded-xl text-[13px] font-medium transition-all duration-200",
                                         selectedFolder === `label:${label}`
-                                            ? "bg-[#e6f0fa] text-[#2890F8]"
+                                            ? "bg-primary-light text-primary"
                                             : "text-slate-600 hover:bg-slate-50 hover:text-slate-800"
                                     )}
                                 >

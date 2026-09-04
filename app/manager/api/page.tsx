@@ -291,8 +291,8 @@ export default function ApiManagementPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="flex items-center gap-3 text-2xl font-bold text-gray-900">
-              <div className="rounded-[10px] bg-[#EEF3F1] p-2">
-                <Key className="w-6 h-6 text-[#1F4D47]" />
+              <div className="rounded-[10px] bg-primary-light p-2">
+                <Key className="w-6 h-6 text-primary" />
               </div>
               API et intégrations
             </h1>
@@ -302,7 +302,7 @@ export default function ApiManagementPage() {
           </div>
           <Button 
             onClick={() => setShowCreateDialog(true)}
-            className="bg-[#1F4D47] hover:bg-[#143C37]"
+            className="bg-primary hover:bg-primary-hover"
           >
             <Plus className="w-4 h-4 mr-2" />
             Créer une clé API

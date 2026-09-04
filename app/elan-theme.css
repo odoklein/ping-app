@@ -10,9 +10,9 @@
     --elan-ink-soft: #333333;
     --elan-petrol: #080808;
     --elan-petrol-700: #000000;
-    --elan-eucalyptus: #e6f0fa;
-    --elan-amber: #2890F8;
-    --elan-amber-deep: #1a75ce;
+    --elan-eucalyptus: var(--brand-primary-light, #e6f0fa);
+    --elan-amber: var(--brand-primary, #2890F8);
+    --elan-amber-deep: var(--brand-primary-hover, #1a75ce);
     --elan-slate: #666666;
     --elan-line: rgba(8, 8, 8, 0.10);
     --elan-line-strong: rgba(8, 8, 8, 0.20);
@@ -333,7 +333,7 @@ body.elan-app :focus-visible {
 .cp-sidebar {
     border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
     background:
-        radial-gradient(circle at 0 100%, rgba(40, 144, 248, 0.12), transparent 32%),
+        radial-gradient(circle at 0 100%, rgba(var(--brand-primary-rgb, 40, 144, 248), 0.12), transparent 32%),
         linear-gradient(165deg, #080808 0%, #121212 100%) !important;
     box-shadow: 14px 0 38px rgba(0, 0, 0, 0.25) !important;
 }
@@ -435,7 +435,7 @@ body.elan-app :focus-visible {
 
 .cp-nav-item-active,
 .cp-nav-item-active:hover {
-    background: rgba(40, 144, 248, 0.16) !important;
+    background: rgba(var(--brand-primary-rgb, 40, 144, 248), 0.16) !important;
     color: #ffffff !important;
 }
 

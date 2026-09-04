@@ -216,7 +216,7 @@ export default function MissionsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/70">
                 <div className="space-y-1">
                     <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-xl bg-[#0B0F19] text-[#2890F8] flex items-center justify-center shadow-md shadow-black/20 border border-slate-800">
+                        <div className="w-9 h-9 rounded-xl bg-[#0B0F19] text-primary flex items-center justify-center shadow-md shadow-black/20 border border-slate-800">
                             <Target className="w-5 h-5" />
                         </div>
                         <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
@@ -233,9 +233,9 @@ export default function MissionsPage() {
                         onClick={fetchMissions}
                         disabled={isLoading}
                         title="Actualiser"
-                        className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-[#2890F8] hover:border-blue-300 transition-all shadow-2xs disabled:opacity-50"
+                        className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:border-blue-300 transition-all shadow-2xs disabled:opacity-50"
                     >
-                        <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin text-[#2890F8]")} />
+                        <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin text-primary")} />
                     </button>
 
                     <div className="flex items-center bg-white p-1 rounded-xl border border-slate-200 shadow-2xs">
@@ -262,20 +262,20 @@ export default function MissionsPage() {
                     </div>
 
                     <button
-                        onClick={() => setShowNewMissionDialog(true)}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#2890F8] to-[#156cd4] hover:from-[#1e7fd8] hover:to-[#0f5ab5] shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all"
+                        onClick={() => setIsNewModalOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-primary hover:bg-primary-hover shadow-md shadow-primary/20 active:scale-[0.98] transition-all cursor-pointer"
                     >
                         <Plus className="w-4 h-4" />
-                        <span>Nouvelle mission</span>
+                        Nouvelle mission
                     </button>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                 <div className="p-5 rounded-3xl bg-gradient-to-br from-[#0A1224] via-[#0B152A] to-[#050B16] border border-blue-900/70 text-white shadow-xl shadow-black/20 flex flex-col justify-between relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#2890F8]/15 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/15 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
                     <div className="flex items-center justify-between z-10">
-                        <div className="w-11 h-11 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-[#2890F8]">
+                        <div className="w-11 h-11 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-primary">
                             <Layers className="w-5 h-5" />
                         </div>
                         <span className="px-2.5 py-0.5 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[10px] font-bold">
@@ -388,7 +388,7 @@ export default function MissionsPage() {
                             placeholder="Rechercher une mission, un client..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full h-10 pl-10 pr-9 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 focus:border-[#2890F8] placeholder:text-slate-400 transition-all"
+                            className="w-full h-10 pl-10 pr-9 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder:text-slate-400 transition-all"
                         />
                         {searchQuery && (
                             <button
@@ -466,7 +466,7 @@ export default function MissionsPage() {
                     {!searchQuery && channelFilter === "all" && (
                         <button
                             onClick={() => setShowNewMissionDialog(true)}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#2890F8] hover:bg-[#1a75ce] transition-colors"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-primary hover:bg-primary-hover transition-colors"
                         >
                             <Plus className="w-4 h-4" />
                             Créer une mission
@@ -564,7 +564,7 @@ export default function MissionsPage() {
                                                 </div>
                                             </td>
                                             <td className="py-4 px-6 text-right">
-                                                <span className="text-[#2890F8] font-bold flex items-center justify-end gap-1">
+                                                <span className="text-primary font-bold flex items-center justify-end gap-1">
                                                     Gérer <ChevronRight className="w-3.5 h-3.5" />
                                                 </span>
                                             </td>
@@ -601,7 +601,7 @@ export default function MissionsPage() {
 
                                         <div className="min-w-0">
                                             <div className="flex items-center gap-2 flex-wrap">
-                                                <h3 className="text-base font-bold text-slate-900 group-hover:text-[#2890F8] transition-colors truncate">
+                                                <h3 className="text-base font-bold text-slate-900 group-hover:text-primary transition-colors truncate">
                                                     {mission.name}
                                                 </h3>
                                                 <span
@@ -673,7 +673,7 @@ export default function MissionsPage() {
                                             })}
                                         </div>
 
-                                        <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-[#2890F8] group-hover:border-[#2890F8] transition-all">
+                                        <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:bg-primary group-hover:border-primary transition-all">
                                             <ArrowUpRight className="w-4 h-4" />
                                         </div>
                                     </div>
@@ -685,7 +685,7 @@ export default function MissionsPage() {
                                             <div
                                                 className={cn(
                                                     "h-full rounded-full transition-all duration-500",
-                                                    timeState === "ending-soon" ? "bg-gradient-to-r from-amber-400 to-orange-500" : "bg-gradient-to-r from-[#2890F8] to-[#156cd4]"
+                                                    timeState === "ending-soon" ? "bg-gradient-to-r from-amber-400 to-orange-500" : "bg-gradient-to-r from-primary to-[#156cd4]"
                                                 )}
                                                 style={{ width: `${timeProgress}%` }}
                                             />

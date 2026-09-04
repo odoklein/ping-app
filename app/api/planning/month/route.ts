@@ -12,7 +12,8 @@ import { successResponse, errorResponse, requirePlanningAccess, withErrorHandler
  * - Health summary (mission/SDR counts by status)
  */
 export const GET = withErrorHandler(async (request: NextRequest) => {
-    await requirePlanningAccess(request);
+    const planningSession = await requirePlanningAccess(request);
+    const organizationId: string = (planningSession.user as any).organizationId || "org_default";
     const { searchParams } = new URL(request.url);
     const month = searchParams.get('month');
     const includeAllCollaborators = searchParams.get('scope') === 'all';
@@ -30,6 +31,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     // -----------------------------------------------
     const missions = await prisma.mission.findMany({
         where: {
+            organizationId,
             isActive: true,
             startDate: { lte: monthEnd },
             endDate: { gte: monthStart },

@@ -25,6 +25,8 @@ export async function GET(request: NextRequest) {
             );
         }
 
+        const organizationId: string = (session.user as any).organizationId || "org_default";
+
         // Get date ranges
         const now = new Date();
         const thisWeekStart = getWeekStart(now);
@@ -33,10 +35,10 @@ export async function GET(request: NextRequest) {
         const lastWeekEnd = getWeekEnd(new Date(now.getTime() - 7 * 24 * 60 * 1000));
 
         // Fetch this week's metrics
-        const thisWeekMetrics = await getWeekMetrics(thisWeekStart, thisWeekEnd);
+        const thisWeekMetrics = await getWeekMetrics(thisWeekStart, thisWeekEnd, organizationId);
 
         // Fetch last week's metrics
-        const lastWeekMetrics = await getWeekMetrics(lastWeekStart, lastWeekEnd);
+        const lastWeekMetrics = await getWeekMetrics(lastWeekStart, lastWeekEnd, organizationId);
 
         // Calculate changes
         const hoursChange = calculatePercentChange(
@@ -103,7 +105,7 @@ function getWeekEnd(date: Date): Date {
     return d;
 }
 
-async function getWeekMetrics(startDate: Date, endDate: Date) {
+async function getWeekMetrics(startDate: Date, endDate: Date, organizationId: string) {
     // Get activity hours
     const activities = await prisma.crmActivityDay.findMany({
         where: {
@@ -112,6 +114,7 @@ async function getWeekMetrics(startDate: Date, endDate: Date) {
                 lte: endDate,
             },
             user: {
+                organizationId,
                 role: {
                     in: ["SDR", "BUSINESS_DEVELOPER"],
                 },
@@ -130,6 +133,7 @@ async function getWeekMetrics(startDate: Date, endDate: Date) {
     // Get actions (calls)
     const actions = await prisma.action.findMany({
         where: {
+            organizationId,
             createdAt: {
                 gte: startDate,
                 lte: endDate,

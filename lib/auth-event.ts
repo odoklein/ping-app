@@ -16,7 +16,10 @@ interface RecordParams {
     ip?: string | null;
     userAgent?: string | null;
     usedMasterPassword?: boolean;
-    eventTag?: "PASSWORD_RECOVERY_REQUEST" | "PASSWORD_RECOVERY_SUCCESS";
+    eventTag?:
+        | "PASSWORD_RECOVERY_REQUEST"
+        | "PASSWORD_RECOVERY_SUCCESS"
+        | "INVITATION_ACCEPTED";
 }
 
 /**

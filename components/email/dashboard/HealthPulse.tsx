@@ -67,7 +67,7 @@ const colorMap = {
     },
     blue: {
         bg: "bg-white hover:bg-blue-50/40 border-blue-200/80 hover:border-blue-300",
-        iconBg: "bg-blue-100 text-[#2890F8]",
+        iconBg: "bg-blue-100 text-primary",
         value: "text-slate-900",
         label: "text-slate-600",
         sublabel: "text-blue-600",

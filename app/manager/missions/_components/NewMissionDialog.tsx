@@ -54,7 +54,7 @@ const CHANNEL_OPTIONS = [
         gradient: "from-blue-600 to-indigo-700",
         border: "border-blue-200",
         text: "text-blue-700",
-        selected: "border-[#2890F8] bg-blue-50/70 ring-2 ring-[#2890F8]/20 shadow-md shadow-blue-500/10",
+        selected: "border-primary bg-blue-50/70 ring-2 ring-primary/20 shadow-md shadow-blue-500/10",
     },
     {
         value: "EMAIL",
@@ -289,7 +289,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                     <div className="relative z-10">
                         <div className="flex items-center justify-between mb-5">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#2890F8] to-blue-700 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-blue-700 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
                                     <Rocket className="w-5 h-5" />
                                 </div>
                                 <div>
@@ -297,7 +297,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                         <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
                                             Nouvelle Mission Commerciale
                                         </h2>
-                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-[#2890F8] border border-blue-500/30">
+                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-primary border border-blue-500/30">
                                             Étape {step} / 4
                                         </span>
                                     </div>
@@ -333,7 +333,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                             className={cn(
                                                 "flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all",
                                                 active
-                                                    ? "bg-[#2890F8] text-white shadow-md shadow-blue-500/30 scale-105"
+                                                    ? "bg-primary text-white shadow-md shadow-blue-500/30 scale-105"
                                                     : done
                                                         ? "bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 cursor-pointer"
                                                         : "bg-white/5 text-slate-500 cursor-not-allowed"
@@ -374,7 +374,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                         <select
                                             value={form.clientId}
                                             onChange={e => setForm(p => ({ ...p, clientId: e.target.value }))}
-                                            className="w-full h-11 px-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all cursor-pointer shadow-2xs"
+                                            className="w-full h-11 px-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-all cursor-pointer shadow-2xs"
                                         >
                                             <option value="">Sélectionner un compte client...</option>
                                             {clients.map(c => (
@@ -393,7 +393,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                         value={form.name}
                                         onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
                                         placeholder="Ex: Prospection SaaS B2B Q1 2026"
-                                        className="w-full h-11 px-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all placeholder:text-slate-400 shadow-2xs"
+                                        className="w-full h-11 px-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-all placeholder:text-slate-400 shadow-2xs"
                                     />
                                 </div>
                             </div>
@@ -406,7 +406,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                     onChange={e => setForm(p => ({ ...p, objective: e.target.value }))}
                                     placeholder="Ex: Générer 30 rendez-vous qualifiés par mois auprès des directeurs commerciaux..."
                                     rows={2}
-                                    className="w-full p-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all placeholder:text-slate-400 resize-none shadow-2xs"
+                                    className="w-full p-3.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-all placeholder:text-slate-400 resize-none shadow-2xs"
                                 />
                             </div>
 
@@ -455,7 +455,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                                     <p className="text-[10px] text-slate-400 mt-0.5">{opt.description}</p>
                                                 </div>
                                                 {isSelected && (
-                                                    <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-[#2890F8] text-white flex items-center justify-center shadow-xs">
+                                                    <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-primary text-white flex items-center justify-center shadow-xs">
                                                         <Check className="w-2.5 h-2.5" />
                                                     </div>
                                                 )}
@@ -474,7 +474,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                             type="date"
                                             value={form.startDate}
                                             onChange={e => setForm(p => ({ ...p, startDate: e.target.value }))}
-                                            className="w-full h-10 px-3 border border-slate-200 rounded-xl text-xs text-slate-900 bg-white focus:outline-none focus:border-[#2890F8] shadow-2xs"
+                                            className="w-full h-10 px-3 border border-slate-200 rounded-xl text-xs text-slate-900 bg-white focus:outline-none focus:border-primary shadow-2xs"
                                         />
                                     </div>
                                     <div>
@@ -483,7 +483,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                             type="date"
                                             value={form.endDate}
                                             onChange={e => setForm(p => ({ ...p, endDate: e.target.value }))}
-                                            className="w-full h-10 px-3 border border-slate-200 rounded-xl text-xs text-slate-900 bg-white focus:outline-none focus:border-[#2890F8] shadow-2xs"
+                                            className="w-full h-10 px-3 border border-slate-200 rounded-xl text-xs text-slate-900 bg-white focus:outline-none focus:border-primary shadow-2xs"
                                         />
                                     </div>
                                 </div>
@@ -546,7 +546,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                     onChange={e => setForm(p => ({ ...p, icp: e.target.value }))}
                                     placeholder="Ex: CEOs et Directeurs Commerciaux de PME B2B (20 à 250 employés) en France dans les secteurs SaaS / Services, qui cherchent à accélérer leur prospection sortante."
                                     rows={4}
-                                    className="w-full p-4 border border-slate-200 rounded-2xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all placeholder:text-slate-400 resize-none shadow-2xs"
+                                    className="w-full p-4 border border-slate-200 rounded-2xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-all placeholder:text-slate-400 resize-none shadow-2xs"
                                 />
                             </div>
 
@@ -560,7 +560,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                     onChange={e => setForm(p => ({ ...p, pitch: e.target.value }))}
                                     placeholder="Ex: Suzalink met à disposition des SDRs experts et une plateforme IA pour tripler votre volume de rendez-vous qualifiés sans recruter en interne."
                                     rows={4}
-                                    className="w-full p-4 border border-slate-200 rounded-2xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all placeholder:text-slate-400 resize-none shadow-2xs"
+                                    className="w-full p-4 border border-slate-200 rounded-2xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-all placeholder:text-slate-400 resize-none shadow-2xs"
                                 />
                             </div>
                         </div>
@@ -630,7 +630,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                         placeholder={sec.placeholder}
                                         rows={3}
                                         className={cn(
-                                            "w-full p-3.5 border rounded-2xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all placeholder:text-slate-400 resize-none shadow-2xs",
+                                            "w-full p-3.5 border rounded-2xl text-xs font-medium text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-all placeholder:text-slate-400 resize-none shadow-2xs",
                                             sec.required && !(form as any)[sec.key] ? "border-amber-300 bg-amber-50/20" : "border-slate-200"
                                         )}
                                     />
@@ -647,13 +647,13 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="flex items-center gap-3.5">
-                                        <div className="w-12 h-12 rounded-2xl bg-[#2890F8]/20 border border-[#2890F8]/30 flex items-center justify-center text-lg font-black text-[#2890F8]">
+                                        <div className="w-12 h-12 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center text-lg font-black text-primary">
                                             {clientName?.[0] || "M"}
                                         </div>
                                         <div>
                                             <h3 className="text-base font-black tracking-tight">{form.name}</h3>
                                             <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
-                                                <Building2 className="w-3.5 h-3.5 text-[#2890F8]" />
+                                                <Building2 className="w-3.5 h-3.5 text-primary" />
                                                 {clientName}
                                             </p>
                                         </div>

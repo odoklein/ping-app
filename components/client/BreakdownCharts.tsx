@@ -148,7 +148,7 @@ export function BreakdownCharts() {
                             className={cn(
                                 "text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-all duration-150 whitespace-nowrap",
                                 period === key
-                                    ? "bg-white text-[#2890F8] shadow-sm font-bold"
+                                    ? "bg-white text-primary shadow-sm font-bold"
                                     : "text-[#8B8DAF] hover:text-[#4B4D7A]"
                             )}
                         >
@@ -166,21 +166,21 @@ export function BreakdownCharts() {
                             icon: <Phone className="w-3.5 h-3.5" />,
                             value: data?.totalCalls,
                             label: "Appels passés",
-                            from: "from-[#2890F8]",
-                            to: "to-[#1a75ce]",
+                            from: "from-primary",
+                            to: "to-primary-hover",
                             bg: "from-[#e6f0fa] to-[#d8eafc]",
-                            border: "border-[#2890F8]/20",
-                            text: "text-[#2890F8]",
+                            border: "border-primary/20",
+                            text: "text-primary",
                         },
                         {
                             icon: <CalendarCheck className="w-3.5 h-3.5" />,
                             value: data?.totalRdv,
                             label: "RDV décrochés",
-                            from: "from-[#1a75ce]",
-                            to: "to-[#2890F8]",
+                            from: "from-primary-hover",
+                            to: "to-primary",
                             bg: "from-[#e6f0fa] to-[#d8eafc]",
-                            border: "border-[#2890F8]/25",
-                            text: "text-[#2890F8]",
+                            border: "border-primary/25",
+                            text: "text-primary",
                         },
                         {
                             icon: <TrendingUp className="w-3.5 h-3.5" />,
@@ -230,8 +230,8 @@ export function BreakdownCharts() {
                             className={cn(
                                 "inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-lg border transition-all duration-150",
                                 dimension === key
-                                    ? "bg-[#2890F8] text-white border-[#2890F8] shadow-sm shadow-[#2890F8]/25"
-                                    : "bg-white text-[#6B7194] border-[#E8EBF0] hover:border-[#2890F8]/40 hover:text-[#2890F8]"
+                                    ? "bg-primary text-white border-primary shadow-sm shadow-primary/25"
+                                    : "bg-white text-[#6B7194] border-[#E8EBF0] hover:border-primary/40 hover:text-primary"
                             )}
                         >
                             {icon}
@@ -262,7 +262,7 @@ export function BreakdownCharts() {
                                 Appels
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <div className="w-3 h-2.5 rounded-sm bg-gradient-to-r from-[#1a75ce] to-[#2890F8]" />
+                                <div className="w-3 h-2.5 rounded-sm bg-gradient-to-r from-primary-hover to-primary" />
                                 RDV décrochés
                             </div>
                             <div className="flex items-center gap-1.5 ml-auto">
@@ -307,7 +307,7 @@ export function BreakdownCharts() {
                                         >
                                             {item.rdv > 0 && (
                                                 <div
-                                                    className="h-full bg-gradient-to-r from-[#1a75ce] to-[#2890F8] flex items-center justify-center overflow-hidden shrink-0"
+                                                    className="h-full bg-gradient-to-r from-primary-hover to-primary flex items-center justify-center overflow-hidden shrink-0"
                                                     style={{ width: `${rdvPct}%` }}
                                                 >
                                                     {rdvPct > 18 && (
@@ -333,7 +333,7 @@ export function BreakdownCharts() {
                                         <div className="flex items-center gap-1 text-[11px] font-bold text-[#12122A]">
                                             <span>{item.calls}</span>
                                             <span className="text-[#b8c2bd] font-normal">·</span>
-                                            <span className="text-[#2890F8]">{item.rdv}</span>
+                                            <span className="text-primary">{item.rdv}</span>
                                         </div>
                                         <RateChip rate={item.rate} />
                                     </div>
@@ -366,7 +366,7 @@ export function BreakdownCharts() {
 
                 {/* ── Footer legend ── */}
                 <p className="text-[10.5px] text-[#B0B3C8] text-center">
-                    La barre <span className="font-semibold text-[#2890F8]">bleue</span> représente les RDV décrochés,{" "}
+                    La barre <span className="font-semibold text-primary">bleue</span> représente les RDV décrochés,{" "}
                     <span className="font-semibold text-slate-400">grise</span> les appels sans conversion.
                 </p>
             </div>

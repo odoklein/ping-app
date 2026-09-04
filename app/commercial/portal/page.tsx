@@ -137,7 +137,7 @@ export default function CommercialPortal() {
                     <div className="flex items-center gap-2 mt-1.5">
                         <p className="text-sm text-[var(--elan-slate)]">{MONTH_NAMES[now.getMonth()]} {now.getFullYear()}</p>
                         {profile?.client?.name && (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2890F8] bg-[#e6f0fa] border border-[#2890F8]/20 px-2 py-[2px] rounded-full">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary bg-primary-light border border-primary/20 px-2 py-[2px] rounded-full">
                                 <TrendingUp className="w-3 h-3" />{profile.client.name}
                             </span>
                         )}
@@ -146,7 +146,7 @@ export default function CommercialPortal() {
                 <button
                     onClick={() => fetchData(true)}
                     disabled={isRefreshing}
-                    className="w-10 h-10 rounded-xl border border-[var(--elan-line)] flex items-center justify-center text-[var(--elan-slate)] hover:text-[#2890F8] hover:border-[#2890F8] transition-all duration-200 disabled:opacity-50 bg-[var(--elan-surface)]/80 hover:shadow-md"
+                    className="w-10 h-10 rounded-xl border border-[var(--elan-line)] flex items-center justify-center text-[var(--elan-slate)] hover:text-primary hover:border-primary transition-all duration-200 disabled:opacity-50 bg-[var(--elan-surface)]/80 hover:shadow-md"
                     title="Rafraîchir"
                 >
                     <RefreshCw className={cn("w-4 h-4 transition-transform duration-200", isRefreshing && "animate-spin")} />
@@ -162,8 +162,8 @@ export default function CommercialPortal() {
                     background: "#080808",
                 }}
             >
-                <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-[#2890F8]/10 -translate-y-1/2 translate-x-1/3" />
-                <div className="absolute bottom-0 left-0 w-52 h-52 rounded-full bg-[#2890F8]/5 translate-y-1/2 -translate-x-1/4" />
+                <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-primary/10 -translate-y-1/2 translate-x-1/3" />
+                <div className="absolute bottom-0 left-0 w-52 h-52 rounded-full bg-primary/5 translate-y-1/2 -translate-x-1/4" />
                 <div className="absolute top-8 right-10 opacity-20">
                     <Sparkles className="w-5 h-5 text-white animate-pulse" />
                 </div>
@@ -180,7 +180,7 @@ export default function CommercialPortal() {
                                     value={confirmedMeetings.length}
                                     className="text-[64px] md:text-[72px] font-black text-white leading-none drop-shadow-lg"
                                 />
-                                <span className="text-2xl font-bold text-[#2890F8] mb-1">RDV</span>
+                                <span className="text-2xl font-bold text-primary mb-1">RDV</span>
                             </div>
                         </div>
 
@@ -217,7 +217,7 @@ export default function CommercialPortal() {
             >
                 <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[var(--elan-line)]">
                     <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-[#2890F8] flex items-center justify-center shadow-sm">
+                        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
                             <CalendarCheck className="w-4 h-4 text-white" />
                         </div>
                         <h2 className="text-sm font-semibold text-[var(--elan-ink)] uppercase tracking-wider">
@@ -226,7 +226,7 @@ export default function CommercialPortal() {
                     </div>
                     <Link
                         href="/commercial/portal/meetings"
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2890F8] hover:text-[#1a75ce] transition-colors group"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-[#1a75ce] transition-colors group"
                     >
                         Voir tout <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                     </Link>
@@ -234,8 +234,8 @@ export default function CommercialPortal() {
 
                 {upcomingMeetings.length === 0 ? (
                     <div className="text-center py-12 px-6">
-                        <div className="w-14 h-14 rounded-2xl bg-[#e6f0fa] flex items-center justify-center mx-auto mb-4">
-                            <Calendar className="w-6 h-6 text-[#2890F8]" />
+                        <div className="w-14 h-14 rounded-2xl bg-primary-light flex items-center justify-center mx-auto mb-4">
+                            <Calendar className="w-6 h-6 text-primary" />
                         </div>
                         <p className="text-sm font-medium text-[var(--elan-slate)]">Aucun RDV à venir</p>
                         <p className="text-xs text-[#899892] mt-1">Les prochains RDV planifiés apparaîtront ici.</p>
@@ -253,12 +253,12 @@ export default function CommercialPortal() {
                                 <Link
                                     key={m.id}
                                     href="/commercial/portal/meetings"
-                                    className="flex items-center gap-4 px-6 py-3.5 hover:bg-[#e6f0fa]/40 transition-all duration-200 group relative"
+                                    className="flex items-center gap-4 px-6 py-3.5 hover:bg-primary-light/40 transition-all duration-200 group relative"
                                     style={{ animation: "dashFadeUp 0.35s ease both", animationDelay: `${160 + idx * 50}ms` }}
                                 >
-                                    <div className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-[#2890F8] opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                    <div className="w-[52px] shrink-0 flex flex-col items-center py-1.5 px-1 rounded-lg bg-white border border-slate-200 group-hover:border-[#2890F8]/30 group-hover:bg-[#e6f0fa]/50 transition-all">
+                                    <div className="w-[52px] shrink-0 flex flex-col items-center py-1.5 px-1 rounded-lg bg-white border border-slate-200 group-hover:border-primary/30 group-hover:bg-primary-light/50 transition-all">
                                         {dateInfo ? (
                                             <>
                                                 <span className="text-[17px] font-extrabold text-[var(--elan-ink)] leading-none">{dateInfo.day}</span>
@@ -281,18 +281,18 @@ export default function CommercialPortal() {
                                         </div>
                                         <div className="flex items-center gap-2 mt-0.5">
                                             {dateInfo ? (
-                                                <span className="text-[11.5px] text-[#2890F8] font-semibold">{dateInfo.time}</span>
+                                                <span className="text-[11.5px] text-primary font-semibold">{dateInfo.time}</span>
                                             ) : (
                                                 <span className="text-[11px] text-[#899892] italic">Date à confirmer</span>
                                             )}
                                         </div>
                                     </div>
 
-                                    <span className="hidden sm:inline-flex text-[10.5px] font-semibold text-[#2890F8] bg-[#e6f0fa] border border-[#2890F8]/20 px-2 py-[2px] rounded-full shrink-0">
+                                    <span className="hidden sm:inline-flex text-[10.5px] font-semibold text-primary bg-primary-light border border-primary/20 px-2 py-[2px] rounded-full shrink-0">
                                         {m.campaign.mission.name}
                                     </span>
 
-                                    <div className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 group-hover:bg-[#2890F8] group-hover:border-[#2890F8] transition-all">
+                                    <div className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:border-primary transition-all">
                                         <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
                                     </div>
                                 </Link>
@@ -302,7 +302,7 @@ export default function CommercialPortal() {
                         <div className="px-6 py-3">
                             <Link
                                 href="/commercial/portal/meetings"
-                                className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[#2890F8] hover:text-[#1a75ce] transition-colors group"
+                                className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-primary hover:text-[#1a75ce] transition-colors group"
                             >
                                 Voir tous mes rendez-vous <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                             </Link>

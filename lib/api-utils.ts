@@ -66,6 +66,56 @@ export async function requireRole(allowedRoles: string[], request?: NextRequest)
     return session;
 }
 
+export async function requireSuperAdmin(request?: NextRequest) {
+    const session = await requireAuth(request);
+    // Only the platform org (org_default), an explicit isSuperAdmin flag, or the
+    // designated admin email grant super-admin access. Roles (MANAGER/DEVELOPER)
+    // are tenant-scoped and must NOT confer platform-level privileges.
+    const isSuperAdmin =
+        Boolean(session.user.isSuperAdmin) ||
+        session.user.organizationId === "org_default" ||
+        session.user.email === "admin@ping-crm.com";
+
+    if (!isSuperAdmin) {
+        throw new AuthError('Accès Super Admin réservé au propriétaire de la plateforme', 403);
+    }
+    return session;
+}
+
+export async function requireOrganization(request?: NextRequest) {
+    const session = await requireAuth(request);
+    const isSuperAdmin =
+        Boolean(session.user.isSuperAdmin) ||
+        session.user.organizationId === "org_default" ||
+        session.user.email === "admin@ping-crm.com";
+
+    let orgId = session.user.organizationId || "org_default";
+
+    if (isSuperAdmin && request) {
+        const tenantSlug =
+            request.cookies.get("active_tenant_slug")?.value ||
+            request.headers.get("x-organization-slug") ||
+            request.headers.get("x-organization-id");
+        if (tenantSlug && tenantSlug.trim()) {
+            const raw = decodeURIComponent(tenantSlug.trim());
+            const org = await (prisma as any).organization.findFirst({
+                where: {
+                    OR: [
+                        { id: raw },
+                        { slug: raw },
+                    ],
+                },
+                select: { id: true },
+            });
+            if (org) {
+                orgId = org.id;
+            }
+        }
+    }
+
+    return { session, organizationId: orgId };
+}
+
 async function hasEffectivePermission(
     permissionCode: string,
     userId: string,

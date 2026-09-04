@@ -32,6 +32,7 @@ import {
     type RecentAccount,
 } from "@/lib/auth-recent-accounts";
 import { cn } from "@/lib/utils";
+import { useBrand } from "@/components/brand/BrandProvider";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -86,6 +87,7 @@ function mapError(code: string | null | undefined): string {
 // ──────────────────────────────────────────────────────────────────────────────
 
 export default function LoginForm() {
+    const { brand } = useBrand();
     const router = useRouter();
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
@@ -251,12 +253,12 @@ export default function LoginForm() {
     };
 
     return (
-        <main className="min-h-[100dvh] w-full grid grid-cols-1 lg:grid-cols-[1fr_1.15fr] bg-[#FCFAFF] text-slate-900 font-sans selection:bg-[#2890F8] selection:text-white">
+        <main className="min-h-[100dvh] w-full grid grid-cols-1 lg:grid-cols-[1fr_1.15fr] bg-[#FCFAFF] text-slate-900 font-sans selection:bg-primary selection:text-white">
             
             {/* ── Left Side: Executive Obsidian Platform Showcase ── */}
             <aside className="relative hidden lg:flex flex-col justify-between p-12 xl:p-16 bg-gradient-to-br from-[#060911] via-[#09101F] to-[#04060B] text-white overflow-hidden border-r border-slate-800/60">
                 {/* Ambient glow effects */}
-                <div className="absolute top-0 right-0 w-96 h-96 bg-[#2890F8]/15 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute top-0 right-0 w-96 h-96 bg-primary/15 rounded-full blur-[100px] pointer-events-none" />
                 <div className="absolute bottom-12 left-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-[90px] pointer-events-none" />
                 <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
 
@@ -271,7 +273,7 @@ export default function LoginForm() {
 
                 {/* Center Core Message (Concise & Mature) */}
                 <div className="relative z-10 my-auto py-12 max-w-lg space-y-6">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#2890F8]/10 border border-[#2890F8]/20 text-[#2890F8] text-[11px] font-black uppercase tracking-wider">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-primary/10 border border-primary/20 text-primary text-[11px] font-black uppercase tracking-wider">
                         <Sparkles className="w-3.5 h-3.5" />
                         Plateforme d'Intelligence Commerciale
                     </div>
@@ -287,7 +289,7 @@ export default function LoginForm() {
                     {/* Executive Metric / Feature Strips */}
                     <div className="grid grid-cols-1 gap-3 pt-4">
                         <div className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white/[0.04] border border-white/[0.08] backdrop-blur-xs">
-                            <div className="w-9 h-9 rounded-xl bg-[#2890F8]/20 border border-[#2890F8]/30 flex items-center justify-center text-[#2890F8] flex-shrink-0">
+                            <div className="w-9 h-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary flex-shrink-0">
                                 <Zap className="w-4 h-4" />
                             </div>
                             <div>
@@ -312,7 +314,7 @@ export default function LoginForm() {
                 <div className="relative z-10 pt-6 border-t border-slate-800/80 flex items-center justify-between">
                     <CadenceBars count={32} highlightFrom={0.75} dark className="opacity-70" />
                     <span className="text-[11px] font-mono text-slate-400 tracking-wider uppercase">
-                        Suzalink Systems
+                        {brand.name} Systems
                     </span>
                 </div>
             </aside>
@@ -323,7 +325,7 @@ export default function LoginForm() {
                 {/* Top Mobile Brand (visible only on small screens) */}
                 <div className="w-full flex lg:hidden items-center justify-between mb-8 max-w-md">
                     <ElanLogo tone="petrol" className="text-[34px]" />
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-50 text-[#2890F8] border border-blue-100">
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-primary-light text-primary border border-primary/20">
                         Espace Sécurisé
                     </span>
                 </div>
@@ -336,7 +338,7 @@ export default function LoginForm() {
                         {view === "accounts" && recentAccounts.length > 0 ? (
                             <div className="space-y-6">
                                 <div>
-                                    <span className="text-[10px] font-black uppercase tracking-wider text-[#2890F8] bg-blue-50 px-2.5 py-1 rounded-md">
+                                    <span className="text-[10px] font-black uppercase tracking-wider text-primary bg-primary-light px-2.5 py-1 rounded-md">
                                         Espace de Travail
                                     </span>
                                     <h2 className="text-2xl font-black text-slate-900 tracking-tight mt-3">
@@ -358,13 +360,13 @@ export default function LoginForm() {
                                     {recentAccounts.map((account) => (
                                         <div
                                             key={account.email}
-                                            className="group relative flex items-center justify-between p-3 rounded-2xl border border-slate-200 bg-white hover:border-[#2890F8] hover:bg-blue-50/40 transition-all cursor-pointer shadow-2xs"
+                                            className="group relative flex items-center justify-between p-3 rounded-2xl border border-slate-200 bg-white hover:border-primary hover:bg-primary-light/40 transition-all cursor-pointer shadow-2xs"
                                             onClick={() => openAccount(account)}
                                         >
                                             <div className="flex items-center gap-3 min-w-0">
                                                 <AvatarCell account={account} size={42} />
                                                 <div className="min-w-0">
-                                                    <p className="text-xs font-bold text-slate-900 truncate group-hover:text-[#2890F8] transition-colors">
+                                                    <p className="text-xs font-bold text-slate-900 truncate group-hover:text-primary transition-colors">
                                                         {account.name}
                                                     </p>
                                                     <p className="text-[11px] text-slate-500 truncate">
@@ -382,7 +384,7 @@ export default function LoginForm() {
                                                 >
                                                     <Trash2 className="w-3.5 h-3.5" />
                                                 </button>
-                                                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#2890F8] group-hover:translate-x-0.5 transition-all" />
+                                                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
                                             </div>
                                         </div>
                                     ))}
@@ -406,7 +408,7 @@ export default function LoginForm() {
                                             <button
                                                 type="button"
                                                 onClick={backToAccounts}
-                                                className="inline-flex items-center gap-1 text-xs font-bold text-[#2890F8] hover:underline mb-4"
+                                                className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline mb-4"
                                             >
                                                 <ChevronLeft className="w-3.5 h-3.5" />
                                                 Changer de compte
@@ -421,7 +423,7 @@ export default function LoginForm() {
                                         </div>
                                     ) : (
                                         <div>
-                                            <span className="text-[10px] font-black uppercase tracking-wider text-[#2890F8] bg-blue-50 px-2.5 py-1 rounded-md">
+                                            <span className="text-[10px] font-black uppercase tracking-wider text-primary bg-primary-light px-2.5 py-1 rounded-md">
                                                 Espace Sécurisé
                                             </span>
                                             <h2 className="text-2xl font-black text-slate-900 tracking-tight mt-3">
@@ -434,7 +436,7 @@ export default function LoginForm() {
                                                 <button
                                                     type="button"
                                                     onClick={backToAccounts}
-                                                    className="inline-flex items-center gap-1 text-xs font-bold text-[#2890F8] hover:underline mt-2"
+                                                    className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline mt-2"
                                                 >
                                                     <ChevronLeft className="w-3.5 h-3.5" />
                                                     Comptes récents
@@ -467,7 +469,7 @@ export default function LoginForm() {
                                                     onChange={(e) => setEmail(e.target.value)}
                                                     required
                                                     autoComplete="username"
-                                                    className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all"
+                                                    className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                                 />
                                             </div>
                                         </div>
@@ -481,7 +483,7 @@ export default function LoginForm() {
                                             <button
                                                 type="button"
                                                 onClick={() => router.push("/forgot-password")}
-                                                className="text-[11px] font-semibold text-slate-500 hover:text-[#2890F8] transition-colors"
+                                                className="text-[11px] font-semibold text-slate-500 hover:text-primary transition-colors"
                                             >
                                                 Mot de passe oublié ?
                                             </button>
@@ -499,7 +501,7 @@ export default function LoginForm() {
                                                 onBlur={() => setCapsOn(false)}
                                                 required
                                                 autoComplete="current-password"
-                                                className="w-full h-11 pl-10 pr-10 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2890F8] transition-all"
+                                                className="w-full h-11 pl-10 pr-10 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                             />
                                             <button
                                                 type="button"
@@ -519,7 +521,7 @@ export default function LoginForm() {
                                     <button
                                         type="submit"
                                         disabled={isLoading}
-                                        className="w-full h-11 rounded-xl bg-[#0B0F19] hover:bg-slate-800 text-white text-xs font-bold shadow-md shadow-black/10 transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-60"
+                                        className="w-full h-11 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-md shadow-primary/20 transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-60 cursor-pointer"
                                     >
                                         {isLoading ? (
                                             <>
@@ -547,7 +549,7 @@ export default function LoginForm() {
 
                 {/* Footer Copyright */}
                 <footer className="w-full text-center text-xs text-slate-400 font-medium py-4">
-                    Suzalink © {new Date().getFullYear()} · Console de Prospection Commerciale
+                    {brand.name} © {new Date().getFullYear()} · {brand.tagline || "Console de Prospection Commerciale"}
                 </footer>
             </section>
         </main>

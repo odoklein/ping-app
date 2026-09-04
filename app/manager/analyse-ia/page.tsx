@@ -295,7 +295,7 @@ function ExecutiveSummarySection({ analysis }: { analysis: WeeklyAnalysis }) {
             {/* KPI Row */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                    { label: "Total actions", value: snap.actionCount ?? "Non renseigné", icon: Activity, color: "text-[#1F4D47]" },
+                    { label: "Total actions", value: snap.actionCount ?? "Non renseigné", icon: Activity, color: "text-primary" },
                     { label: "RDV obtenus", value: snap.meetingCount ?? "Non renseigné", icon: Calendar, color: "text-emerald-600" },
                     { label: "Taux conversion", value: snap.conversionRate != null ? `${snap.conversionRate}%` : "Non renseigné", icon: TrendingUp, color: "text-amber-600" },
                     { label: "Appels", value: snap.callCount ?? "Non renseigné", icon: BarChart2, color: "text-[#2F6B62]" },
@@ -946,9 +946,9 @@ export default function AnalyseIAPage() {
                     <div className="flex items-start justify-between gap-4 flex-wrap">
                         <div>
                             <div className="flex items-center gap-2 mb-1">
-                                <Brain className="w-6 h-6 text-[#1F4D47]" />
+                                <Brain className="w-6 h-6 text-primary" />
                                 <h1 className="text-xl font-bold text-slate-900">Analyse IA Stratégique</h1>
-                                <span className="rounded-full border border-[#CBD8D4] bg-[#EEF3F1] px-2 py-0.5 text-xs font-semibold text-[#1F4D47]">
+                                <span className="rounded-full border border-primary/20 bg-primary-light px-2 py-0.5 text-xs font-semibold text-primary">
                                     Copilote Hebdomadaire
                                 </span>
                             </div>
@@ -962,7 +962,7 @@ export default function AnalyseIAPage() {
                                 className={cn(
                                     "flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-colors",
                                     showHistory
-                                        ? "bg-[#EEF3F1] border-[#AFC5BF] text-[#1F4D47]"
+                                        ? "bg-primary-light border-[#AFC5BF] text-primary"
                                         : "bg-white border-slate-200 text-slate-600 hover:border-slate-400"
                                 )}
                             >
@@ -986,7 +986,7 @@ export default function AnalyseIAPage() {
                                 <span className="text-sm font-medium text-slate-700 min-w-[200px] text-center">
                                     {formatWeekLabel(weekStart, weekEnd)}
                                     {weekOffset === 0 && (
-                                        <span className="ml-2 rounded bg-[#EEF3F1] px-1.5 py-0.5 text-xs text-[#1F4D47]">
+                                        <span className="ml-2 rounded bg-primary-light px-1.5 py-0.5 text-xs text-primary">
                                             Cette semaine
                                         </span>
                                     )}
@@ -1016,7 +1016,7 @@ export default function AnalyseIAPage() {
                                 "flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all shadow-sm",
                                 isRunning
                                     ? "bg-[#7C9B94] text-white cursor-not-allowed"
-                                    : "bg-[#1F4D47] hover:bg-[#143C37] text-white hover:shadow"
+                                    : "bg-primary hover:bg-primary-hover text-white hover:shadow"
                             )}
                         >
                             {isRunning ? (

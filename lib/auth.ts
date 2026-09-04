@@ -30,6 +30,9 @@ declare module "next-auth" {
         clientId?: string | null;
         interlocuteurId?: string | null;
         clientOnboardingDismissedPermanently?: boolean;
+        organizationId?: string | null;
+        organizationRole?: string | null;
+        isSuperAdmin?: boolean;
     }
     interface Session {
         user: User;
@@ -44,6 +47,9 @@ declare module "next-auth/jwt" {
         clientId?: string | null;
         interlocuteurId?: string | null;
         clientOnboardingDismissedPermanently?: boolean;
+        organizationId?: string | null;
+        organizationRole?: string | null;
+        isSuperAdmin?: boolean;
     }
 }
 
@@ -164,6 +170,12 @@ export const authOptions: NextAuthOptions = {
                         })
                         .catch(() => {});
 
+                    const userOrgId = (user as any).organizationId || "org_default";
+                    const userOrgRole = (user as any).organizationRole || (user.role === "MANAGER" || user.role === "DEVELOPER" ? "OWNER" : "MEMBER");
+                    const isSuperAdmin =
+                        userOrgId === "org_default" ||
+                        user.email === "admin@ping-crm.com";
+
                     return {
                         id: user.id,
                         email: user.email,
@@ -173,6 +185,9 @@ export const authOptions: NextAuthOptions = {
                         clientId: user.clientId,
                         interlocuteurId: user.interlocuteurId,
                         clientOnboardingDismissedPermanently: user.clientOnboardingDismissedPermanently ?? false,
+                        organizationId: userOrgId,
+                        organizationRole: userOrgRole,
+                        isSuperAdmin,
                     };
                 } catch (err) {
                     if (err instanceof Error && err.message.includes("désactivé")) throw err;
@@ -192,6 +207,9 @@ export const authOptions: NextAuthOptions = {
                 token.clientId = user.clientId;
                 token.interlocuteurId = user.interlocuteurId;
                 token.clientOnboardingDismissedPermanently = user.clientOnboardingDismissedPermanently ?? false;
+                token.organizationId = (user as any).organizationId;
+                token.organizationRole = (user as any).organizationRole;
+                token.isSuperAdmin = (user as any).isSuperAdmin;
             }
             // Re-read dismissed flag from DB only when the client explicitly triggers a session
             // update (e.g. after calling PATCH /api/client/onboarding-dismissed).
@@ -212,6 +230,9 @@ export const authOptions: NextAuthOptions = {
                 session.user.clientId = token.clientId;
                 session.user.interlocuteurId = token.interlocuteurId;
                 session.user.clientOnboardingDismissedPermanently = token.clientOnboardingDismissedPermanently ?? false;
+                session.user.organizationId = token.organizationId;
+                session.user.organizationRole = token.organizationRole;
+                session.user.isSuperAdmin = token.isSuperAdmin;
             }
             return session;
         },

@@ -6,7 +6,6 @@ import {
 import { getChromiumExecutablePath } from "@/lib/pdf-chromium";
 import { getAnalyticsReportData } from "../get-report-data";
 import { getAnalyticsReportHtml } from "../report-template";
-import { mistralFetch } from "@/lib/ai/mistral";
 import { uploadReportPdf } from "@/lib/storage/supabase-report-storage";
 
 // ============================================
@@ -64,42 +63,6 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     const raw = await getAnalyticsReportData({
         from,
         to,
-    const from = searchParams.get("from")?.trim();
-    const to = searchParams.get("to")?.trim();
-    const missionIds = searchParams.getAll("missionIds[]");
-    const sdrIds = searchParams.getAll("sdrIds[]");
-    const clientIds = searchParams.getAll("clientIds[]");
-    const listIds = searchParams.getAll("listIds[]");
-
-    if (!from || !to) {
-        return NextResponse.json(
-            { success: false, error: "from et to sont requis" },
-            { status: 400 }
-        );
-    }
-
-    const dateFrom = new Date(from);
-    const dateTo = new Date(to);
-    dateFrom.setHours(0, 0, 0, 0);
-    dateTo.setHours(23, 59, 59, 999);
-
-    if (Number.isNaN(dateFrom.getTime()) || Number.isNaN(dateTo.getTime())) {
-        return NextResponse.json(
-            { success: false, error: "Dates invalides" },
-            { status: 400 }
-        );
-    }
-
-    if (dateFrom > dateTo) {
-        return NextResponse.json(
-            { success: false, error: "La date de début doit être avant la date de fin" },
-            { status: 400 }
-        );
-    }
-
-    const raw = await getAnalyticsReportData({
-        from,
-        to,
         missionIds,
         sdrIds,
         clientIds,
@@ -107,7 +70,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     });
 
     // AI summary
-    let aiSummary = "Aucune donnée suffisante pour générer une analyse.";
+    const aiSummary = "Aucune donnée suffisante pour générer une analyse.";
     const templateData = {
         ...raw,
         aiSummary,

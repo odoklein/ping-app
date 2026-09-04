@@ -175,11 +175,11 @@ export default function SDRProjectsPage() {
             <PageHeader
                 title="Projets"
                 subtitle={`${projects.length} projets`}
-                icon={<FolderKanban className="w-6 h-6 text-[#1F4D47]" />}
+                icon={<FolderKanban className="w-6 h-6 text-primary" />}
                 actions={
                     <button
                         onClick={() => setShowCreate(true)}
-                        className="flex items-center gap-2 rounded-[10px] border border-[#143C37] bg-[#1F4D47] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#143C37]"
+                        className="flex items-center gap-2 rounded-[10px] border border-primary-hover bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
                     >
                         <Plus className="w-4 h-4" />
                         Nouveau projet
@@ -224,7 +224,7 @@ export default function SDRProjectsPage() {
                         onClick={() => setView("grid")}
                         className={cn(
                             "p-1.5 rounded transition-colors",
-                            view === "grid" ? "bg-white shadow-sm text-[#1F4D47]" : "text-slate-500 hover:text-slate-700"
+                            view === "grid" ? "bg-white shadow-sm text-primary" : "text-slate-500 hover:text-slate-700"
                         )}
                     >
                         <LayoutGrid className="w-4 h-4" />
@@ -233,7 +233,7 @@ export default function SDRProjectsPage() {
                         onClick={() => setView("list")}
                         className={cn(
                             "p-1.5 rounded transition-colors",
-                            view === "list" ? "bg-white shadow-sm text-[#1F4D47]" : "text-slate-500 hover:text-slate-700"
+                            view === "list" ? "bg-white shadow-sm text-primary" : "text-slate-500 hover:text-slate-700"
                         )}
                     >
                         <LayoutList className="w-4 h-4" />

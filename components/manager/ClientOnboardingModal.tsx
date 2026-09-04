@@ -537,7 +537,7 @@ export function ClientOnboardingModal({ isOpen, onClose, onSuccess, initialRecap
 
     const renderModeSelector = () => (
         <div className="flex flex-col items-center py-8 px-4 text-center">
-            <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#0B0F19] to-slate-800 border border-slate-700/80 flex items-center justify-center mb-6 shadow-xl shadow-black/20 text-[#2890F8]">
+            <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#0B0F19] to-slate-800 border border-slate-700/80 flex items-center justify-center mb-6 shadow-xl shadow-black/20 text-primary">
                 <Sparkles className="w-8 h-8" />
             </div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
@@ -578,23 +578,23 @@ export function ClientOnboardingModal({ isOpen, onClose, onSuccess, initialRecap
                 <button
                     type="button"
                     onClick={() => handleModeSelect("paste")}
-                    className="group relative p-6 rounded-3xl bg-gradient-to-br from-blue-50/90 via-white to-sky-50/60 border-2 border-blue-200/80 hover:border-[#2890F8] hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 text-left flex flex-col justify-between"
+                    className="group relative p-6 rounded-3xl bg-gradient-to-br from-blue-50/90 via-white to-sky-50/60 border-2 border-blue-200/80 hover:border-primary hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 text-left flex flex-col justify-between"
                 >
                     <div>
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#0B0F19] to-blue-900 flex items-center justify-center mb-4 text-[#2890F8] shadow-md shadow-black/10 group-hover:scale-105 transition-transform">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#0B0F19] to-blue-900 flex items-center justify-center mb-4 text-primary shadow-md shadow-black/10 group-hover:scale-105 transition-transform">
                             <ClipboardPaste className="w-6 h-6" />
                         </div>
                         <div className="flex items-center gap-1.5 mb-1.5">
                             <span className="text-[10px] font-black uppercase tracking-wider text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-full">Rapide</span>
                         </div>
-                        <h3 className="text-base font-bold text-slate-900 group-hover:text-[#2890F8] transition-colors">
+                        <h3 className="text-base font-bold text-slate-900 group-hover:text-primary transition-colors">
                             Coller un récapitulatif
                         </h3>
                         <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
                             Collez des notes de meeting, un email ou un compte-rendu textuel.
                         </p>
                     </div>
-                    <div className="mt-5 pt-3 border-t border-blue-100 flex items-center justify-between text-xs font-bold text-[#2890F8]">
+                    <div className="mt-5 pt-3 border-t border-blue-100 flex items-center justify-between text-xs font-bold text-primary">
                         <span>Coller le texte</span>
                         <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
@@ -1026,7 +1026,7 @@ export function ClientOnboardingModal({ isOpen, onClose, onSuccess, initialRecap
                                 <div className="flex items-center gap-3">
                                     <div className={cn(
                                         "w-10 h-10 rounded-2xl flex items-center justify-center font-bold",
-                                        formData.createMission ? "bg-[#0B0F19] text-[#2890F8]" : "bg-slate-200 text-slate-500"
+                                        formData.createMission ? "bg-[#0B0F19] text-primary" : "bg-slate-200 text-slate-500"
                                     )}>
                                         <Zap className="w-5 h-5" />
                                     </div>
@@ -1040,7 +1040,7 @@ export function ClientOnboardingModal({ isOpen, onClose, onSuccess, initialRecap
                                     id="createMission"
                                     checked={formData.createMission}
                                     onChange={(e) => updateField("createMission", e.target.checked)}
-                                    className="w-5 h-5 accent-[#2890F8] rounded cursor-pointer"
+                                    className="w-5 h-5 accent-[var(--brand-primary)] rounded cursor-pointer"
                                 />
                             </div>
 
@@ -1227,7 +1227,7 @@ export function ClientOnboardingModal({ isOpen, onClose, onSuccess, initialRecap
                                             className={cn(
                                                 "flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all",
                                                 isActive
-                                                    ? "bg-[#2890F8] text-white shadow-md shadow-blue-500/30 scale-105"
+                                                    ? "bg-primary text-white shadow-md shadow-blue-500/30 scale-105"
                                                     : isDone
                                                         ? "bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 cursor-pointer"
                                                         : "bg-white/5 text-slate-500 cursor-not-allowed"

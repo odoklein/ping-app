@@ -40,7 +40,8 @@ const matrixPostSchema = z.object({
  * If sdrIds/missionIds omitted, uses active SDRs and missions for that month.
  */
 export const GET = withErrorHandler(async (request: NextRequest) => {
-  await requirePlanningAccess(request);
+  const planningSession = await requirePlanningAccess(request);
+  const organizationId: string = (planningSession.user as any).organizationId || "org_default";
   const { searchParams } = new URL(request.url);
   const parsed = matrixQuerySchema.safeParse({
     month: searchParams.get('month'),
@@ -64,6 +65,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   if (!missionIds?.length) {
     const missions = await prisma.mission.findMany({
       where: {
+        organizationId,
         isActive: true,
         startDate: { lte: monthEnd },
         endDate: { gte: monthStart },
@@ -76,6 +78,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   if (!sdrIds?.length) {
     const sdrs = await prisma.user.findMany({
       where: {
+        organizationId,
         isActive: true,
         role: { in: ['SDR', 'BUSINESS_DEVELOPER'] },
       },
@@ -110,7 +113,8 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
  * Returns matrix with optional preview overlay from proposedChanges.
  */
 export const POST = withErrorHandler(async (request: NextRequest) => {
-  await requirePlanningAccess(request);
+  const planningSessionPost = await requirePlanningAccess(request);
+  const orgIdPost: string = (planningSessionPost.user as any).organizationId || "org_default";
   const data = await validateRequest(request, matrixPostSchema);
 
   let { sdrIds, missionIds } = data;
@@ -122,6 +126,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
   if (!missionIds?.length) {
     const missions = await prisma.mission.findMany({
       where: {
+        organizationId: orgIdPost,
         isActive: true,
         startDate: { lte: monthEnd },
         endDate: { gte: monthStart },
@@ -134,6 +139,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
   if (!sdrIds?.length) {
     const sdrs = await prisma.user.findMany({
       where: {
+        organizationId: orgIdPost,
         isActive: true,
         role: { in: ['SDR', 'BUSINESS_DEVELOPER'] },
       },

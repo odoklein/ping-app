@@ -188,7 +188,7 @@ function Th({
             scope="col"
             className={cn(
                 "px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400 select-none cursor-pointer hover:text-slate-700 transition-colors",
-                active && "text-[#2890F8]",
+                active && "text-primary",
                 className
             )}
             onClick={() => onSort(sortKey)}
@@ -263,7 +263,7 @@ function ColToggle({
                                 )}
                             >
                                 <span>{c.label}</span>
-                                {active && <Check className="w-3.5 h-3.5 text-[#2890F8]" />}
+                                {active && <Check className="w-3.5 h-3.5 text-primary" />}
                             </button>
                         );
                     })}
@@ -830,7 +830,7 @@ export default function ManagerProspectionPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/70">
                     <div className="space-y-1">
                         <div className="flex items-center gap-2.5">
-                            <div className="w-9 h-9 rounded-xl bg-[#0B0F19] text-[#2890F8] flex items-center justify-center shadow-md shadow-black/20 border border-slate-800">
+                            <div className="w-9 h-9 rounded-xl bg-[#0B0F19] text-primary flex items-center justify-center shadow-md shadow-black/20 border border-slate-800">
                                 <Activity className="w-5 h-5" />
                             </div>
                             <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
@@ -873,9 +873,9 @@ export default function ManagerProspectionPage() {
                                 type="button"
                                 onClick={() => setBulkCallSyncOpen(true)}
                                 aria-label="Synchroniser les appels Allo pour toutes les missions"
-                                className="flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl hover:border-[#2890F8] hover:shadow-xs transition-all shadow-2xs shrink-0"
+                                className="flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl hover:border-primary hover:shadow-xs transition-all shadow-2xs shrink-0"
                             >
-                                <Mic className="w-3.5 h-3.5 text-[#2890F8]" aria-hidden />
+                                <Mic className="w-3.5 h-3.5 text-primary" aria-hidden />
                                 Sync Allo
                             </button>
                         )}
@@ -892,7 +892,7 @@ export default function ManagerProspectionPage() {
                             value={pickerMissionSearch}
                             onChange={e => setPickerMissionSearch(e.target.value)}
                             placeholder="Rechercher par nom de mission ou client…"
-                            className="w-full h-10 pl-10 pr-9 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 focus:border-[#2890F8] placeholder:text-slate-400 transition-all"
+                            className="w-full h-10 pl-10 pr-9 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder:text-slate-400 transition-all"
                         />
                         {pickerMissionSearch && (
                             <button
@@ -910,7 +910,7 @@ export default function ManagerProspectionPage() {
                             id="picker-client"
                             value={pickerClientId}
                             onChange={e => setPickerClientId(e.target.value)}
-                            className="h-10 px-3 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 cursor-pointer"
+                            className="h-10 px-3 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
                         >
                             <option value="">Tous les clients</option>
                             {clientPickerOptions.map(([id, name]) => (
@@ -922,7 +922,7 @@ export default function ManagerProspectionPage() {
                             id="picker-sdr"
                             value={pickerSdrId}
                             onChange={e => setPickerSdrId(e.target.value)}
-                            className="h-10 px-3 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 cursor-pointer"
+                            className="h-10 px-3 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
                         >
                             <option value="">Tous les SDR</option>
                             {sdrOptions.map(s => (
@@ -976,7 +976,7 @@ export default function ManagerProspectionPage() {
                                 setPickerClientId("");
                                 setPickerSdrId("");
                             }}
-                            className="px-4 py-2 rounded-xl bg-[#2890F8] text-white text-xs font-bold hover:bg-[#1a75ce] transition-colors"
+                            className="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover transition-colors"
                         >
                             Réinitialiser les filtres
                         </button>
@@ -1014,7 +1014,7 @@ export default function ManagerProspectionPage() {
                                         </div>
 
                                         <div>
-                                            <h3 className="text-base font-bold text-slate-900 group-hover:text-[#2890F8] transition-colors truncate">
+                                            <h3 className="text-base font-bold text-slate-900 group-hover:text-primary transition-colors truncate">
                                                 {mission.name}
                                             </h3>
                                             <p className="text-xs text-slate-400 mt-1 flex items-center gap-1.5 truncate">
@@ -1026,7 +1026,7 @@ export default function ManagerProspectionPage() {
 
                                     <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-400">
                                         <span>Centre de contrôle</span>
-                                        <span className="text-[#2890F8] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                                        <span className="text-primary flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
                                             Accéder <ChevronRight className="w-3.5 h-3.5" />
                                         </span>
                                     </div>
@@ -1103,7 +1103,7 @@ export default function ManagerProspectionPage() {
                         <button
                             type="button"
                             onClick={() => { setNewCount(0); setPage(1); }}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#2890F8] text-white text-xs font-bold shadow-md hover:bg-[#1a75ce] transition-colors animate-bounce ml-2"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-white text-xs font-bold shadow-md hover:bg-primary-hover transition-colors animate-bounce ml-2"
                         >
                             <Zap className="w-3 h-3" aria-hidden />
                             +{newCount} nouvelles
@@ -1173,10 +1173,10 @@ export default function ManagerProspectionPage() {
                 <div className="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-[#0A1224] via-[#08101E] to-[#050B16] border border-slate-800/80 shadow-lg shadow-black/20 flex flex-col justify-between group">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-blue-500/15 transition-all" />
                     <div className="flex items-center justify-between z-10">
-                        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-[#2890F8]">
+                        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-primary">
                             <BarChart3 className="w-5 h-5" />
                         </div>
-                        <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[#2890F8] text-[10px] font-bold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-primary text-[10px] font-bold">
                             Télémétrie
                         </span>
                     </div>
@@ -1188,7 +1188,7 @@ export default function ManagerProspectionPage() {
                     </div>
                     <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/60 z-10">
                         <span>Flux d&apos;activité SDR</span>
-                        <Sparkline data={hourlySparkData} color="#2890F8" />
+                        <Sparkline data={hourlySparkData} color="var(--brand-primary)" />
                     </div>
                 </div>
 
@@ -1294,7 +1294,7 @@ export default function ManagerProspectionPage() {
                             placeholder="Rechercher un contact, une société, une note… ( / )"
                             value={search}
                             onChange={e => { setSearch(e.target.value); setPage(1); }}
-                            className="w-full h-10 pl-10 pr-8 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 focus:border-[#2890F8] transition-all placeholder:text-slate-400"
+                            className="w-full h-10 pl-10 pr-8 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-400"
                         />
                         {search && (
                             <button
@@ -1311,7 +1311,7 @@ export default function ManagerProspectionPage() {
                     <select
                         value={sdrFilter}
                         onChange={e => { setSdrFilter(e.target.value); setPage(1); }}
-                        className="h-10 px-3 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 min-w-[150px] cursor-pointer"
+                        className="h-10 px-3 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 min-w-[150px] cursor-pointer"
                     >
                         <option value="">Tous les utilisateurs</option>
                         {sdrOptions.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -1323,7 +1323,7 @@ export default function ManagerProspectionPage() {
                             setActionChannelFilter((e.target.value || "") as "" | ChannelTabValue);
                             setPage(1);
                         }}
-                        className="h-10 px-3 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2890F8]/20 min-w-[130px] cursor-pointer"
+                        className="h-10 px-3 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 min-w-[130px] cursor-pointer"
                     >
                         <option value="">Tous canaux</option>
                         <option value="CALL">Appels</option>
@@ -1337,14 +1337,14 @@ export default function ManagerProspectionPage() {
                             type="date"
                             value={dateFrom}
                             onChange={e => { setDateFrom(e.target.value); setPage(1); }}
-                            className="h-10 px-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-[#2890F8] cursor-pointer"
+                            className="h-10 px-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-primary cursor-pointer"
                         />
                         <span className="text-xs text-slate-400 font-medium">→</span>
                         <input
                             type="date"
                             value={dateTo}
                             onChange={e => { setDateTo(e.target.value); setPage(1); }}
-                            className="h-10 px-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-[#2890F8] cursor-pointer"
+                            className="h-10 px-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-primary cursor-pointer"
                         />
                     </div>
 
@@ -1405,7 +1405,7 @@ export default function ManagerProspectionPage() {
             {/* ── Bulk action bar ── */}
             {selectedIds.size > 0 && (
                 <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-[#0B0F19] text-white shadow-xl shadow-black/20 border border-slate-800 animate-in slide-in-from-bottom-2 duration-200">
-                    <span className="text-xs font-bold text-[#2890F8]">{selectedIds.size} action{selectedIds.size > 1 ? "s" : ""} sélectionnée{selectedIds.size > 1 ? "s" : ""}</span>
+                    <span className="text-xs font-bold text-primary">{selectedIds.size} action{selectedIds.size > 1 ? "s" : ""} sélectionnée{selectedIds.size > 1 ? "s" : ""}</span>
                     <div className="flex-1" />
                     <button
                         type="button"
@@ -1451,7 +1451,7 @@ export default function ManagerProspectionPage() {
                                 setDateFrom("");
                                 setDateTo("");
                             }}
-                            className="px-4 py-2 rounded-xl bg-[#2890F8] text-white text-xs font-bold hover:bg-[#1a75ce] transition-colors"
+                            className="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover transition-colors"
                         >
                             Réinitialiser les filtres
                         </button>
@@ -1466,7 +1466,7 @@ export default function ManagerProspectionPage() {
                                             type="checkbox"
                                             checked={allPageSelected}
                                             onChange={togglePageSelect}
-                                            className="w-4 h-4 rounded border-slate-300 accent-[#2890F8] cursor-pointer"
+                                            className="w-4 h-4 rounded border-slate-300 accent-[var(--brand-primary)] cursor-pointer"
                                         />
                                     </th>
                                     {visibleCols.has("date") && (
@@ -1523,7 +1523,7 @@ export default function ManagerProspectionPage() {
                                                     type="checkbox"
                                                     checked={isSelected}
                                                     onChange={() => toggleRow(row.id)}
-                                                    className="w-4 h-4 rounded border-slate-300 accent-[#2890F8] cursor-pointer"
+                                                    className="w-4 h-4 rounded border-slate-300 accent-[var(--brand-primary)] cursor-pointer"
                                                 />
                                             </td>
 
@@ -1625,7 +1625,7 @@ export default function ManagerProspectionPage() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setDrawerAction(row)}
-                                                    className="p-1 rounded-lg hover:bg-slate-200/60 transition-colors text-slate-400 hover:text-[#2890F8]"
+                                                    className="p-1 rounded-lg hover:bg-slate-200/60 transition-colors text-slate-400 hover:text-primary"
                                                 >
                                                     <ChevronRight className="w-4 h-4" />
                                                 </button>

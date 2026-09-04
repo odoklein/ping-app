@@ -43,8 +43,11 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
         apiKeyId = validation.key!.id;
     } else {
         // Fall back to session auth
-        await requireRole(['MANAGER'], request);
+        const authSession = await requireRole(['MANAGER'], request);
+        session = { user: { id: authSession.user.id, role: authSession.user.role, organizationId: (authSession.user as any).organizationId } };
     }
+
+    const organizationId: string = (session as any)?.user?.organizationId || "org_default";
 
     const { searchParams } = new URL(request.url);
     const period = searchParams.get('period') || 'month';
@@ -78,7 +81,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
 
     const [missions, actionsInPeriod] = await Promise.all([
         prisma.mission.findMany({
-            where: { isActive: true },
+            where: { organizationId, isActive: true },
             take: limit,
             orderBy: { updatedAt: 'desc' },
             select: {
@@ -91,6 +94,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
         }),
         prisma.action.findMany({
             where: {
+                organizationId,
                 createdAt: {
                     gte: dateFrom,
                     ...(endDateParam ? { lte: new Date(new Date(endDateParam).setHours(23, 59, 59, 999)) } : {}),
