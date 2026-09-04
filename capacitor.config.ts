@@ -5,12 +5,12 @@ const config: CapacitorConfig = {
   appName: "Ping CRM",
   webDir: "public",
   server: {
-    // Live webview URL: points to production or local staging via CAPACITOR_SERVER_URL
-    url: process.env.CAPACITOR_SERVER_URL || "https://app.ping-crm.com",
+    // Live production URL
+    url: process.env.CAPACITOR_SERVER_URL || "https://crm.pinglead-agency.fr",
     cleartext: false,
     allowNavigation: [
-      "app.ping-crm.com",
-      "*.ping-crm.com",
+      "crm.pinglead-agency.fr",
+      "*.pinglead-agency.fr",
       "accounts.google.com",
       "login.microsoftonline.com",
       "*.sslip.io",
